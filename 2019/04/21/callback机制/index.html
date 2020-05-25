@@ -209,15 +209,16 @@
 <p>听起来是不是挺简单的，但是本文介绍的重点不在于如何定义一个函数指针，也不在于如何通过函数指针调用一个函数，而是介绍回调函数机制，重点在机制的分析，也就是通过回调函数的技术实现某些特定的功能。</p>
 <hr>
 <p>emmmm, 好吧，还是先介绍一下如何定义一个函数指针：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void (*function_callback)(AVFrame *pframe);</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">void</span> (*function_callback)(AVFrame *pframe);</code></pre>
 
 <p>这种定义方法当然没错，但是将这么长的一个式子放进另一个函数中作为参数，代码就有点不好看</p>
 <ul>
 <li>我们可以这么做：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">typedef void (*function_callback)(AVFrame *pframe);</span><br><span class="line">function_callback updatecallback；</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span> <span class="hljs-params">(*function_callback)</span><span class="hljs-params">(AVFrame *pframe)</span></span>;
+function_callback updatecallback；</code></pre>
 <p>注意，下面这两行代码里面的<code>function_callback</code>就<strong>不是一个具体的函数指针</strong>了，这是通过typedef定义的一个<strong>函数指针类型</strong>，通过这个函数指针类型定义了一个函数指针<code>updatecallback</code>。<br>也许你会问，typedef的形式不是应该像下面这样吗？</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">typedef char* pchar;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">char</span>* pchar;</code></pre>
 <p>原因是，在定义函数声明时，会将函数指针放到前面，使其看起来像一个完整的函数形式，如果把函数指针拿到后面，不就和这种形式一样了麽？</p>
 <p>对于回调函数，还有一种说法:</p>
 <blockquote>
@@ -235,27 +236,63 @@
 </blockquote>
 </li>
 <li><p><strong>一个接口多个实现</strong><br>看例子：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">void PrintMsg1()&#123;</span><br><span class="line">   printf(&quot;This is the message 1!\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">void PrintMsg2()&#123;</span><br><span class="line">   printf(&quot;This is the message 2!\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">void PrintMsg3()&#123;</span><br><span class="line">   printf(&quot;This is the message 3!\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">void ShowMessage(void (* p)())&#123;</span><br><span class="line">	p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main()&#123;</span><br><span class="line">   ShowMessage(PrintMsg1);</span><br><span class="line">   ShowMessage(PrintMsg2);</span><br><span class="line">   ShowMessage(PrintMsg3);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</li>
 </ul>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">PrintMsg1</span><span class="hljs-params">()</span></span>&#123;
+   <span class="hljs-built_in">printf</span>(<span class="hljs-string">"This is the message 1!\n"</span>);
+&#125;
+ 
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">PrintMsg2</span><span class="hljs-params">()</span></span>&#123;
+   <span class="hljs-built_in">printf</span>(<span class="hljs-string">"This is the message 2!\n"</span>);
+&#125;
+ 
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">PrintMsg3</span><span class="hljs-params">()</span></span>&#123;
+   <span class="hljs-built_in">printf</span>(<span class="hljs-string">"This is the message 3!\n"</span>);
+&#125;
+ 
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">ShowMessage</span><span class="hljs-params">(<span class="hljs-keyword">void</span> (* p)())</span></span>&#123;
+	p;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>&#123;
+   ShowMessage(PrintMsg1);
+   ShowMessage(PrintMsg2);
+   ShowMessage(PrintMsg3);
+&#125;</code></pre>
+
 <p><strong>callback的优点：灵活，跨平台</strong></p>
-
-
-
+<p><img src="/img/callback%E6%9C%BA%E5%88%B6/callback.png" srcset="/img/loading.gif" alt=""></p>
 <h2 id="实现线程同步的代码示例"><a href="#实现线程同步的代码示例" class="headerlink" title="实现线程同步的代码示例"></a>实现线程同步的代码示例</h2><ul>
 <li><strong>ffmpeg解码线程：</strong></li>
 <li>声明：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">typedef void (*function_callback)(AVFrame *pframe);</span><br><span class="line"></span><br><span class="line">function_callback updatecallback;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span> <span class="hljs-params">(*function_callback)</span><span class="hljs-params">(AVFrame *pframe)</span></span>;
+
+function_callback updatecallback;</code></pre>
 
 <ul>
 <li>定义setupcallback：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">void setupcallback(function_callback callback)</span><br><span class="line">&#123;</span><br><span class="line">	updatecallback &#x3D; callback;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">setupcallback</span><span class="hljs-params">(function_callback callback)</span></span>
+<span class="hljs-function"></span>&#123;
+	updatecallback = callback;
+&#125;</code></pre>
 
 <ul>
 <li>callback使用：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void start_decode()</span><br><span class="line">&#123;</span><br><span class="line">	...</span><br><span class="line">	while(1)</span><br><span class="line">	&#123;</span><br><span class="line">		...</span><br><span class="line">		avcodec_decode_video2(pOutCodecCtx,&amp;pframe,&amp;dec_got_frame,&amp;pkt);&#x2F;&#x2F; 解码</span><br><span class="line">		updatecallback(&amp;pframe);&#x2F;&#x2F; 刷新GUI</span><br><span class="line">		...</span><br><span class="line">	&#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">start_decode</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	...
+	<span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)
+	&#123;
+		...
+		avcodec_decode_video2(pOutCodecCtx,&amp;pframe,&amp;dec_got_frame,&amp;pkt);<span class="hljs-comment">// 解码</span>
+		updatecallback(&amp;pframe);<span class="hljs-comment">// 刷新GUI</span>
+		...
+	&#125;
+	...
+&#125;</code></pre>
 
 <ul>
 <li><p><strong>qt gui线程</strong></p>
@@ -263,16 +300,19 @@
 <li><p>实现callback:</p>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">static void onUpdateDecodedVideoData(AVFrame *pframe)</span><br><span class="line">&#123;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">onUpdateDecodedVideoData</span><span class="hljs-params">(AVFrame *pframe)</span></span>
+<span class="hljs-function"></span>&#123;
+...
+&#125;</code></pre>
 
 <ul>
 <li>调用setupcallback把上面的函数替换掉ffmpeg线程里的函数</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">setupcallback(onUpdateDecodedVideoData);</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">setupcallback(onUpdateDecodedVideoData);</code></pre>
 
 <p><strong>这里需要注意以下几点：</strong><br>C++类成员函数的callback函数一般是静态的，原因在于C++的普通成员函数的参数会有一个默认的this，会导致callback函数的参数不匹配，编译器报错。<br>静态的成员函数无法调用非静态的成员变量，解决这个问题有个简单的方法就是在类内部定义一个静态的对象指针，把this指针赋值给这个静态的对象指针，在静态成员函数中使用这个静态对象代替this调用类内部的成员变量。</p>
 <hr>
-<p><font color=gray size=1>技术是在不断的讨论中进步的，如所述有不妥之处，希望能联系 <a href="mailto:1059859967@qq.com">1059859967@qq.com</a> 进行指正，万分感谢！ </font></p>
+<p><font color=gray size=1>技术是在不断的讨论中进步的，如所述有不妥之处，希望能联系 <a href="mailto:devtty@qq.com">devtty@qq.com</a> 进行指正，万分感谢！ </font></p>
 
             </article>
             <hr>
@@ -282,7 +322,7 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/C-C/">C/C++</a>
+                      <a class="hover-with-bg" href="/categories/C/">C</a>
                     
                   </div>
                 
@@ -290,7 +330,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/C-C/">C/C++</a>
+                      <a class="hover-with-bg" href="/tags/C/">C</a>
                     
                   </div>
                 
