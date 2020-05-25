@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    1.2k 字
+                    1.1k 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    15
+                    14
                      分钟
                   </span>
                 
@@ -206,54 +206,143 @@
 <ul>
 <li>队列的存储结构如下，一个数组，一个指向队头的数组index，front，一个指向对尾的index,rear，最后一个是队列中的数据个数。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">#define MAX_SIZE 10</span><br><span class="line">typedef struct SqQueue</span><br><span class="line">&#123;</span><br><span class="line">	int data[MAX_SIZE];	&#x2F;&#x2F; 存储数据的数组</span><br><span class="line">	int front;			&#x2F;&#x2F; 头指针</span><br><span class="line">	int rear;			&#x2F;&#x2F; 尾指针</span><br><span class="line">	int flag;			&#x2F;&#x2F; 队列中数据的个数</span><br><span class="line">&#125;SqQueue;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MAX_SIZE 10</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">SqQueue</span></span>
+<span class="hljs-class">&#123;</span>
+	<span class="hljs-keyword">int</span> data[MAX_SIZE];	<span class="hljs-comment">// 存储数据的数组</span>
+	<span class="hljs-keyword">int</span> front;			<span class="hljs-comment">// 头指针</span>
+	<span class="hljs-keyword">int</span> rear;			<span class="hljs-comment">// 尾指针</span>
+	<span class="hljs-keyword">int</span> flag;			<span class="hljs-comment">// 队列中数据的个数</span>
+&#125;SqQueue;</code></pre>
 
 <ul>
 <li>初始化一个环形缓冲区,这个环形缓冲区的位置分配在堆中</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">void init_queue(SqQueue **S)</span><br><span class="line">&#123;</span><br><span class="line">	*S &#x3D; malloc(sizeof(struct SqQueue));		&#x2F;&#x2F; 动态内存分配</span><br><span class="line">	(*S)-&gt;front &#x3D; 0;	</span><br><span class="line">	(*S)-&gt;rear  &#x3D; 0;</span><br><span class="line">	(*S)-&gt;flag  &#x3D; 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">init_queue</span><span class="hljs-params">(SqQueue **S)</span></span>
+<span class="hljs-function"></span>&#123;
+	*S = <span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(struct SqQueue));		<span class="hljs-comment">// 动态内存分配</span>
+	(*S)-&gt;front = <span class="hljs-number">0</span>;	
+	(*S)-&gt;rear  = <span class="hljs-number">0</span>;
+	(*S)-&gt;flag  = <span class="hljs-number">0</span>;
+&#125;</code></pre>
 
 <ul>
 <li>对尾添加数据,如果队列中的数据超过了最大值，说明缓冲区已满，否则在rear位置插入一个数据，并将rear+1,在rear到达数组尾部时，让rear置为0，即指向数组首地址</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">void addQueue(SqQueue *S,int data)   &#x2F;&#x2F; 队尾添加数据</span><br><span class="line">&#123;	</span><br><span class="line">	if(S-&gt;flag &gt;&#x3D; MAX_SIZE)</span><br><span class="line">		return;</span><br><span class="line">	S-&gt;data[S-&gt;rear] &#x3D; data;</span><br><span class="line">	S-&gt;rear ++;</span><br><span class="line">	if(S-&gt;rear &#x3D;&#x3D; MAX_SIZE) S-&gt;rear &#x3D; 0;</span><br><span class="line">	S-&gt;flag++;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">addQueue</span><span class="hljs-params">(SqQueue *S,<span class="hljs-keyword">int</span> data)</span>   <span class="hljs-comment">// 队尾添加数据</span></span>
+<span class="hljs-function"></span>&#123;	
+	<span class="hljs-keyword">if</span>(S-&gt;flag &gt;= MAX_SIZE)
+		<span class="hljs-keyword">return</span>;
+	S-&gt;data[S-&gt;rear] = data;
+	S-&gt;rear ++;
+	<span class="hljs-keyword">if</span>(S-&gt;rear == MAX_SIZE) S-&gt;rear = <span class="hljs-number">0</span>;
+	S-&gt;flag++;
+&#125;</code></pre>
 
 <ul>
 <li>队头删除数据,也就是让队头index+1，并且让flag减一即可</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">void delQueue(SqQueue *S)    &#x2F;&#x2F; 队头删除数据</span><br><span class="line">&#123;</span><br><span class="line">	if(S-&gt;flag &lt;&#x3D; 0) </span><br><span class="line">		return;</span><br><span class="line">	S-&gt;front ++;</span><br><span class="line">	if(S-&gt;front &#x3D;&#x3D; MAX_SIZE) S-&gt;front &#x3D; 0;</span><br><span class="line">	S-&gt;flag--;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">delQueue</span><span class="hljs-params">(SqQueue *S)</span>    <span class="hljs-comment">// 队头删除数据</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">if</span>(S-&gt;flag &lt;= <span class="hljs-number">0</span>) 
+		<span class="hljs-keyword">return</span>;
+	S-&gt;front ++;
+	<span class="hljs-keyword">if</span>(S-&gt;front == MAX_SIZE) S-&gt;front = <span class="hljs-number">0</span>;
+	S-&gt;flag--;
+&#125;</code></pre>
 
 <ul>
 <li>返回队列中的元素个数,也就是返回flag的数值</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int queueLength(SqQueue *S)</span><br><span class="line">&#123;</span><br><span class="line">	return S-&gt;flag;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">queueLength</span><span class="hljs-params">(SqQueue *S)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> S-&gt;flag;
+&#125;</code></pre>
 
 <ul>
 <li>遍历环形缓冲区，打印出所有的数值,从队头打印到对尾，如果超过数组范围，仍然是回到数组首位</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void printall(SqQueue *S) </span><br><span class="line">&#123;</span><br><span class="line">	int i;</span><br><span class="line">	int count &#x3D; S-&gt;front;</span><br><span class="line">	if(S-&gt;flag &#x3D;&#x3D; 0) return;</span><br><span class="line">	for(i&#x3D;0;i&lt;S-&gt;flag;i++)</span><br><span class="line">		&#123;</span><br><span class="line">			printf(&quot;%d\n&quot;,S-&gt;data[count]);</span><br><span class="line">			count++;</span><br><span class="line">			if(count &gt;&#x3D; MAX_SIZE)count &#x3D; 0;</span><br><span class="line">		&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">printall</span><span class="hljs-params">(SqQueue *S)</span> </span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> i;
+	<span class="hljs-keyword">int</span> count = S-&gt;front;
+	<span class="hljs-keyword">if</span>(S-&gt;flag == <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span>;
+	<span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>;i&lt;S-&gt;flag;i++)
+		&#123;
+			<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d\n"</span>,S-&gt;data[count]);
+			count++;
+			<span class="hljs-keyword">if</span>(count &gt;= MAX_SIZE)count = <span class="hljs-number">0</span>;
+		&#125;
+&#125;</code></pre>
 
 
 <h2 id="二-链式队列"><a href="#二-链式队列" class="headerlink" title="二 链式队列"></a>二 链式队列</h2><p><strong>链式队列是一种带有限制的链表，优点在于没有长度的限制</strong></p>
 <ul>
 <li>链式队列的存储结构,封装了一个单链表，并且加入了队头指针，对尾指针和队列的长度。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">typedef struct QNode</span><br><span class="line">&#123;</span><br><span class="line">	int data;</span><br><span class="line">	struct QNode *next;</span><br><span class="line">&#125;QNode,*QNodePtr;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">typedef struct LinkQueue</span><br><span class="line">&#123;</span><br><span class="line">	QNodePtr front;			&#x2F;&#x2F; 表头，删除数据</span><br><span class="line">	QNodePtr rear;			&#x2F;&#x2F; 表尾，添加数据</span><br><span class="line">	int count;				&#x2F;&#x2F; 队列长度	</span><br><span class="line">&#125;LinkQueue;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">QNode</span></span>
+<span class="hljs-class">&#123;</span>
+	<span class="hljs-keyword">int</span> data;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">QNode</span> *<span class="hljs-title">next</span>;</span>
+&#125;QNode,*QNodePtr;
+
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">LinkQueue</span></span>
+<span class="hljs-class">&#123;</span>
+	QNodePtr front;			<span class="hljs-comment">// 表头，删除数据</span>
+	QNodePtr rear;			<span class="hljs-comment">// 表尾，添加数据</span>
+	<span class="hljs-keyword">int</span> count;				<span class="hljs-comment">// 队列长度	</span>
+&#125;LinkQueue;</code></pre>
 
 <ul>
 <li>在队尾插入数据，也就是在链表的尾部增加节点，先把旧队尾rear的next指向新增的节点，再把rear更新为这个新增的节点。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void add_LinkQueue(LinkQueue *Q,int data) &#x2F;&#x2F; 队尾增加节点</span><br><span class="line">&#123;</span><br><span class="line">	QNodePtr s &#x3D; malloc(sizeof(struct QNode));</span><br><span class="line">	s-&gt;data &#x3D; data;</span><br><span class="line">	s-&gt;next &#x3D; NULL;</span><br><span class="line"></span><br><span class="line">	Q-&gt;count++;</span><br><span class="line">	Q-&gt;rear-&gt;next &#x3D; s; 	    &#x2F;&#x2F; 先前节点的next指向s </span><br><span class="line"></span><br><span class="line">	Q-&gt;rear &#x3D; s;			&#x2F;&#x2F; 现在的节点更新为s</span><br><span class="line">	Q-&gt;rear-&gt;next &#x3D; NULL;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add_LinkQueue</span><span class="hljs-params">(LinkQueue *Q,<span class="hljs-keyword">int</span> data)</span> <span class="hljs-comment">// 队尾增加节点</span></span>
+<span class="hljs-function"></span>&#123;
+	QNodePtr s = <span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(struct QNode));
+	s-&gt;data = data;
+	s-&gt;next = <span class="hljs-literal">NULL</span>;
+
+	Q-&gt;count++;
+	Q-&gt;rear-&gt;next = s; 	    <span class="hljs-comment">// 先前节点的next指向s </span>
+
+	Q-&gt;rear = s;			<span class="hljs-comment">// 现在的节点更新为s</span>
+	Q-&gt;rear-&gt;next = <span class="hljs-literal">NULL</span>;
+&#125;</code></pre>
 
 <ul>
 <li>在队头删除数据,注意这里删除的是首节点的下一个节点，并且把首节点的next指向下下个节点</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">void del_LinkQueue(LinkQueue *Q)	&#x2F;&#x2F;删除队头的下一个节点（队头不删）</span><br><span class="line">&#123;</span><br><span class="line">	QNodePtr p;</span><br><span class="line">	if(Q-&gt;count &#x3D;&#x3D; 0) return;</span><br><span class="line">	</span><br><span class="line">	p &#x3D; Q-&gt;front-&gt;next;</span><br><span class="line">	Q-&gt;front-&gt;next &#x3D; p-&gt;next;</span><br><span class="line">	</span><br><span class="line">	if(Q-&gt;rear &#x3D;&#x3D; p) Q-&gt;rear &#x3D; Q-&gt;front; &#x2F;&#x2F; 如果删除的恰好是尾结点</span><br><span class="line">	Q-&gt;count --;</span><br><span class="line">	free(p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">del_LinkQueue</span><span class="hljs-params">(LinkQueue *Q)</span>	<span class="hljs-comment">//删除队头的下一个节点（队头不删）</span></span>
+<span class="hljs-function"></span>&#123;
+	QNodePtr p;
+	<span class="hljs-keyword">if</span>(Q-&gt;count == <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span>;
+	
+	p = Q-&gt;front-&gt;next;
+	Q-&gt;front-&gt;next = p-&gt;next;
+	
+	<span class="hljs-keyword">if</span>(Q-&gt;rear == p) Q-&gt;rear = Q-&gt;front; <span class="hljs-comment">// 如果删除的恰好是尾结点</span>
+	Q-&gt;count --;
+	<span class="hljs-built_in">free</span>(p);
+&#125;</code></pre>
 
 <ul>
 <li>遍历整个队列,从头结点的下一个节点一直输出至队尾节点。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void printall(LinkQueue *Q)</span><br><span class="line">&#123;</span><br><span class="line">	int i;</span><br><span class="line">	QNodePtr p &#x3D; Q-&gt;front; </span><br><span class="line">	</span><br><span class="line">	printf(&quot;count &#x3D; %d\r\n&quot;,Q-&gt;count);</span><br><span class="line">	</span><br><span class="line">	if(Q-&gt;count &#x3D;&#x3D; 0) return;</span><br><span class="line">	</span><br><span class="line">	for(i&#x3D;0;i&lt; Q-&gt;count;i++)&#123;</span><br><span class="line">		printf(&quot;%d\r\n&quot;,p-&gt;next-&gt;data);</span><br><span class="line">		p &#x3D; p-&gt;next;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">printall</span><span class="hljs-params">(LinkQueue *Q)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> i;
+	QNodePtr p = Q-&gt;front; 
+	
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"count = %d\r\n"</span>,Q-&gt;count);
+	
+	<span class="hljs-keyword">if</span>(Q-&gt;count == <span class="hljs-number">0</span>) <span class="hljs-keyword">return</span>;
+	
+	<span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>;i&lt; Q-&gt;count;i++)&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d\r\n"</span>,p-&gt;next-&gt;data);
+		p = p-&gt;next;
+	&#125;
+&#125;</code></pre>
 
 <blockquote>
 <p>队列还有其他别的操作，如插入，删除某个特定的节点等，但是这都是建立在对队列这个数据结构非常了解的基础上的，只要真正了解了这个数据结构，就很容易实现。</p>

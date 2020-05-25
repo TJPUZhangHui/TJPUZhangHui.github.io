@@ -208,7 +208,7 @@
 <p><strong>之前：以主设备号为下标，在chardev里面找到之前注册的file_operations</strong><br><strong>现在：以主设备号和次设备号来找到file_operation结构体</strong></p>
 </blockquote>
 <h2 id="现在的框架"><a href="#现在的框架" class="headerlink" title="现在的框架"></a>现在的框架</h2><p>register_chardev拆分为以下几个部分：</p>
-<pre><code class="hljs">__register_chrdev_region
+<pre><code class="hljs c">__register_chrdev_region
 cdev_alloc
 cdev_init
 cdev_add</code></pre>
@@ -216,14 +216,14 @@ cdev_add</code></pre>
 <ul>
 <li>构造file_operation结构体</li>
 </ul>
-<pre><code class="hljs ini"><span class="hljs-attr">.owner</span> = THIS_MODULE
-<span class="hljs-attr">.open</span>  = hello</code></pre>
+<pre><code class="hljs c">.owner = THIS_MODULE
+.<span class="hljs-built_in">open</span>  = hello</code></pre>
 
 <ul>
 <li>注册字符设备驱动</li>
 </ul>
-<pre><code class="hljs objectivec"><span class="hljs-keyword">if</span> major
-<span class="hljs-built_in">MKDEV</span>
+<pre><code class="hljs c"><span class="hljs-keyword">if</span> major
+MKDEV
 register_chrdev_region
 <span class="hljs-keyword">else</span> 
 alloc_chrdev_region  <span class="hljs-comment">//自动分配主设备号</span></code></pre>
@@ -231,28 +231,28 @@ alloc_chrdev_region  <span class="hljs-comment">//自动分配主设备号</span
 <ul>
 <li>定义一个cdev结构体，并初始化</li>
 </ul>
-<pre><code class="hljs ebnf"><span class="hljs-attribute">cdev_init</span>
-<span class="hljs-attribute">cdev_add</span></code></pre>
+<pre><code class="hljs c">cdev_init
+cdev_add</code></pre>
 
 <ul>
 <li>创建类，自动创建设备节点</li>
 </ul>
-<pre><code class="hljs ceylon">struct <span class="hljs-keyword">class</span> cls;
-cls = <span class="hljs-keyword">class</span><span class="hljs-number">_</span>create
-<span class="hljs-keyword">class</span><span class="hljs-number">_</span>device<span class="hljs-number">_</span>create</code></pre>
+<pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">class</span> <span class="hljs-title">cls</span>;</span>
+cls = class_create
+class_device_create</code></pre>
 
 <ul>
 <li>出口函数</li>
 </ul>
-<pre><code class="hljs ceylon"><span class="hljs-keyword">class</span><span class="hljs-number">_</span>device<span class="hljs-number">_</span>destroy
-<span class="hljs-keyword">class</span><span class="hljs-number">_</span>destroy
-cdev<span class="hljs-number">_</span>del
-unregister<span class="hljs-number">_</span>chrdev<span class="hljs-number">_</span>region</code></pre>
+<pre><code class="hljs c">class_device_destroy
+class_destroy
+cdev_del
+unregister_chrdev_region</code></pre>
 
 <ul>
 <li>测试程序</li>
 </ul>
-<pre><code class="hljs arduino"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
 <span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
@@ -283,106 +283,106 @@ unregister<span class="hljs-number">_</span>chrdev<span class="hljs-number">_</s
 	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 &#125;</code></pre>
 
-<h4 id="驱动部分代码"><a href="#驱动部分代码" class="headerlink" title="驱动部分代码"></a>驱动部分代码</h4><pre><code class="hljs reasonml">#<span class="hljs-keyword">include</span> &lt;linux/<span class="hljs-keyword">module</span>.h&gt;
-#<span class="hljs-keyword">include</span> &lt;linux/kernel.h&gt;
-#<span class="hljs-keyword">include</span> &lt;linux/fs.h&gt;
-#<span class="hljs-keyword">include</span> &lt;linux/init.h&gt;
-#<span class="hljs-keyword">include</span> &lt;linux/delay.h&gt;
-#<span class="hljs-keyword">include</span> &lt;linux/irq.h&gt;
-#<span class="hljs-keyword">include</span> &lt;asm/uaccess.h&gt;
-#<span class="hljs-keyword">include</span> &lt;asm/irq.h&gt;
-#<span class="hljs-keyword">include</span> &lt;asm/io.h&gt;
-#<span class="hljs-keyword">include</span> &lt;asm/arch/regs-gpio.h&gt;
-#<span class="hljs-keyword">include</span> &lt;asm/hardware.h&gt;
-#<span class="hljs-keyword">include</span> &lt;linux/poll.h&gt;
-#<span class="hljs-keyword">include</span> &lt;linux/cdev.h&gt;
+<h4 id="驱动部分代码"><a href="#驱动部分代码" class="headerlink" title="驱动部分代码"></a>驱动部分代码</h4><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/module.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/kernel.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/fs.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/init.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/delay.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/irq.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;asm/uaccess.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;asm/irq.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;asm/io.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;asm/arch/regs-gpio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;asm/hardware.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/poll.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;linux/cdev.h&gt;</span></span>
 
 <span class="hljs-comment">/* 1  确定主设备号 */</span>
-static <span class="hljs-built_in">int</span> major = <span class="hljs-number">0</span>;
-static <span class="hljs-keyword">struct</span> cdev cdev_hello; 
-static <span class="hljs-keyword">struct</span> cdev cdev2_hello;
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> major = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cdev</span> <span class="hljs-title">cdev_hello</span>;</span> 
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">cdev</span> <span class="hljs-title">cdev2_hello</span>;</span>
 
-#define MAX_HELLO <span class="hljs-number">2</span>
-static dev_t devid;
-static <span class="hljs-keyword">struct</span> <span class="hljs-keyword">class</span> *cls;
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> MAX_HELLO 2</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">dev_t</span> devid;
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">class</span> *<span class="hljs-title">cls</span>;</span>
 
-<span class="hljs-built_in">int</span>  hello<span class="hljs-constructor">_open(<span class="hljs-params">struct</span> <span class="hljs-params">inode</span> <span class="hljs-operator">*</span><span class="hljs-params">node</span>,<span class="hljs-params">struct</span> <span class="hljs-params">file</span> <span class="hljs-operator">*</span><span class="hljs-params">file</span>)</span>
-&#123;	
-	static count = <span class="hljs-number">0</span>;
+<span class="hljs-function"><span class="hljs-keyword">int</span>  <span class="hljs-title">hello_open</span><span class="hljs-params">(struct inode *node,struct file *file)</span></span>
+<span class="hljs-function"></span>&#123;	
+	<span class="hljs-keyword">static</span> count = <span class="hljs-number">0</span>;
 	printk(<span class="hljs-string">"hello1 is open %d \n"</span>,++count);
-	return <span class="hljs-number">0</span>;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 &#125;
 
-<span class="hljs-built_in">int</span>  hello2<span class="hljs-constructor">_open(<span class="hljs-params">struct</span> <span class="hljs-params">inode</span> <span class="hljs-operator">*</span><span class="hljs-params">node</span>,<span class="hljs-params">struct</span> <span class="hljs-params">file</span> <span class="hljs-operator">*</span><span class="hljs-params">file</span>)</span>
-&#123;	
-	static count = <span class="hljs-number">0</span>;  
+<span class="hljs-function"><span class="hljs-keyword">int</span>  <span class="hljs-title">hello2_open</span><span class="hljs-params">(struct inode *node,struct file *file)</span></span>
+<span class="hljs-function"></span>&#123;	
+	<span class="hljs-keyword">static</span> count = <span class="hljs-number">0</span>;  
 	printk(<span class="hljs-string">"hello2 is open %d \n"</span>,++count);
-	return <span class="hljs-number">0</span>;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 &#125;
 
 
 <span class="hljs-comment">/* 2  构造file_operation结构体*/</span>
-static <span class="hljs-keyword">struct</span> file_operations file_ops=
-&#123;
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">file_ops</span>=</span>
+<span class="hljs-class">&#123;</span>
 	.owner = THIS_MODULE,
-	.<span class="hljs-keyword">open</span>  = hello_open,
+	.<span class="hljs-built_in">open</span>  = hello_open,
 &#125;; 
 
-static <span class="hljs-keyword">struct</span> file_operations file_ops2=
-&#123;
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file_operations</span> <span class="hljs-title">file_ops2</span>=</span>
+<span class="hljs-class">&#123;</span>
 	.owner = THIS_MODULE,
-	.<span class="hljs-keyword">open</span>  = hello2_open,
+	.<span class="hljs-built_in">open</span>  = hello2_open,
 &#125;;
 
 
-static <span class="hljs-built_in">int</span> hello<span class="hljs-constructor">_init(<span class="hljs-params">void</span>)</span>
-&#123;	
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">hello_init</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;	
 	<span class="hljs-comment">/*3 代替register_chrdev的方式 */</span>
 	<span class="hljs-comment">/* 创建次设备号为0 1的节点 */</span>
 	<span class="hljs-keyword">if</span> (major) &#123; 
-		devid = <span class="hljs-constructor">MKDEV(<span class="hljs-params">major</span>, 0)</span>;
-		register<span class="hljs-constructor">_chrdev_region(<span class="hljs-params">devid</span>, MAX_HELLO, <span class="hljs-string">"hello"</span>)</span>;<span class="hljs-comment">/* major(0~1)对应file_ops，其他的都不对应file_ops */</span>
+		devid = MKDEV(major, <span class="hljs-number">0</span>);
+		register_chrdev_region(devid, MAX_HELLO, <span class="hljs-string">"hello"</span>);<span class="hljs-comment">/* major(0~1)对应file_ops，其他的都不对应file_ops */</span>
 	&#125; 
 	<span class="hljs-keyword">else</span> &#123;
-		alloc<span class="hljs-constructor">_chrdev_region(&amp;<span class="hljs-params">devid</span>, 0, MAX_HELLO, <span class="hljs-string">"hello"</span>)</span>;<span class="hljs-comment">/* major(0~1)对应file_ops，其他的都不对应file_ops */</span>
-		major = <span class="hljs-constructor">MAJOR(<span class="hljs-params">devid</span>)</span>;
+		alloc_chrdev_region(&amp;devid, <span class="hljs-number">0</span>, MAX_HELLO, <span class="hljs-string">"hello"</span>);<span class="hljs-comment">/* major(0~1)对应file_ops，其他的都不对应file_ops */</span>
+		major = MAJOR(devid);
 	&#125;
-	cdev<span class="hljs-constructor">_init(&amp;<span class="hljs-params">cdev_hello</span>,&amp;<span class="hljs-params">file_ops</span>)</span>;
-	cdev<span class="hljs-constructor">_add(&amp;<span class="hljs-params">cdev_hello</span>,<span class="hljs-params">devid</span>,MAX_HELLO)</span>;
+	cdev_init(&amp;cdev_hello,&amp;file_ops);
+	cdev_add(&amp;cdev_hello,devid,MAX_HELLO);
 	
 	<span class="hljs-comment">/* 创建次设备号为2的节点 */</span>
-	devid = <span class="hljs-constructor">MKDEV(<span class="hljs-params">major</span>, 2)</span>; <span class="hljs-comment">// 从2开始</span>
-	register<span class="hljs-constructor">_chrdev_region(<span class="hljs-params">devid</span>, 1, <span class="hljs-string">"hello"</span>)</span>; <span class="hljs-comment">// 需要1个节点</span>
-	cdev<span class="hljs-constructor">_init(&amp;<span class="hljs-params">cdev2_hello</span>,&amp;<span class="hljs-params">file_ops2</span>)</span>;
-	cdev<span class="hljs-constructor">_add(&amp;<span class="hljs-params">cdev2_hello</span>,<span class="hljs-params">devid</span>,1)</span>; 
+	devid = MKDEV(major, <span class="hljs-number">2</span>); <span class="hljs-comment">// 从2开始</span>
+	register_chrdev_region(devid, <span class="hljs-number">1</span>, <span class="hljs-string">"hello"</span>); <span class="hljs-comment">// 需要1个节点</span>
+	cdev_init(&amp;cdev2_hello,&amp;file_ops2);
+	cdev_add(&amp;cdev2_hello,devid,<span class="hljs-number">1</span>); 
 	
 	<span class="hljs-comment">/*4 自动创建设备节点 */</span>
-	cls = <span class="hljs-keyword">class</span><span class="hljs-constructor">_create(THIS_MODULE,<span class="hljs-string">"hello"</span>)</span>;
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,0)</span>,NULL,<span class="hljs-string">"hello0"</span>);<span class="hljs-comment">/*dev/hello0*/</span>
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,1)</span>,NULL,<span class="hljs-string">"hello1"</span>);<span class="hljs-comment">/*dev/hello1*/</span>
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,2)</span>,NULL,<span class="hljs-string">"hello2"</span>);<span class="hljs-comment">/*dev/hello2*/</span>
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,3)</span>,NULL,<span class="hljs-string">"hello3"</span>);<span class="hljs-comment">/*dev/hello2*/</span>
-	return <span class="hljs-number">0</span>;
+	cls = class_create(THIS_MODULE,<span class="hljs-string">"hello"</span>);
+	class_device_create(cls,<span class="hljs-literal">NULL</span>,MKDEV(major,<span class="hljs-number">0</span>),<span class="hljs-literal">NULL</span>,<span class="hljs-string">"hello0"</span>);<span class="hljs-comment">/*dev/hello0*/</span>
+	class_device_create(cls,<span class="hljs-literal">NULL</span>,MKDEV(major,<span class="hljs-number">1</span>),<span class="hljs-literal">NULL</span>,<span class="hljs-string">"hello1"</span>);<span class="hljs-comment">/*dev/hello1*/</span>
+	class_device_create(cls,<span class="hljs-literal">NULL</span>,MKDEV(major,<span class="hljs-number">2</span>),<span class="hljs-literal">NULL</span>,<span class="hljs-string">"hello2"</span>);<span class="hljs-comment">/*dev/hello2*/</span>
+	class_device_create(cls,<span class="hljs-literal">NULL</span>,MKDEV(major,<span class="hljs-number">3</span>),<span class="hljs-literal">NULL</span>,<span class="hljs-string">"hello3"</span>);<span class="hljs-comment">/*dev/hello2*/</span>
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
 &#125;
 
-static void hello<span class="hljs-constructor">_exit(<span class="hljs-params">void</span>)</span>
-&#123;
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,0)</span>);
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,1)</span>);
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,2)</span>);
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,3)</span>);
-	<span class="hljs-keyword">class</span><span class="hljs-constructor">_destroy(<span class="hljs-params">cls</span>)</span>;
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">hello_exit</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+	class_device_destroy(cls,MKDEV(major,<span class="hljs-number">0</span>));
+	class_device_destroy(cls,MKDEV(major,<span class="hljs-number">1</span>));
+	class_device_destroy(cls,MKDEV(major,<span class="hljs-number">2</span>));
+	class_device_destroy(cls,MKDEV(major,<span class="hljs-number">3</span>));
+	class_destroy(cls);
 	
-	cdev<span class="hljs-constructor">_del(&amp;<span class="hljs-params">cdev_hello</span>)</span>;
-	unregister<span class="hljs-constructor">_chrdev_region(MKDEV(<span class="hljs-params">major</span>,0)</span>,MAX_HELLO);
+	cdev_del(&amp;cdev_hello);
+	unregister_chrdev_region(MKDEV(major,<span class="hljs-number">0</span>),MAX_HELLO);
 
-	cdev<span class="hljs-constructor">_del(&amp;<span class="hljs-params">cdev2_hello</span>)</span>;
-	unregister<span class="hljs-constructor">_chrdev_region(MKDEV(<span class="hljs-params">major</span>,2)</span>,<span class="hljs-number">1</span>);
+	cdev_del(&amp;cdev2_hello);
+	unregister_chrdev_region(MKDEV(major,<span class="hljs-number">2</span>),<span class="hljs-number">1</span>);
 &#125;
 
-<span class="hljs-keyword">module</span><span class="hljs-constructor">_init(<span class="hljs-params">hello_init</span>)</span>;
-<span class="hljs-keyword">module</span><span class="hljs-constructor">_exit(<span class="hljs-params">hello_exit</span>)</span>;
-<span class="hljs-constructor">MODULE_LICENSE(<span class="hljs-string">"GPL"</span>)</span>;</code></pre>
+module_init(hello_init);
+module_exit(hello_exit);
+MODULE_LICENSE(<span class="hljs-string">"GPL"</span>);</code></pre>
 
 
 <blockquote>

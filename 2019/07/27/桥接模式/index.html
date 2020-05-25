@@ -210,30 +210,115 @@
 <li>Implementor：是具体实现的抽象类</li>
 <li>ConcreteImplementor：实现Implementor接口，可以有多个</li>
 </ul>
-
-
+<p><img src="/img/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/1.svg" srcset="/img/loading.gif" alt=""></p>
 <h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>实现了一个多平台的播放器，平台相关的设置代码放在不同平台的子类中，不同视频格式的编码算法放在不同的编码子类中，在这里，把不同的平台看成桥接模式的抽象部分，不同的编码方式看成是桥接模式的具体实现方法。</p>
 <p><strong>播放器抽象类</strong><br>播放器抽象类是Abstraction，是一个抽象接口，里面含有Implementor类型的指针对象videoformat，也就是不同的编码方式。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class VideoPlayer</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	VideoPlayer(VideoFormat* videoformat);</span><br><span class="line">	virtual ~VideoPlayer() &#123;&#125;;</span><br><span class="line">	virtual void play() &#x3D; 0;</span><br><span class="line"></span><br><span class="line">	VideoFormat* videoformat;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VideoPlayer</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	VideoPlayer(VideoFormat* videoformat);
+	<span class="hljs-keyword">virtual</span> ~VideoPlayer() &#123;&#125;;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">play</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;
+
+	VideoFormat* videoformat;
+&#125;;</code></pre>
 
 <p><strong>不同的平台</strong><br>不同的平台是播放器抽象类的子类，具体包括windows平台和unix平台，属于RefinedAbstraction，重写播放器类的play函数，并且在构造函数中初始化编码方式。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">class WindowsPlatform : public VideoPlayer</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	WindowsPlatform(VideoFormat *videoformat);</span><br><span class="line">	~WindowsPlatform();</span><br><span class="line"></span><br><span class="line">	virtual void play();</span><br><span class="line">&#125;;</span><br><span class="line">WindowsPlatform::WindowsPlatform(VideoFormat *videoformat) : VideoPlayer(videoformat)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">WindowsPlatform::~WindowsPlatform()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void WindowsPlatform::play()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;in windows platform\n&quot;);</span><br><span class="line">	this-&gt;videoformat-&gt;Encode();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">class UnixPlatform : public VideoPlayer</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	UnixPlatform(VideoFormat *videoformat);</span><br><span class="line">	~UnixPlatform();</span><br><span class="line"></span><br><span class="line">	virtual void play();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">UnixPlatform::UnixPlatform(VideoFormat *videoformat) : VideoPlayer(videoformat)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">UnixPlatform::~UnixPlatform()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void UnixPlatform::play()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;in unix platform\n&quot;);</span><br><span class="line">	this-&gt;videoformat-&gt;Encode();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">WindowsPlatform</span> :</span> <span class="hljs-keyword">public</span> VideoPlayer
+&#123;
+<span class="hljs-keyword">public</span>:
+	WindowsPlatform(VideoFormat *videoformat);
+	~WindowsPlatform();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">play</span><span class="hljs-params">()</span></span>;
+&#125;;
+WindowsPlatform::WindowsPlatform(VideoFormat *videoformat) : VideoPlayer(videoformat)
+&#123;
+&#125;
+
+WindowsPlatform::~WindowsPlatform()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">WindowsPlatform::play</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"in windows platform\n"</span>);
+	<span class="hljs-keyword">this</span>-&gt;videoformat-&gt;Encode();
+&#125;
+
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">UnixPlatform</span> :</span> <span class="hljs-keyword">public</span> VideoPlayer
+&#123;
+<span class="hljs-keyword">public</span>:
+	UnixPlatform(VideoFormat *videoformat);
+	~UnixPlatform();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">play</span><span class="hljs-params">()</span></span>;
+&#125;;
+
+UnixPlatform::UnixPlatform(VideoFormat *videoformat) : VideoPlayer(videoformat)
+&#123;
+&#125;
+
+UnixPlatform::~UnixPlatform()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">UnixPlatform::play</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"in unix platform\n"</span>);
+	<span class="hljs-keyword">this</span>-&gt;videoformat-&gt;Encode();
+&#125;</code></pre>
 
 <p><strong>编码方式抽象类</strong><br>编码方式抽象类是从播放器中抽出来生成的一个抽象类，也就是桥接模式的Implementor</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class VideoFormat</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	VideoFormat();</span><br><span class="line">	virtual ~VideoFormat();</span><br><span class="line">	virtual void Encode() &#x3D; 0;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">VideoFormat</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	VideoFormat();
+	<span class="hljs-keyword">virtual</span> ~VideoFormat();
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Encode</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;
+&#125;;</code></pre>
 
 <p><strong>不同的编码方式类</strong><br>不同的编码方式是对编码方式抽象类的扩展和具体实现，包括mpeg方式和avi方式</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">class Mpeg : public VideoFormat</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	Mpeg();</span><br><span class="line">	~Mpeg();</span><br><span class="line"></span><br><span class="line">	virtual void Encode();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">void Mpeg::Encode()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;start encode mpeg image... \n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Avi : public VideoFormat</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	Avi();</span><br><span class="line">	~Avi();</span><br><span class="line"></span><br><span class="line">	virtual void Encode();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">void Avi::Encode()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;start encode avi image... \n&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Mpeg</span> :</span> <span class="hljs-keyword">public</span> VideoFormat
+&#123;
+<span class="hljs-keyword">public</span>:
+	Mpeg();
+	~Mpeg();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Encode</span><span class="hljs-params">()</span></span>;
+&#125;;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">Mpeg::Encode</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"start encode mpeg image... \n"</span>);
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Avi</span> :</span> <span class="hljs-keyword">public</span> VideoFormat
+&#123;
+<span class="hljs-keyword">public</span>:
+	Avi();
+	~Avi();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Encode</span><span class="hljs-params">()</span></span>;
+&#125;;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">Avi::Encode</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"start encode avi image... \n"</span>);
+&#125;</code></pre>
 
 <p><strong>main测试函数</strong><br>main函数中先构造一个mpeg的编码方式，然后动态的加载到播放器中实现</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	VideoFormat *videoplatform &#x3D; new Mpeg;</span><br><span class="line">	VideoPlayer *videoplayer &#x3D; new WindowsPlatform(videoplatform);</span><br><span class="line">	videoplayer-&gt;play();</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	VideoFormat *videoplatform = <span class="hljs-keyword">new</span> Mpeg;
+	VideoPlayer *videoplayer = <span class="hljs-keyword">new</span> WindowsPlatform(videoplatform);
+	videoplayer-&gt;play();
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
 
-<p>运行结果：</p>
-
-
-
-<h3 id="类图"><a href="#类图" class="headerlink" title="类图"></a>类图</h3>
-
+<p>运行结果：<br><img src="/img/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/2.png" srcset="/img/loading.gif" alt=""></p>
+<h3 id="类图"><a href="#类图" class="headerlink" title="类图"></a>类图</h3><p><img src="/img/%E6%A1%A5%E6%8E%A5%E6%A8%A1%E5%BC%8F/3.png" srcset="/img/loading.gif" alt=""></p>
 <h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><ul>
 <li>一个系统存在两个或多个独立变化的维度，且都需要扩展，对于多个维度的系统，在抽象类中增加其他维度的指针对象即可</li>
 <li>不希望因为继承导致类的个数急剧增加的系统</li>

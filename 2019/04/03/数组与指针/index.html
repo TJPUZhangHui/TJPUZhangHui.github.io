@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    905 字
+                    895 字
                   </span>
                 
 
@@ -202,71 +202,99 @@
 <ul>
 <li>一维数组 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int array</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">int</span> <span class="hljs-built_in">array</span></code></pre>
 
 <ul>
 <li>二维数组 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int array_2 [][10]</span><br><span class="line">注：低维度的数据元素个数必须显式定义，高维度可以省略</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">int</span> array_2 [][<span class="hljs-number">10</span>]
+注：低维度的数据元素个数必须显式定义，高维度可以省略</code></pre>
 
 <ul>
 <li>指针数组（数组元素为指针的数组） </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">char *p[]</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">char</span> *p[]</code></pre>
 
 <blockquote>
 <h4 id="指针"><a href="#指针" class="headerlink" title="指针"></a>指针</h4></blockquote>
 <ul>
 <li>一级指针：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*p</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">*p</code></pre>
 
 <ul>
 <li>二级指针：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">**p</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">**p</code></pre>
 
 <ul>
 <li>数组指针（指向数组的指针）：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int (*p)[10] </span><br><span class="line">这里是指向二维数组的指针形式，10 必须显式说明</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">int</span> (*p)[<span class="hljs-number">10</span>] 
+<span class="hljs-comment">// 这里是指向二维数组的指针形式，10 必须显式说明</span></code></pre>
 
 
 <h2 id="常见的问题与解答"><a href="#常见的问题与解答" class="headerlink" title="常见的问题与解答"></a>常见的问题与解答</h2><blockquote>
 <p>问题1 ：数组名和指针的区别？</p>
 </blockquote>
 <p>答：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">数组名是数组的首地址，是一个常量，而不是变量</span><br><span class="line">指针是一种变量类型</span><br><span class="line">变量可以赋值给常量，常量不可以赋值给变量</span><br><span class="line">《c和指针》的说法为，表达式的左值必须是可修改的，也就是说数组名不可以是表达式的左值</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">数组名是数组的首地址，是一个常量，而不是变量
+指针是一种变量类型
+变量可以赋值给常量，常量不可以赋值给变量
+《c和指针》的说法为，表达式的左值必须是可修改的，也就是说数组名不可以是表达式的左值</code></pre>
 
 <blockquote>
 <p>问题2：如何把指针指向二维数组呢？</p>
 </blockquote>
 <p>答：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">有两种形式：</span><br><span class="line">    1 使用数组指针，C语言中指向二维数组的指针的形式为：</span><br><span class="line">      int (*p)[10]（为什么这么写？解释在下面）</span><br><span class="line">    2 由于二维数组的元素在内存中是按照先行后列的顺序顺序存储的，因此：</span><br><span class="line">      可以把数组的首地址“显式”的赋值给一个一级指针，形式如下：</span><br><span class="line">      int *p &#x3D; &amp;array[0][0]</span><br><span class="line">      但是注意：int *p &#x3D; array，这种形式在编译器中会报错</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">有两种形式：
+    <span class="hljs-number">1</span> 使用数组指针，C语言中指向二维数组的指针的形式为：
+      <span class="hljs-keyword">int</span> (*p)[<span class="hljs-number">10</span>]（为什么这么写？解释在下面）
+    <span class="hljs-number">2</span> 由于二维数组的元素在内存中是按照先行后列的顺序顺序存储的，因此：
+      可以把数组的首地址“显式”的赋值给一个一级指针，形式如下：
+      <span class="hljs-keyword">int</span> *p = &amp;<span class="hljs-built_in">array</span>[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]
+      但是注意：<span class="hljs-keyword">int</span> *p = <span class="hljs-built_in">array</span>，这种形式在编译器中会报错</code></pre>
 
 <blockquote>
 <p>问题3：二级指针可以指向二维数组吗？</p>
 </blockquote>
 <p>答：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">是不可以的!编译器同样会报错。</span><br><span class="line">从这里可以看出，二维数组寻找数组的元素也许并不是对一位数组的首地址进行解引用</span><br><span class="line">操作，很可能是简单的进行行列的计算得出数据的位置（数据是顺序存储的），也就是</span><br><span class="line">为什么二维数组的列数必须是固定的。</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">是不可以的!编译器同样会报错。
+从这里可以看出，二维数组寻找数组的元素也许并不是对一位数组的首地址进行解引用
+操作，很可能是简单的进行行列的计算得出数据的位置（数据是顺序存储的），也就是
+为什么二维数组的列数必须是固定的。</code></pre>
 
 <blockquote>
 <p>问题4：什么类型的指针可以指向指针数组？</p>
 </blockquote>
 <p>答：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">顾名思义，指针数组里面的元素都是指针，也就是说对数组地址进行解引用操作之后并不能</span><br><span class="line">得到数据，而是一个指针，必须对这个指针再进行一次解引用操作，才能得到一个具体的数</span><br><span class="line">据。</span><br><span class="line">上面的定义是不是和二级指针的定义很类似呢?</span><br><span class="line">是的，C语言中可以用二级指针指向指针数组。</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">顾名思义，指针数组里面的元素都是指针，也就是说对数组地址进行解引用操作之后并不能
+得到数据，而是一个指针，必须对这个指针再进行一次解引用操作，才能得到一个具体的数
+据。
+上面的定义是不是和二级指针的定义很类似呢?
+是的，C语言中可以用二级指针指向指针数组。</code></pre>
 
 <blockquote>
 <p>问题5：对指针数组和数组指针形式的解释？</p>
 </blockquote>
 <p>答：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">指针数组：char *p[] :</span><br><span class="line">[]的优先级大于*,因此p先和[]结合，解释为一个数组，char * 表面了数组里面元素的类型，</span><br><span class="line">为指向char型的指针</span><br><span class="line"></span><br><span class="line">数组指针：常见的是指向二维数组或者更高维数组的指针</span><br><span class="line">指向二维数组的指针：char (*p)[10]:</span><br><span class="line">()的优先级大于[],因此* 和p先结合，解释为一个指针，char修饰的是数组，包含了若干个</span><br><span class="line">元素的数组。</span><br><span class="line">也可以按照常规的数据定义方式：char(*)[10] p，char(*)[10]是数据类型，p是变量名，</span><br><span class="line">只是为了好看把P前移了而已。</span><br><span class="line">（注：实测后面这种形式在VS2017上编译并没有通过 --email:1059859967@qq.com）</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">指针数组：<span class="hljs-keyword">char</span> *p[] :
+[]的优先级大于*,因此p先和[]结合，解释为一个数组，<span class="hljs-keyword">char</span> * 表面了数组里面元素的类型，
+为指向<span class="hljs-keyword">char</span>型的指针
+
+数组指针：常见的是指向二维数组或者更高维数组的指针
+指向二维数组的指针：<span class="hljs-keyword">char</span> (*p)[<span class="hljs-number">10</span>]:
+()的优先级大于[],因此* 和p先结合，解释为一个指针，<span class="hljs-keyword">char</span>修饰的是数组，包含了若干个
+元素的数组。
+也可以按照常规的数据定义方式：<span class="hljs-keyword">char</span>(*)[<span class="hljs-number">10</span>] p，<span class="hljs-keyword">char</span>(*)[<span class="hljs-number">10</span>]是数据类型，p是变量名，
+只是为了好看把P前移了而已。
+（注：实测后面这种形式在VS2017上编译并没有通过 --email:<span class="hljs-number">1059859967</span>@qq.com）</code></pre>
 
 <blockquote>
 <p>问题6: <code>char **argv</code> 与<code>char *argv[]</code>的区别</p>
 </blockquote>
 <p>答：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">相信你看完之后已经完全不用搜索帖子或者百度来解答这个问题了~~~</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">相信你看完之后已经完全不用搜索帖子或者百度来解答这个问题了~~~</code></pre>
 
 <hr>
 <blockquote>
@@ -281,7 +309,7 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/C-C/">C/C++</a>
+                      <a class="hover-with-bg" href="/categories/C/">C</a>
                     
                   </div>
                 
@@ -289,7 +317,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/C-C/">C/C++</a>
+                      <a class="hover-with-bg" href="/tags/C/">C</a>
                     
                   </div>
                 

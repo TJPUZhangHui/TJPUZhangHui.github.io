@@ -200,8 +200,7 @@
               <blockquote>
 <p>信号实际上是一种软中断，如ARM的SWI指令可以产生软中断。</p>
 </blockquote>
-
-
+<p><img src="/img/%E4%BF%A1%E5%8F%B7/1.svg" srcset="/img/loading.gif" alt=""></p>
 <p><strong>信号的料基本上就这么多，再提炼总结一下就是以下几点：</strong></p>
 <ul>
 <li><strong>signal函数和sigaction函数的对比</strong>，结论：后者传递信号的同时可以传递数据</li>
@@ -210,8 +209,7 @@
 <li><strong>pending状态字</strong>，即信号未决状态字，只要该信号被阻塞，pending状态字的对应bit位就会被置为1，可以通过检查该状态字，查看哪些信号被阻塞，通过对其的介绍可以知道，该状态字是由内核进行维护，应用程序是不可写可读的</li>
 </ul>
 <p><strong>kill -l 可以查看所有的信号，signal的默认动作和含义在man 7 signal</strong></p>
-
-
+<p><img src="/img/%E4%BF%A1%E5%8F%B7/2.png" srcset="/img/loading.gif" alt=""></p>
 <p>画框的信号应该要知道：</p>
 <table>
 <thead>

@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    1.2k 字
+                    1.1k 字
                   </span>
                 
 
@@ -217,8 +217,7 @@
 </ul>
 <h2 id="守护进程"><a href="#守护进程" class="headerlink" title="守护进程"></a>守护进程</h2><p>daemon进程，即守护进程是指linux后台服务程序，通常独立于控制终端并且周期性的执行某种任务，名字一般以d结尾<br>linux的系统服务进程，没有控制终端，不能直接和用户交互等都是守护进程，如nfs服务器，ftp服务器</p>
 <p><strong>创建守护进程模型</strong></p>
-
-
+<p><img src="/img/%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B/1.png" srcset="/img/loading.gif" alt=""></p>
 <p>创建守护进程的过程实际上是创建一个新的会话，跳出控制终端建立的会话，达到脱离于终端运行的目的。创建守护进程模型有以下几个步骤：</p>
 <ul>
 <li>创建子进程，退出父进程</li>
@@ -229,14 +228,78 @@
 <li>开始守护进程的逻辑</li>
 </ul>
 <p><strong>示例代码</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line"> * 创建一个守护进程</span><br><span class="line"> * </span><br><span class="line"> *&#x2F;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;stat.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;signal.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;time.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	pid_t pid;</span><br><span class="line">	int i;</span><br><span class="line">	pid &#x3D; fork();</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 干掉父进程 *&#x2F;</span><br><span class="line">	if (pid &gt; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 创建会话期 *&#x2F;</span><br><span class="line">	pid &#x3D; setsid();</span><br><span class="line">	printf(&quot;pid &#x3D; %d \n&quot;, getpid());</span><br><span class="line">	if (pid &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;setsid error :&quot;);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 改变文件掩码 *&#x2F;</span><br><span class="line">	umask(0);</span><br><span class="line">		</span><br><span class="line">	&#x2F;* 切换目录到根目录 *&#x2F;</span><br><span class="line">	chdir(&quot;&#x2F;&quot;);</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 重定位标准输入、输出、错误到&#x2F;dev&#x2F;null *&#x2F;</span><br><span class="line">	for (i&#x3D;0; i&lt;3; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		close(i);</span><br><span class="line">	&#125;</span><br><span class="line">	open(&quot;&#x2F;dev&#x2F;null&quot;,O_RDWR);</span><br><span class="line">	dup(0);</span><br><span class="line">	dup(0);</span><br><span class="line">	</span><br><span class="line">	int fd;</span><br><span class="line">	time_t t;</span><br><span class="line">	char *t_buffer;</span><br><span class="line">	fd &#x3D; open(&quot;timelog&quot;, O_CREAT | O_RDWR, 0644);</span><br><span class="line">	if (fd &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;fd error:&quot;);</span><br><span class="line">		exit(-1);</span><br><span class="line">	&#125;</span><br><span class="line">	while (1)</span><br><span class="line">	&#123;</span><br><span class="line">		t &#x3D; time(0);</span><br><span class="line">		t_buffer &#x3D; asctime(localtime(&amp;t));</span><br><span class="line">		write(fd, t_buffer, strlen(t_buffer));</span><br><span class="line">		sleep(5);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment"> * 创建一个守护进程</span>
+<span class="hljs-comment"> * </span>
+<span class="hljs-comment"> */</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/stat.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;signal.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;time.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
 
-<p>这个程序首先创建了一个守护进程，在守护进程里每隔5秒打印当前系统的时间到timelog日志文件里。<br>由于切换工作目录为根目录，因此执行的时候需要加上sudo权限，运行结果：</p>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">pid_t</span> pid;
+	<span class="hljs-keyword">int</span> i;
+	pid = fork();
+	
+	<span class="hljs-comment">/* 干掉父进程 */</span>
+	<span class="hljs-keyword">if</span> (pid &gt; <span class="hljs-number">0</span>)
+	&#123;
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+	
+	<span class="hljs-comment">/* 创建会话期 */</span>
+	pid = setsid();
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"pid = %d \n"</span>, getpid());
+	<span class="hljs-keyword">if</span> (pid == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"setsid error :"</span>);
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+	
+	<span class="hljs-comment">/* 改变文件掩码 */</span>
+	umask(<span class="hljs-number">0</span>);
+		
+	<span class="hljs-comment">/* 切换目录到根目录 */</span>
+	chdir(<span class="hljs-string">"/"</span>);
+	
+	<span class="hljs-comment">/* 重定位标准输入、输出、错误到/dev/null */</span>
+	<span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">3</span>; i++)
+	&#123;
+		<span class="hljs-built_in">close</span>(i);
+	&#125;
+	<span class="hljs-built_in">open</span>(<span class="hljs-string">"/dev/null"</span>,O_RDWR);
+	dup(<span class="hljs-number">0</span>);
+	dup(<span class="hljs-number">0</span>);
+	
+	<span class="hljs-keyword">int</span> fd;
+	<span class="hljs-keyword">time_t</span> t;
+	<span class="hljs-keyword">char</span> *t_buffer;
+	fd = <span class="hljs-built_in">open</span>(<span class="hljs-string">"timelog"</span>, O_CREAT | O_RDWR, <span class="hljs-number">0644</span>);
+	<span class="hljs-keyword">if</span> (fd == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"fd error:"</span>);
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);
+	&#125;
+	<span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)
+	&#123;
+		t = time(<span class="hljs-number">0</span>);
+		t_buffer = asctime(localtime(&amp;t));
+		<span class="hljs-built_in">write</span>(fd, t_buffer, <span class="hljs-built_in">strlen</span>(t_buffer));
+		sleep(<span class="hljs-number">5</span>);
+	&#125;
+&#125;</code></pre>
 
-<p>可以看到，这个守护进程的所属用户已经变成了root用户，父进程为1号进程，tty为？,表示不属于任何终端</p>
+<p>这个程序首先创建了一个守护进程，在守护进程里每隔5秒打印当前系统的时间到timelog日志文件里。<br>由于切换工作目录为根目录，因此执行的时候需要加上sudo权限，运行结果：<br><img src="/img/%E5%AE%88%E6%8A%A4%E8%BF%9B%E7%A8%8B/2.png" srcset="/img/loading.gif" alt=""><br>可以看到，这个守护进程的所属用户已经变成了root用户，父进程为1号进程，tty为？,表示不属于任何终端</p>
 <p>使用<strong>sudo killall + 守护进程的名字</strong>可以杀掉守护进程</p>
 <h2 id="daemon函数"><a href="#daemon函数" class="headerlink" title="daemon函数"></a>daemon函数</h2><p>除了上述方法可以创建一个守护进程外，也可以使用daemon函数创建一个守护进程。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int daemon(int nochdir, int noclose);</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">daemon</span><span class="hljs-params">(<span class="hljs-keyword">int</span> nochdir, <span class="hljs-keyword">int</span> noclose)</span></span>;</code></pre>
 
 <p><strong>参数：</strong></p>
 <ul>

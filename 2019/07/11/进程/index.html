@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    908 字
+                    836 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    12
+                    11
                      分钟
                   </span>
                 
@@ -200,30 +200,139 @@
               <blockquote>
 <p>本文从整体上介绍linux进程的相关知识点，以及应该知道和了解的点，对于某些简单的点，会在框图下面给出解释，对于复杂的内容，会以单独的篇幅详细解释。</p>
 </blockquote>
-
+<p><img src="/img/%E8%BF%9B%E7%A8%8B/1.svg" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li>右键可以单独打开图片</li>
 </ul>
 <p>进程需要掌握的点如上图所示，左边是一些进程涉及到的知识点，右边是应知应会的一些API函数，这里边需要有几个点注意：</p>
-<h3 id="进程地址空间"><a href="#进程地址空间" class="headerlink" title="进程地址空间"></a>进程地址空间</h3>
-
+<h3 id="进程地址空间"><a href="#进程地址空间" class="headerlink" title="进程地址空间"></a>进程地址空间</h3><p><img src="/img/%E8%BF%9B%E7%A8%8B/3.png" srcset="/img/loading.gif" alt=""></p>
 <h3 id="wait返回后判断子进程退出状态"><a href="#wait返回后判断子进程退出状态" class="headerlink" title="wait返回后判断子进程退出状态"></a>wait返回后判断子进程退出状态</h3><p>这部分内容应该是man手册里面的，不应该出现在这里。。。<br><strong>示例程序</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;stat.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;signal.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;wait.h&gt;</span><br><span class="line"></span><br><span class="line">#define ERR_EXIT(m) \</span><br><span class="line">	do&#123;\</span><br><span class="line">		perror(m);\</span><br><span class="line">		exit(EXIT_FAILURE);\</span><br><span class="line">	&#125;while(0)</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	pid_t pid;</span><br><span class="line">	int ret &#x3D; 0;</span><br><span class="line">	int status;</span><br><span class="line">	</span><br><span class="line">	pid &#x3D; fork();</span><br><span class="line">	if (pid &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		ERR_EXIT(&quot;fork error :&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	if (pid &#x3D;&#x3D; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		printf(&quot;this is child %d \n&quot;,getpid());</span><br><span class="line">		exit(10);</span><br><span class="line">		&#x2F;&#x2F;abort();</span><br><span class="line">	&#125;</span><br><span class="line">	ret &#x3D; wait(&amp;status);</span><br><span class="line">	if (ret &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		ERR_EXIT(&quot;wait error :&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	if (WIFEXITED(status)) &#x2F;&#x2F; 正常退出</span><br><span class="line">	&#123;</span><br><span class="line">		printf(&quot;正常退出 : %d\n&quot;, WEXITSTATUS(status));</span><br><span class="line">	&#125;</span><br><span class="line">	else if (WIFSIGNALED(status)) &#x2F;&#x2F; 异常退出</span><br><span class="line">	&#123;</span><br><span class="line">		printf(&quot;异常退出 : %d\n&quot;, WTERMSIG(status));</span><br><span class="line">	&#125;</span><br><span class="line">	else if (WIFSTOPPED(status)) &#x2F;&#x2F; 进程停止</span><br><span class="line">	&#123;</span><br><span class="line">		printf(&quot;进程停止 : %d\n&quot;, WSTOPSIG(status));</span><br><span class="line">	&#125;</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/stat.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;signal.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/wait.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ERR_EXIT(m) \</span>
+	<span class="hljs-keyword">do</span>&#123;\
+		perror(m);\
+		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);\
+	&#125;<span class="hljs-keyword">while</span>(<span class="hljs-number">0</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">pid_t</span> pid;
+	<span class="hljs-keyword">int</span> ret = <span class="hljs-number">0</span>;
+	<span class="hljs-keyword">int</span> status;
+	
+	pid = fork();
+	<span class="hljs-keyword">if</span> (pid == <span class="hljs-number">-1</span>)
+	&#123;
+		ERR_EXIT(<span class="hljs-string">"fork error :"</span>);
+	&#125;
+	<span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>)
+	&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"this is child %d \n"</span>,getpid());
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">10</span>);
+		<span class="hljs-comment">//abort();</span>
+	&#125;
+	ret = wait(&amp;status);
+	<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">-1</span>)
+	&#123;
+		ERR_EXIT(<span class="hljs-string">"wait error :"</span>);
+	&#125;
+	<span class="hljs-keyword">if</span> (WIFEXITED(status)) <span class="hljs-comment">// 正常退出</span>
+	&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"正常退出 : %d\n"</span>, WEXITSTATUS(status));
+	&#125;
+	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (WIFSIGNALED(status)) <span class="hljs-comment">// 异常退出</span>
+	&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"异常退出 : %d\n"</span>, WTERMSIG(status));
+	&#125;
+	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (WIFSTOPPED(status)) <span class="hljs-comment">// 进程停止</span>
+	&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"进程停止 : %d\n"</span>, WSTOPSIG(status));
+	&#125;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
 
 <h3 id="父进程等待子进程退出的问题"><a href="#父进程等待子进程退出的问题" class="headerlink" title="父进程等待子进程退出的问题"></a>父进程等待子进程退出的问题</h3><ul>
 <li>父进程等待子进程退出有两个点需要注意一下，一是wait函数在有一个子进程返回时会立马返回，在多个子进程的情况下会导致其他的子进程没有收尸，二是wait调用的可中断睡眠，在接收到信号时，wait函数也会返回，需要作进一步判断。。。</li>
 </ul>
 <p><strong>示例程序</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;stat.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;signal.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;wait.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line"></span><br><span class="line">#define ERR_EXIT(m) \</span><br><span class="line">	do&#123;\</span><br><span class="line">		perror(m);\</span><br><span class="line">		exit(EXIT_FAILURE);\</span><br><span class="line">	&#125;while(0)</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	pid_t pid;</span><br><span class="line">	int ret &#x3D; 0;</span><br><span class="line">	int i;</span><br><span class="line">	int num;</span><br><span class="line"></span><br><span class="line">	printf(&quot;请输入子进程个数:&quot;);</span><br><span class="line">	scanf(&quot;%d&quot;,&amp;num);</span><br><span class="line">	</span><br><span class="line">	for (i&#x3D;0; i&lt;num; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		pid &#x3D; fork();</span><br><span class="line">		if(pid &#x3D;&#x3D; -1)</span><br><span class="line">		&#123;</span><br><span class="line">			ERR_EXIT(&quot;fork error :&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">		if (pid &#x3D;&#x3D; 0)</span><br><span class="line">		&#123;</span><br><span class="line">			printf(&quot;this is child %d \n&quot;,getpid());</span><br><span class="line">			sleep(1);</span><br><span class="line">			exit(0);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;* 收尸所有的僵尸进程 *&#x2F;</span><br><span class="line">	while(1)</span><br><span class="line">	&#123;</span><br><span class="line">		ret &#x3D; wait(NULL);</span><br><span class="line">		printf(&quot;子进程退出,mypid \n&quot;);</span><br><span class="line">		if (ret &#x3D;&#x3D; -1)</span><br><span class="line">		&#123;</span><br><span class="line">			if(errno &#x3D;&#x3D; EINTR)	&#x2F;&#x2F; 父进程阻塞过程中可能被别的信号中断</span><br><span class="line">			&#123;</span><br><span class="line">				continue;</span><br><span class="line">			&#125;</span><br><span class="line">			break;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	printf(&quot;父进程退出 ....\n&quot;);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/stat.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;signal.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/wait.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;errno.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ERR_EXIT(m) \</span>
+	<span class="hljs-keyword">do</span>&#123;\
+		perror(m);\
+		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);\
+	&#125;<span class="hljs-keyword">while</span>(<span class="hljs-number">0</span>)
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">pid_t</span> pid;
+	<span class="hljs-keyword">int</span> ret = <span class="hljs-number">0</span>;
+	<span class="hljs-keyword">int</span> i;
+	<span class="hljs-keyword">int</span> num;
+
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"请输入子进程个数:"</span>);
+	<span class="hljs-built_in">scanf</span>(<span class="hljs-string">"%d"</span>,&amp;num);
+	
+	<span class="hljs-keyword">for</span> (i=<span class="hljs-number">0</span>; i&lt;num; i++)
+	&#123;
+		pid = fork();
+		<span class="hljs-keyword">if</span>(pid == <span class="hljs-number">-1</span>)
+		&#123;
+			ERR_EXIT(<span class="hljs-string">"fork error :"</span>);
+		&#125;
+		<span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>)
+		&#123;
+			<span class="hljs-built_in">printf</span>(<span class="hljs-string">"this is child %d \n"</span>,getpid());
+			sleep(<span class="hljs-number">1</span>);
+			<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+		&#125;
+	&#125;
+	<span class="hljs-comment">/* 收尸所有的僵尸进程 */</span>
+	<span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)
+	&#123;
+		ret = wait(<span class="hljs-literal">NULL</span>);
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"子进程退出,mypid \n"</span>);
+		<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">-1</span>)
+		&#123;
+			<span class="hljs-keyword">if</span>(errno == EINTR)	<span class="hljs-comment">// 父进程阻塞过程中可能被别的信号中断</span>
+			&#123;
+				<span class="hljs-keyword">continue</span>;
+			&#125;
+			<span class="hljs-keyword">break</span>;
+		&#125;
+	&#125;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"父进程退出 ....\n"</span>);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
 
 <ul>
 <li>父进程创建了n个子进程，子进程先退出，父进程收尸，调用wait收尸所有的子进程，在阻塞期间可能会由别的信号使wait返回，应该判断errno的值并继续等待，运行结果：</li>
 </ul>
-
-
+<p><img src="/img/%E8%BF%9B%E7%A8%8B/2.png" srcset="/img/loading.gif" alt=""></p>
 <h3 id="sleep不可中断写法"><a href="#sleep不可中断写法" class="headerlink" title="sleep不可中断写法"></a>sleep不可中断写法</h3><p>sleep函数会将进程进行休眠，但是sleep函数属于可中断睡眠，在进程接收到信号之后会立刻返回，返回值为剩下的秒数，利用这个特点，可以让sleep在接收到信号之后继续睡眠，直到睡眠时间结束为止。</p>
 <p><strong>示例程序</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">do&#123;</span><br><span class="line">	n &#x3D; sleep(10);	&#x2F;&#x2F; 返回剩余的秒数  可中断睡眠</span><br><span class="line">	printf(&quot;keep sleeping ... \n&quot;);</span><br><span class="line">&#125;while(n&gt;0);</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">do</span>&#123;
+	n = sleep(<span class="hljs-number">10</span>);	<span class="hljs-comment">// 返回剩余的秒数  可中断睡眠</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"keep sleeping ... \n"</span>);
+&#125;<span class="hljs-keyword">while</span>(n&gt;<span class="hljs-number">0</span>);</code></pre>
 
 <blockquote>
 <p>进程里面还有一些有料的点，后面单独讲。。。</p>

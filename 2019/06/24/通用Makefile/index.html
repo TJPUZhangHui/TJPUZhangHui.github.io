@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    1k 字
+                    958 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    14
+                    13
                      分钟
                   </span>
                 
@@ -203,34 +203,149 @@
 <h3 id="子目录Makefile写法"><a href="#子目录Makefile写法" class="headerlink" title="子目录Makefile写法"></a>子目录Makefile写法</h3><blockquote>
 <p>子目录Makefile写法比较简单,如果有子目录的话加上dir/</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">obj-y +&#x3D; xxx.o</span><br><span class="line">#进入子目录test</span><br><span class="line">obj-y +&#x3D; test&#x2F;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">obj-y += xxx.o
+<span class="hljs-comment">#进入子目录test</span>
+obj-y += test/</code></pre>
 
 <h3 id="顶层目录Makefile写法"><a href="#顶层目录Makefile写法" class="headerlink" title="顶层目录Makefile写法"></a>顶层目录Makefile写法</h3><p>顶层目录Makefile也比较简单，主要包括以下几个功能：</p>
 <ul>
 <li>定义obj-y来指定根目录下要编进程序去的文件、子目录</li>
 <li>定义工具链、编译参数、链接参数，并用export导出</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line">#交叉编译工具链</span><br><span class="line">CROSS_COMPILE &#x3D; </span><br><span class="line">#编译选项</span><br><span class="line">AS		&#x3D; $(CROSS_COMPILE)as</span><br><span class="line">LD		&#x3D; $(CROSS_COMPILE)ld</span><br><span class="line">CC		&#x3D; $(CROSS_COMPILE)gcc</span><br><span class="line">CPP		&#x3D; $(CC) -E</span><br><span class="line">AR		&#x3D; $(CROSS_COMPILE)ar</span><br><span class="line">NM		&#x3D; $(CROSS_COMPILE)nm</span><br><span class="line"></span><br><span class="line">STRIP		&#x3D; $(CROSS_COMPILE)strip</span><br><span class="line">OBJCOPY		&#x3D; $(CROSS_COMPILE)objcopy</span><br><span class="line">OBJDUMP		&#x3D; $(CROSS_COMPILE)objdump</span><br><span class="line"></span><br><span class="line"># 导出变量给子makefile使用</span><br><span class="line">export AS LD CC CPP AR NM</span><br><span class="line">export STRIP OBJCOPY OBJDUMP</span><br><span class="line"></span><br><span class="line"># 编译选项</span><br><span class="line">CFLAGS :&#x3D; -Wall -O2 -g</span><br><span class="line">CFLAGS +&#x3D; -I $(shell pwd)&#x2F;include</span><br><span class="line"></span><br><span class="line">#链接选项：没有链接库</span><br><span class="line">LDFLAGS :&#x3D; </span><br><span class="line"></span><br><span class="line">export CFLAGS LDFLAGS</span><br><span class="line"></span><br><span class="line"># 导出顶层目录</span><br><span class="line">TOPDIR :&#x3D; $(shell pwd)</span><br><span class="line">export TOPDIR</span><br><span class="line"></span><br><span class="line">obj-y +&#x3D; main.o</span><br><span class="line">obj-y +&#x3D; a&#x2F;</span><br><span class="line">obj-y +&#x3D; b&#x2F;</span><br><span class="line"></span><br><span class="line">TARGET :&#x3D; test</span><br><span class="line"></span><br><span class="line"># make的默认目标</span><br><span class="line"># 把子目录下的built-in.o文件链接成目标</span><br><span class="line">all:</span><br><span class="line"># 进入某个目录，使用Makefile.build来编译</span><br><span class="line">	make -C .&#x2F; -f $(TOPDIR)&#x2F;Makefile.build</span><br><span class="line">	$(CC) $(LDFLAGS) -o $(TARGET) built-in.o</span><br><span class="line">	</span><br><span class="line">clean:</span><br><span class="line">	rm -f $(shell find -name &quot;*.o&quot;)</span><br><span class="line">	rm -f $(TARGET)</span><br><span class="line"></span><br><span class="line">distclean:</span><br><span class="line">	rm -f $(shell find -name &quot;*.o&quot;)</span><br><span class="line">	rm -f $(shell find -name &quot;*.d&quot;)</span><br><span class="line">	rm -f $(TARGET)</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile"><span class="hljs-comment">#交叉编译工具链</span>
+CROSS_COMPILE = 
+<span class="hljs-comment">#编译选项</span>
+AS		= <span class="hljs-variable">$(CROSS_COMPILE)</span>as
+LD		= <span class="hljs-variable">$(CROSS_COMPILE)</span>ld
+CC		= <span class="hljs-variable">$(CROSS_COMPILE)</span>gcc
+CPP		= <span class="hljs-variable">$(CC)</span> -E
+AR		= <span class="hljs-variable">$(CROSS_COMPILE)</span>ar
+NM		= <span class="hljs-variable">$(CROSS_COMPILE)</span>nm
+
+STRIP		= <span class="hljs-variable">$(CROSS_COMPILE)</span>strip
+OBJCOPY		= <span class="hljs-variable">$(CROSS_COMPILE)</span>objcopy
+OBJDUMP		= <span class="hljs-variable">$(CROSS_COMPILE)</span>objdump
+
+<span class="hljs-comment"># 导出变量给子makefile使用</span>
+<span class="hljs-keyword">export</span> AS LD CC CPP AR NM
+<span class="hljs-keyword">export</span> STRIP OBJCOPY OBJDUMP
+
+<span class="hljs-comment"># 编译选项</span>
+CFLAGS := -Wall -O2 -g
+CFLAGS += -I <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>/<span class="hljs-keyword">include</span>
+
+<span class="hljs-comment">#链接选项：没有链接库</span>
+LDFLAGS := 
+
+<span class="hljs-keyword">export</span> CFLAGS LDFLAGS
+
+<span class="hljs-comment"># 导出顶层目录</span>
+TOPDIR := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> pwd)</span>
+<span class="hljs-keyword">export</span> TOPDIR
+
+obj-y += main.o
+obj-y += a/
+obj-y += b/
+
+TARGET := test
+
+<span class="hljs-comment"># make的默认目标</span>
+<span class="hljs-comment"># 把子目录下的built-in.o文件链接成目标</span>
+<span class="hljs-section">all:</span>
+<span class="hljs-comment"># 进入某个目录，使用Makefile.build来编译</span>
+	make -C ./ -f <span class="hljs-variable">$(TOPDIR)</span>/Makefile.build
+	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(LDFLAGS)</span> -o <span class="hljs-variable">$(TARGET)</span> built-in.o
+	
+<span class="hljs-section">clean:</span>
+	rm -f <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> find -name "*.o")</span>
+	rm -f <span class="hljs-variable">$(TARGET)</span>
+
+<span class="hljs-section">distclean:</span>
+	rm -f <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> find -name "*.o")</span>
+	rm -f <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> find -name "*.d")</span>
+	rm -f <span class="hljs-variable">$(TARGET)</span></code></pre>
 
 <h3 id="顶层目录Makefile-build写法"><a href="#顶层目录Makefile-build写法" class="headerlink" title="顶层目录Makefile.build写法"></a>顶层目录Makefile.build写法</h3><blockquote>
 <p>顶层目录Makefile.build写法比较复杂，而且难以理解，我在代码中都给了注释</p>
 </blockquote>
 <p><strong>makefile的分析需要从终极目标一层一层往下分析：</strong></p>
 <p>1 –build是第一个目标，make最终要生成这个目标<br>2 –build依赖于子目录$(subdir-y) 和当前目录的built-in.o，$(subdir-y)在之前定义，是子目录，built-in.o是当前目录的built-in.o文件，下面分别处理这两个依赖，看步骤3、4</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__build : $(subdir-y) built-in.o</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">__build : $(subdir-y) built-in.o</code></pre>
+
 <p>3 进入子目录，<strong>递归</strong>使用Makefile.build进行编译</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$(subdir-y):</span><br><span class="line">	make -C $@ -f $(TOPDIR)&#x2F;Makefile.build</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile"><span class="hljs-section">$(subdir-y):</span>
+	make -C <span class="hljs-variable">$@</span> -f <span class="hljs-variable">$(TOPDIR)</span>/Makefile.build</code></pre>
 
 <p>4 built-in.o文件，依赖于当前目录所有的.o文件$(cur_objs)和子目录的built-in.o文件$(subdir_objs)</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">built-in.o : $(cur_objs) $(subdir_objs)</span><br><span class="line">	$(LD) -r -o $@ $^</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">built-in.o : <span class="hljs-variable">$(cur_objs)</span> <span class="hljs-variable">$(subdir_objs)</span>
+	<span class="hljs-variable">$(LD)</span> -r -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$^</span></code></pre>
 
 <p>5 .o文件依赖于.c文件，执行Makefile文件里的CC指令</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">%.o : %.c</span><br><span class="line">	$(CC) $(CFLAGS) -Wp,-MD,$(dep_files) -c -o $@ $&lt;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">%.o : %.c
+	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -Wp,-MD,<span class="hljs-variable">$(dep_files)</span> -c -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$&lt;</span></code></pre>
 
 <ul>
 <li><strong>完整代码</strong></li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line">PHONY :&#x3D; __build</span><br><span class="line"># 第一个目标</span><br><span class="line">__build:</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">obj-y :&#x3D;</span><br><span class="line">subdir-y :&#x3D;</span><br><span class="line"></span><br><span class="line"># Makefile中含有obj-y，知道编译哪些子目录</span><br><span class="line">include Makefile</span><br><span class="line"></span><br><span class="line"># 子目录</span><br><span class="line">	# 例：obj-y :&#x3D; a.o b.o c&#x2F; d&#x2F;,那么 subdir-y :&#x3D; c&#x2F; d&#x2F;，那么怎么把 c&#x2F; d&#x2F;取出来？</span><br><span class="line">	# filter 函数：obj-y中符合 %&#x2F; 形式的文件取出来 </span><br><span class="line">	# patsubst函数：把%&#x2F; 替换成 % </span><br><span class="line">subdir-y	:&#x3D; $(patsubst %&#x2F;,%,$(filter %&#x2F;, $(obj-y)))</span><br><span class="line"></span><br><span class="line"># 子目录下的built-in.o文件</span><br><span class="line">	# c&#x2F;built-in.o d&#x2F;built-in.o,取出子目录下的built-in.o文件</span><br><span class="line">subdir_objs :&#x3D; $(foreach f,$(subdir-y),$(f)&#x2F;built-in.o)</span><br><span class="line"></span><br><span class="line"># 取出当前目录下的.o文件</span><br><span class="line">	# obj-y :&#x3D; a.o b.o c&#x2F; d&#x2F; 取出a.o b.o</span><br><span class="line">	# filter-out 函数：从 obj-y 中把不匹配 %&#x2F; 的文本取出来,即取出文件，过滤掉目录</span><br><span class="line">cur_objs :&#x3D; $(filter-out %&#x2F;, $(obj-y))</span><br><span class="line"></span><br><span class="line"># 依赖文件，形式 .xx.o.d</span><br><span class="line">	# foreach : 修改cur_objs里面的.o 为 .(xx.o).d 的形式</span><br><span class="line">dep_files :&#x3D; $(foreach f,$(cur_objs),.$(f).d)</span><br><span class="line"></span><br><span class="line">	# 取出已经存在的.x.o.d文件放在dep_files里面</span><br><span class="line">dep_files :&#x3D; $(wildcard $(dep_files))</span><br><span class="line"></span><br><span class="line">	# 如果dep_files不为空，则包含进来</span><br><span class="line">ifneq ($(dep_files),)</span><br><span class="line">  include $(dep_files)</span><br><span class="line">endif</span><br><span class="line"></span><br><span class="line"># __build 依赖于子目录和当前目录下的built-in.o</span><br><span class="line">__build : $(subdir-y) built-in.o</span><br><span class="line"></span><br><span class="line">PHONY +&#x3D; $(subdir-y)</span><br><span class="line"></span><br><span class="line"># 递归，进入子目录，使用Makefile.build进行编译</span><br><span class="line">$(subdir-y):</span><br><span class="line">	make -C $@ -f $(TOPDIR)&#x2F;Makefile.build</span><br><span class="line"></span><br><span class="line"># built-in.o 依赖于当前目录下的.o文件 和 子目录下的built-in.o文件</span><br><span class="line">built-in.o : $(cur_objs) $(subdir_objs)</span><br><span class="line">	$(LD) -r -o $@ $^</span><br><span class="line"></span><br><span class="line"># 延时变量</span><br><span class="line">dep_files &#x3D; .$@.d</span><br><span class="line"></span><br><span class="line"># 生成.o文件和依赖文件</span><br><span class="line">%.o : %.c</span><br><span class="line">	$(CC) $(CFLAGS) -Wp,-MD,$(dep_files) -c -o $@ $&lt;</span><br><span class="line">	</span><br><span class="line">.PHONY : $(PHONY)</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">PHONY := __build
+<span class="hljs-comment"># 第一个目标</span>
+<span class="hljs-section">__build:</span>
+
+
+obj-y :=
+subdir-y :=
+
+<span class="hljs-comment"># Makefile中含有obj-y，知道编译哪些子目录</span>
+<span class="hljs-keyword">include</span> Makefile
+
+<span class="hljs-comment"># 子目录</span>
+	<span class="hljs-comment"># 例：obj-y := a.o b.o c/ d/,那么 subdir-y := c/ d/，那么怎么把 c/ d/取出来？</span>
+	<span class="hljs-comment"># filter 函数：obj-y中符合 %/ 形式的文件取出来 </span>
+	<span class="hljs-comment"># patsubst函数：把%/ 替换成 % </span>
+subdir-y	:= <span class="hljs-variable">$(<span class="hljs-built_in">patsubst</span> %/,%,$(<span class="hljs-built_in">filter</span> %/, $(obj-y)</span>))
+
+<span class="hljs-comment"># 子目录下的built-in.o文件</span>
+	<span class="hljs-comment"># c/built-in.o d/built-in.o,取出子目录下的built-in.o文件</span>
+subdir_objs := <span class="hljs-variable">$(<span class="hljs-built_in">foreach</span> f,$(subdir-y)</span>,<span class="hljs-variable">$(f)</span>/built-in.o)
+
+<span class="hljs-comment"># 取出当前目录下的.o文件</span>
+	<span class="hljs-comment"># obj-y := a.o b.o c/ d/ 取出a.o b.o</span>
+	<span class="hljs-comment"># filter-out 函数：从 obj-y 中把不匹配 %/ 的文本取出来,即取出文件，过滤掉目录</span>
+cur_objs := <span class="hljs-variable">$(<span class="hljs-built_in">filter</span>-out %/, $(obj-y)</span>)
+
+<span class="hljs-comment"># 依赖文件，形式 .xx.o.d</span>
+	<span class="hljs-comment"># foreach : 修改cur_objs里面的.o 为 .(xx.o).d 的形式</span>
+dep_files := <span class="hljs-variable">$(<span class="hljs-built_in">foreach</span> f,<span class="hljs-variable">$(cur_objs)</span>,.<span class="hljs-variable">$(f)</span>.d)</span>
+
+	<span class="hljs-comment"># 取出已经存在的.x.o.d文件放在dep_files里面</span>
+dep_files := <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> <span class="hljs-variable">$(dep_files)</span>)</span>
+
+	<span class="hljs-comment"># 如果dep_files不为空，则包含进来</span>
+<span class="hljs-keyword">ifneq</span> (<span class="hljs-variable">$(dep_files)</span>,)
+  <span class="hljs-keyword">include</span> <span class="hljs-variable">$(dep_files)</span>
+<span class="hljs-keyword">endif</span>
+
+<span class="hljs-comment"># __build 依赖于子目录和当前目录下的built-in.o</span>
+__build : $(subdir-y) built-in.o
+
+PHONY += $(subdir-y)
+
+<span class="hljs-comment"># 递归，进入子目录，使用Makefile.build进行编译</span>
+<span class="hljs-section">$(subdir-y):</span>
+	make -C <span class="hljs-variable">$@</span> -f <span class="hljs-variable">$(TOPDIR)</span>/Makefile.build
+
+<span class="hljs-comment"># built-in.o 依赖于当前目录下的.o文件 和 子目录下的built-in.o文件</span>
+built-in.o : <span class="hljs-variable">$(cur_objs)</span> <span class="hljs-variable">$(subdir_objs)</span>
+	<span class="hljs-variable">$(LD)</span> -r -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$^</span>
+
+<span class="hljs-comment"># 延时变量</span>
+dep_files = .<span class="hljs-variable">$@</span>.d
+
+<span class="hljs-comment"># 生成.o文件和依赖文件</span>
+%.o : %.c
+	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -Wp,-MD,<span class="hljs-variable">$(dep_files)</span> -c -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$&lt;</span>
+	
+.PHONY : <span class="hljs-variable">$(PHONY)</span></code></pre>
 
 <blockquote>
 <p>这种Makefile的写法适合项目，修改起来比较方便，可以直接套用。</p>

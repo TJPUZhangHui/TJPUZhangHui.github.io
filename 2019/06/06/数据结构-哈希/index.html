@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    13
+                    12
                      分钟
                   </span>
                 
@@ -229,27 +229,87 @@
 <ul>
 <li>散列表的结构，elem是一个动态数组的首地址，count是数据个数</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#define HASHSIZE 12</span><br><span class="line">#define NO_DATA -12345</span><br><span class="line">typedef struct HashTable</span><br><span class="line">&#123;</span><br><span class="line">	int *elem;</span><br><span class="line">	int count;</span><br><span class="line">&#125;HashTable,*HashTable_ptr;		&#x2F;&#x2F; 散列表首地址 + 散列表数据个数</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> HASHSIZE 12</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> NO_DATA -12345</span>
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">HashTable</span></span>
+<span class="hljs-class">&#123;</span>
+	<span class="hljs-keyword">int</span> *elem;
+	<span class="hljs-keyword">int</span> count;
+&#125;HashTable,*HashTable_ptr;		<span class="hljs-comment">// 散列表首地址 + 散列表数据个数</span></code></pre>
 
 <ul>
 <li>初始化散列表</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 初始化散列表 *&#x2F;</span><br><span class="line">void init_HashTable(HashTable_ptr H)</span><br><span class="line">&#123;</span><br><span class="line">	int i;</span><br><span class="line">	H-&gt;elem &#x3D; malloc(HASHSIZE * sizeof(int));</span><br><span class="line">	for(i&#x3D;0;i&lt;HASHSIZE;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		H-&gt;elem[i] &#x3D; NO_DATA;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-comment">/* 初始化散列表 */</span>
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">init_HashTable</span><span class="hljs-params">(HashTable_ptr H)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> i;
+	H-&gt;elem = <span class="hljs-built_in">malloc</span>(HASHSIZE * <span class="hljs-keyword">sizeof</span>(<span class="hljs-keyword">int</span>));
+	<span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>;i&lt;HASHSIZE;i++)
+	&#123;
+		H-&gt;elem[i] = NO_DATA;
+	&#125;
+&#125;</code></pre>
 
 <ul>
 <li>插入值到散列表,就是上述的第一步操作，按照散列函数的方式将值插入到散列表中，对于冲突问题，这里采取的是开放定址法</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 插入key到散列表 *&#x2F;</span><br><span class="line">void inset_HashTable(HashTable_ptr H,int key)</span><br><span class="line">&#123;</span><br><span class="line">	int addr &#x3D; HASH(key);</span><br><span class="line">	while(H-&gt;elem[addr] !&#x3D; NO_DATA)	&#x2F;&#x2F; 如果这一项有值了，往后存储</span><br><span class="line">	&#123;</span><br><span class="line">		addr &#x3D; (addr+1) % HASHSIZE;	</span><br><span class="line">		&#x2F;&#x2F; 开放定址法 : 以HASH函数得到的索引为key,产生新的索引</span><br><span class="line">	&#125;</span><br><span class="line">	H-&gt;elem[addr] &#x3D; key;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-comment">/* 插入key到散列表 */</span>
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">inset_HashTable</span><span class="hljs-params">(HashTable_ptr H,<span class="hljs-keyword">int</span> key)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> addr = HASH(key);
+	<span class="hljs-keyword">while</span>(H-&gt;elem[addr] != NO_DATA)	<span class="hljs-comment">// 如果这一项有值了，往后存储</span>
+	&#123;
+		addr = (addr+<span class="hljs-number">1</span>) % HASHSIZE;	
+		<span class="hljs-comment">// 开放定址法 : 以HASH函数得到的索引为key,产生新的索引</span>
+	&#125;
+	H-&gt;elem[addr] = key;
+&#125;</code></pre>
 
 <ul>
 <li>查找数据的索引，按照相同的散列函数，得到散列表的索引，如果开放定址法的输出又回到了最初的值，表明散列表的没有这个需要查找的值。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 查找关键字的地址 *&#x2F;</span><br><span class="line">int search_HashTable(HashTable_ptr H,int key)</span><br><span class="line">&#123;</span><br><span class="line">	int addr &#x3D; HASH(key);</span><br><span class="line">	while(H-&gt;elem[addr] !&#x3D; key)</span><br><span class="line">	&#123;</span><br><span class="line">		addr &#x3D; (addr+1) % HASHSIZE;		&#x2F;&#x2F; 同样的方法查找</span><br><span class="line">		if(addr &#x3D;&#x3D; HASH(key))		&#x2F;&#x2F; 查找回到原点，说明数据不存在</span><br><span class="line">		&#123;</span><br><span class="line">			printf(&quot;no data \r\n&quot;);</span><br><span class="line">			return -1;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	return addr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-comment">/* 查找关键字的地址 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">search_HashTable</span><span class="hljs-params">(HashTable_ptr H,<span class="hljs-keyword">int</span> key)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> addr = HASH(key);
+	<span class="hljs-keyword">while</span>(H-&gt;elem[addr] != key)
+	&#123;
+		addr = (addr+<span class="hljs-number">1</span>) % HASHSIZE;		<span class="hljs-comment">// 同样的方法查找</span>
+		<span class="hljs-keyword">if</span>(addr == HASH(key))		<span class="hljs-comment">// 查找回到原点，说明数据不存在</span>
+		&#123;
+			<span class="hljs-built_in">printf</span>(<span class="hljs-string">"no data \r\n"</span>);
+			<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+		&#125;
+	&#125;
+	<span class="hljs-keyword">return</span> addr;
+&#125;</code></pre>
 
 <ul>
 <li>测试代码</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	int i;</span><br><span class="line">	int a[] &#x3D; &#123;12,67,56,16,25,37,22,29,15,47,48,34&#125;;</span><br><span class="line">	</span><br><span class="line">	HashTable hash;</span><br><span class="line">	HashTable_ptr H &#x3D; &amp;hash;</span><br><span class="line">	init_HashTable(H);</span><br><span class="line"></span><br><span class="line">	for(i&#x3D;0;i&lt;HASHSIZE;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		inset_HashTable(H,a[i]);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	printf(&quot;插入之后的哈希表为：&quot;);</span><br><span class="line">	for(i&#x3D;0;i&lt;HASHSIZE;i++)</span><br><span class="line">	&#123;</span><br><span class="line">		printf(&quot;%d &quot;,H-&gt;elem[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	printf(&quot;搜索到2的地址为: %d \r\n&quot;,search_HashTable(H,2));</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> i;
+	<span class="hljs-keyword">int</span> a[] = &#123;<span class="hljs-number">12</span>,<span class="hljs-number">67</span>,<span class="hljs-number">56</span>,<span class="hljs-number">16</span>,<span class="hljs-number">25</span>,<span class="hljs-number">37</span>,<span class="hljs-number">22</span>,<span class="hljs-number">29</span>,<span class="hljs-number">15</span>,<span class="hljs-number">47</span>,<span class="hljs-number">48</span>,<span class="hljs-number">34</span>&#125;;
+	
+	HashTable hash;
+	HashTable_ptr H = &amp;hash;
+	init_HashTable(H);
+
+	<span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>;i&lt;HASHSIZE;i++)
+	&#123;
+		inset_HashTable(H,a[i]);
+	&#125;
+
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"插入之后的哈希表为："</span>);
+	<span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>;i&lt;HASHSIZE;i++)
+	&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d "</span>,H-&gt;elem[i]);
+	&#125;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"搜索到2的地址为: %d \r\n"</span>,search_HashTable(H,<span class="hljs-number">2</span>));
+
+&#125;</code></pre>
 
 <blockquote>
 <p>对于查找类的题，别再盲目的遍历啦，可以先创建一个散列表再进行查找。</p>

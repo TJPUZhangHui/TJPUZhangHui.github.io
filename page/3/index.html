@@ -273,7 +273,13 @@ TCP/IP嵌入内核是因为网卡驱动收发大量数据的时候，切换到�
   <div class="row mx-auto index-card">
     
     
-    <div class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2019/07/11/%E4%BF%A1%E5%8F%B7/" target="_self">
+          <img src="/img/%E4%BF%A1%E5%8F%B7/1.svg" srcset="/img/loading.gif" alt="信号">
+        </a>
+      </div>
+    
+    <div class="col-12 col-md-8 mx-auto index-info">
       <a class="index-header" href="/2019/07/11/%E4%BF%A1%E5%8F%B7/">信号</a>
 
       <a href="/2019/07/11/%E4%BF%A1%E5%8F%B7/" class="index-excerpt">
@@ -285,12 +291,11 @@ TCP/IP嵌入内核是因为网卡驱动收发大量数据的时候，切换到�
 信号实际上是一种软中断，如ARM的SWI指令可以产生软中断。
 
 
-
 信号的料基本上就这么多，再提炼总结一下就是以下几点：
 
 signal函数和sigaction函数的对比，结论：后者传递信号的同时可以传递数据
 可靠信号与不可靠信号的对比，结论：前者linux内核会维护一个队列，存储所有未达的可靠信号，后者没有队列，因此易造次信号丢失
-信号的传递过程，内核会先检查信号阻塞状态字block，如果状态</div>
+信号的传递过程，内核会先检查信号阻塞状态字block，如果状态字</div>
       </a>
 
       <div class="index-btm post-metas">
@@ -322,7 +327,13 @@ signal函数和sigaction函数的对比，结论：后者传递信号的同时�
   <div class="row mx-auto index-card">
     
     
-    <div class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2019/07/11/%E8%BF%9B%E7%A8%8B/" target="_self">
+          <img src="/img/%E8%BF%9B%E7%A8%8B/3.png" srcset="/img/loading.gif" alt="进程">
+        </a>
+      </div>
+    
+    <div class="col-12 col-md-8 mx-auto index-info">
       <a class="index-header" href="/2019/07/11/%E8%BF%9B%E7%A8%8B/">进程</a>
 
       <a href="/2019/07/11/%E8%BF%9B%E7%A8%8B/" class="index-excerpt">
@@ -339,8 +350,7 @@ signal函数和sigaction函数的对比，结论：后者传递信号的同时�
 
 进程需要掌握的点如上图所示，左边是一些进程涉及到的知识点，右边是应知应会的一些API函数，这里边需要有几个点注意：
 进程地址空间
-
-wait返回后判断子进程退出状态这部分内容应该是man手册里面的，不应该出现在这里。。</div>
+wait返回后判断子进程退出状态这部分内容应该是man手册里面的，不应该出现在这里。。。</div>
       </a>
 
       <div class="index-btm post-metas">
@@ -433,9 +443,11 @@ wait返回后判断子进程退出状态这部分内容应该是man手册里面�
 子目录Makefile写法
 子目录Makefile写法比较简单,如果有子目录的话加上dir/
 
-123obj-y +&#x3D; xxx.o#进入子目录testobj-y +&#x3D; test&#x2F;
+obj-y += xxx.o
+#进入子目录test
+obj-y += test/
 
-</div>
+顶层目录Makefile写法顶层</div>
       </a>
 
       <div class="index-btm post-metas">

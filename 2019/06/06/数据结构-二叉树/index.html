@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    914 字
+                    815 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    12
+                    10
                      分钟
                   </span>
                 
@@ -204,7 +204,12 @@
 <ul>
 <li>二叉树的结构,二叉树的链式结构非常简单，即一个数据节点，加上两个孩子节点。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">typedef struct BitNode</span><br><span class="line">&#123;</span><br><span class="line">	int data;</span><br><span class="line">	struct BitNode *left_child,*right_child;</span><br><span class="line"></span><br><span class="line">&#125;BitNode,*BitNode_ptr;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BitNode</span></span>
+<span class="hljs-class">&#123;</span>
+	<span class="hljs-keyword">int</span> data;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">BitNode</span> *<span class="hljs-title">left_child</span>,*<span class="hljs-title">right_child</span>;</span>
+
+&#125;BitNode,*BitNode_ptr;</code></pre>
 
 <h3 id="二叉树的遍历"><a href="#二叉树的遍历" class="headerlink" title="二叉树的遍历"></a>二叉树的遍历</h3><p>二叉树的遍历方法总结起来一共分为三步：     </p>
 <ul>
@@ -215,15 +220,125 @@
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 前序遍历 *&#x2F;</span><br><span class="line">&#x2F;* 根-&gt;左-&gt;右 *&#x2F;</span><br><span class="line">void preOrder(BitNode_ptr T)</span><br><span class="line">&#123;</span><br><span class="line">	if(T &#x3D;&#x3D; NULL)</span><br><span class="line">		return;</span><br><span class="line">	printf(&quot;%d &quot;,T-&gt;data);  	&#x2F;&#x2F; 访问根节点</span><br><span class="line">	preOrder(T-&gt;left_child); 	&#x2F;&#x2F; 访问左节点</span><br><span class="line">	preOrder(T-&gt;right_child);	&#x2F;&#x2F; 访问右节点</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 中序遍历 *&#x2F;</span><br><span class="line">&#x2F;* 左-&gt;根-&gt;右 *&#x2F;</span><br><span class="line">void InOrder(BitNode_ptr T)</span><br><span class="line">&#123;</span><br><span class="line">	if(T &#x3D;&#x3D; NULL)</span><br><span class="line">		return;</span><br><span class="line">	InOrder(T-&gt;left_child);	   &#x2F;* 访问左节点 *&#x2F;</span><br><span class="line">	&#x2F;* 一直遍历到最后的左节点才开始返回打印数据 *&#x2F;</span><br><span class="line">	printf(&quot;%d &quot;,T-&gt;data);	   &#x2F;* 访问根节点 *&#x2F;</span><br><span class="line">	InOrder(T-&gt;right_child);   &#x2F;* 访问右节点 *&#x2F;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 后序遍历 *&#x2F;</span><br><span class="line">&#x2F;* 左-&gt;右-&gt;根  &#x2F; 右-&gt;左-&gt;根 *&#x2F;</span><br><span class="line">void PostOrder(BitNode_ptr T)</span><br><span class="line">&#123;</span><br><span class="line">	if(T &#x3D;&#x3D; NULL)</span><br><span class="line">		return;</span><br><span class="line">	PostOrder(T-&gt;left_child);  	&#x2F;* 访问左节点 *&#x2F;</span><br><span class="line">	PostOrder(T-&gt;right_child);    &#x2F;* 访问右节点 *&#x2F;</span><br><span class="line">	printf(&quot;%d &quot;,T-&gt;data);	    &#x2F;* 访问根节点 *&#x2F;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-comment">/* 前序遍历 */</span>
+<span class="hljs-comment">/* 根-&gt;左-&gt;右 */</span>
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">preOrder</span><span class="hljs-params">(BitNode_ptr T)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">if</span>(T == <span class="hljs-literal">NULL</span>)
+		<span class="hljs-keyword">return</span>;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d "</span>,T-&gt;data);  	<span class="hljs-comment">// 访问根节点</span>
+	preOrder(T-&gt;left_child); 	<span class="hljs-comment">// 访问左节点</span>
+	preOrder(T-&gt;right_child);	<span class="hljs-comment">// 访问右节点</span>
+&#125;
+
+<span class="hljs-comment">/* 中序遍历 */</span>
+<span class="hljs-comment">/* 左-&gt;根-&gt;右 */</span>
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">InOrder</span><span class="hljs-params">(BitNode_ptr T)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">if</span>(T == <span class="hljs-literal">NULL</span>)
+		<span class="hljs-keyword">return</span>;
+	InOrder(T-&gt;left_child);	   <span class="hljs-comment">/* 访问左节点 */</span>
+	<span class="hljs-comment">/* 一直遍历到最后的左节点才开始返回打印数据 */</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d "</span>,T-&gt;data);	   <span class="hljs-comment">/* 访问根节点 */</span>
+	InOrder(T-&gt;right_child);   <span class="hljs-comment">/* 访问右节点 */</span>
+&#125;
+
+<span class="hljs-comment">/* 后序遍历 */</span>
+<span class="hljs-comment">/* 左-&gt;右-&gt;根  / 右-&gt;左-&gt;根 */</span>
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">PostOrder</span><span class="hljs-params">(BitNode_ptr T)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">if</span>(T == <span class="hljs-literal">NULL</span>)
+		<span class="hljs-keyword">return</span>;
+	PostOrder(T-&gt;left_child);  	<span class="hljs-comment">/* 访问左节点 */</span>
+	PostOrder(T-&gt;right_child);    <span class="hljs-comment">/* 访问右节点 */</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%d "</span>,T-&gt;data);	    <span class="hljs-comment">/* 访问根节点 */</span>
+&#125;</code></pre>
 
 
 <h3 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h3><blockquote>
 <p>对于二叉树的掌握需要对递归有一定的理解</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 1 创建一个二叉树节点 *&#x2F;</span><br><span class="line">BitNode_ptr create_bitnode(int data)</span><br><span class="line">&#123;</span><br><span class="line">	BitNode_ptr t &#x3D; malloc(sizeof(struct BitNode));</span><br><span class="line">	t-&gt;left_child &#x3D; NULL;</span><br><span class="line">	t-&gt;right_child &#x3D; NULL;</span><br><span class="line">	t-&gt;data &#x3D; data;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 2 将二叉树节点插入到二叉树中（以二叉搜索树的方式） *&#x2F;</span><br><span class="line">void add_bitree(BitNode_ptr T,BitNode_ptr t)</span><br><span class="line">&#123;</span><br><span class="line">	if(T &#x3D;&#x3D; NULL)  	&#x2F;&#x2F;	 根节点</span><br><span class="line">	&#123;</span><br><span class="line">		T &#x3D; t;</span><br><span class="line">		return;</span><br><span class="line">	&#125;</span><br><span class="line">	if(t-&gt;data &lt; T-&gt;data)	&#x2F;&#x2F; 小于 放在左节点，有孩子节点先判断孩子节点</span><br><span class="line">	&#123;</span><br><span class="line">		if(T-&gt;left_child !&#x3D; NULL)</span><br><span class="line">			add_bitree(T-&gt;left_child,t);	</span><br><span class="line">		else</span><br><span class="line">			T-&gt;left_child &#x3D; t;</span><br><span class="line">	&#125;</span><br><span class="line">	else  					&#x2F;&#x2F; 大于等于  放在右节点，有孩子节点先判断孩子节点</span><br><span class="line">	&#123;</span><br><span class="line">		if(T-&gt;right_child !&#x3D; NULL)</span><br><span class="line">			add_bitree(T-&gt;right_child,t);</span><br><span class="line">		else </span><br><span class="line">			T-&gt;right_child &#x3D; t;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 返回二叉树的深度 *&#x2F;</span><br><span class="line">int bit_tree_depth(BitNode_ptr T)</span><br><span class="line">&#123;</span><br><span class="line">	static int depth &#x3D; 0;</span><br><span class="line">	int left_depth &#x3D; 0,right_depth &#x3D; 0;</span><br><span class="line">	</span><br><span class="line">	if(T &#x3D;&#x3D; NULL)</span><br><span class="line">		return 0;</span><br><span class="line">	</span><br><span class="line">	left_depth  &#x3D; bit_tree_depth(T-&gt;left_child);</span><br><span class="line">	right_depth &#x3D; bit_tree_depth(T-&gt;right_child);</span><br><span class="line">	</span><br><span class="line">	depth &#x3D; right_depth&gt;left_depth ? right_depth : left_depth;</span><br><span class="line">	</span><br><span class="line">	return depth + 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-comment">/* 1 创建一个二叉树节点 */</span>
+<span class="hljs-function">BitNode_ptr <span class="hljs-title">create_bitnode</span><span class="hljs-params">(<span class="hljs-keyword">int</span> data)</span></span>
+<span class="hljs-function"></span>&#123;
+	BitNode_ptr t = <span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(struct BitNode));
+	t-&gt;left_child = <span class="hljs-literal">NULL</span>;
+	t-&gt;right_child = <span class="hljs-literal">NULL</span>;
+	t-&gt;data = data;
+&#125;
 
-<h3 id="测试程序"><a href="#测试程序" class="headerlink" title="测试程序"></a>测试程序</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">void main()</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">&#x2F;* 创建根节点 *&#x2F;	</span><br><span class="line">	T &#x3D; create_bitnode(10);</span><br><span class="line">	BitNode_ptr t;</span><br><span class="line">	</span><br><span class="line">&#x2F;* 创建各个节点 *&#x2F;	</span><br><span class="line">	t &#x3D; create_bitnode(9);</span><br><span class="line">	add_bitree(T,t);</span><br><span class="line">	</span><br><span class="line">    t &#x3D; create_bitnode(20);</span><br><span class="line">	add_bitree(T,t);</span><br><span class="line">	</span><br><span class="line">	t &#x3D; create_bitnode(15);</span><br><span class="line">	add_bitree(T,t);</span><br><span class="line">	</span><br><span class="line">	t &#x3D; create_bitnode(35);</span><br><span class="line">	add_bitree(T,t);</span><br><span class="line"></span><br><span class="line">&#x2F;* 三种遍历方式 *&#x2F;	</span><br><span class="line">	preOrder(T);		</span><br><span class="line">	printf(&quot;\n&quot;);</span><br><span class="line">	InOrder(T);</span><br><span class="line">	printf(&quot;\n&quot;);</span><br><span class="line">	PostOrder(T);</span><br><span class="line">	printf(&quot;\n&quot;);</span><br><span class="line">	</span><br><span class="line">&#x2F;* 返回二叉树的深度 *&#x2F;	</span><br><span class="line">    printf(&quot;depth is %d\r\n &quot;,bit_tree_depth(T));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<span class="hljs-comment">/* 2 将二叉树节点插入到二叉树中（以二叉搜索树的方式） */</span>
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">add_bitree</span><span class="hljs-params">(BitNode_ptr T,BitNode_ptr t)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">if</span>(T == <span class="hljs-literal">NULL</span>)  	<span class="hljs-comment">//	 根节点</span>
+	&#123;
+		T = t;
+		<span class="hljs-keyword">return</span>;
+	&#125;
+	<span class="hljs-keyword">if</span>(t-&gt;data &lt; T-&gt;data)	<span class="hljs-comment">// 小于 放在左节点，有孩子节点先判断孩子节点</span>
+	&#123;
+		<span class="hljs-keyword">if</span>(T-&gt;left_child != <span class="hljs-literal">NULL</span>)
+			add_bitree(T-&gt;left_child,t);	
+		<span class="hljs-keyword">else</span>
+			T-&gt;left_child = t;
+	&#125;
+	<span class="hljs-keyword">else</span>  					<span class="hljs-comment">// 大于等于  放在右节点，有孩子节点先判断孩子节点</span>
+	&#123;
+		<span class="hljs-keyword">if</span>(T-&gt;right_child != <span class="hljs-literal">NULL</span>)
+			add_bitree(T-&gt;right_child,t);
+		<span class="hljs-keyword">else</span> 
+			T-&gt;right_child = t;
+	&#125;
+&#125;
+
+<span class="hljs-comment">/* 返回二叉树的深度 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">bit_tree_depth</span><span class="hljs-params">(BitNode_ptr T)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> depth = <span class="hljs-number">0</span>;
+	<span class="hljs-keyword">int</span> left_depth = <span class="hljs-number">0</span>,right_depth = <span class="hljs-number">0</span>;
+	
+	<span class="hljs-keyword">if</span>(T == <span class="hljs-literal">NULL</span>)
+		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+	
+	left_depth  = bit_tree_depth(T-&gt;left_child);
+	right_depth = bit_tree_depth(T-&gt;right_child);
+	
+	depth = right_depth&gt;left_depth ? right_depth : left_depth;
+	
+	<span class="hljs-keyword">return</span> depth + <span class="hljs-number">1</span>;
+&#125;</code></pre>
+
+<h3 id="测试程序"><a href="#测试程序" class="headerlink" title="测试程序"></a>测试程序</h3><pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	
+<span class="hljs-comment">/* 创建根节点 */</span>	
+	T = create_bitnode(<span class="hljs-number">10</span>);
+	BitNode_ptr t;
+	
+<span class="hljs-comment">/* 创建各个节点 */</span>	
+	t = create_bitnode(<span class="hljs-number">9</span>);
+	add_bitree(T,t);
+	
+    t = create_bitnode(<span class="hljs-number">20</span>);
+	add_bitree(T,t);
+	
+	t = create_bitnode(<span class="hljs-number">15</span>);
+	add_bitree(T,t);
+	
+	t = create_bitnode(<span class="hljs-number">35</span>);
+	add_bitree(T,t);
+
+<span class="hljs-comment">/* 三种遍历方式 */</span>	
+	preOrder(T);		
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n"</span>);
+	InOrder(T);
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n"</span>);
+	PostOrder(T);
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"\n"</span>);
+	
+<span class="hljs-comment">/* 返回二叉树的深度 */</span>	
+    <span class="hljs-built_in">printf</span>(<span class="hljs-string">"depth is %d\r\n "</span>,bit_tree_depth(T));
+&#125;</code></pre>
 
 <blockquote>
 <p>还有一些高级的二叉树，如二叉平衡树，红黑树等，如果需要掌握这些高级的数据结构，还是要下一定的功夫的。</p>

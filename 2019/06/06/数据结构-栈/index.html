@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    577 字
+                    553 字
                   </span>
                 
 
@@ -202,27 +202,73 @@
 <ul>
 <li>栈的结构,这里也是封装了一个链表，在此基础上加了一个栈顶指针，和栈内的数据个数。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">typedef struct StackNode</span><br><span class="line">&#123;</span><br><span class="line">	int data;</span><br><span class="line">	struct StackNode *next;</span><br><span class="line">&#125;StackNode, *LinkStackPtr;</span><br><span class="line"></span><br><span class="line">typedef struct LinkStack</span><br><span class="line">&#123;</span><br><span class="line">	LinkStackPtr top;</span><br><span class="line">	int count;</span><br><span class="line">&#125;LinkStack;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">StackNode</span></span>
+<span class="hljs-class">&#123;</span>
+	<span class="hljs-keyword">int</span> data;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">StackNode</span> *<span class="hljs-title">next</span>;</span>
+&#125;StackNode, *LinkStackPtr;
+
+<span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">LinkStack</span></span>
+<span class="hljs-class">&#123;</span>
+	LinkStackPtr top;
+	<span class="hljs-keyword">int</span> count;
+&#125;LinkStack;</code></pre>
 
 <ul>
 <li>初始化一个栈,此时栈内部的链表没有任何节点，也就是栈内没有任何数据</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void init_stack(LinkStack *S)</span><br><span class="line">&#123;</span><br><span class="line">	S-&gt;top &#x3D; NULL;</span><br><span class="line">	S-&gt;count &#x3D; 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">init_stack</span><span class="hljs-params">(LinkStack *S)</span></span>
+<span class="hljs-function"></span>&#123;
+	S-&gt;top = <span class="hljs-literal">NULL</span>;
+	S-&gt;count = <span class="hljs-number">0</span>;
+&#125;</code></pre>
 
 <ul>
 <li>push操作，入栈操作<br>这里需要注意的是，这里不是按照单链表的方式连接到上一个节点的尾部，这里相当于单链表反向操作，即是把新加入的节点的next指向链表表头的位置（栈顶节点top），并且把top更新为新插入的节点<br>为什么这么做？原因在于删除的节点为链表最新加入的节点，这样便于删除这个节点，而不用遍历整个链表</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int push(LinkStack *S,int data)</span><br><span class="line">&#123;</span><br><span class="line">	LinkStackPtr s &#x3D; (LinkStackPtr)malloc(sizeof(struct StackNode));</span><br><span class="line">	s-&gt;data &#x3D; data;</span><br><span class="line">	s-&gt;next &#x3D; S-&gt;top;	</span><br><span class="line">	&#x2F;* 逆向的链表 *&#x2F;</span><br><span class="line">	S-&gt;top &#x3D; s;</span><br><span class="line">	S-&gt;count ++;</span><br><span class="line">	return 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">push</span><span class="hljs-params">(LinkStack *S,<span class="hljs-keyword">int</span> data)</span></span>
+<span class="hljs-function"></span>&#123;
+	LinkStackPtr s = (LinkStackPtr)<span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(struct StackNode));
+	s-&gt;data = data;
+	s-&gt;next = S-&gt;top;	
+	<span class="hljs-comment">/* 逆向的链表 */</span>
+	S-&gt;top = s;
+	S-&gt;count ++;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+&#125;</code></pre>
 
 <ul>
 <li>pop操作，出栈操作，就是把栈顶指针top更新为top-&gt;next,并把top节点free掉</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">int pop(LinkStack *S, int *p_dat)</span><br><span class="line">&#123;</span><br><span class="line">	LinkStackPtr p;</span><br><span class="line">	if(S &#x3D;&#x3D; NULL || S-&gt;top &#x3D;&#x3D; NULL)</span><br><span class="line">		return 0;</span><br><span class="line">	</span><br><span class="line">	if(p_dat !&#x3D; NULL)</span><br><span class="line">	*p_dat &#x3D; S-&gt;top-&gt;data;</span><br><span class="line">	</span><br><span class="line">	p &#x3D; S-&gt;top-&gt;next;</span><br><span class="line">	free(S-&gt;top);</span><br><span class="line">	S-&gt;top &#x3D; p;</span><br><span class="line">	S-&gt;count--;</span><br><span class="line">	return 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">pop</span><span class="hljs-params">(LinkStack *S, <span class="hljs-keyword">int</span> *p_dat)</span></span>
+<span class="hljs-function"></span>&#123;
+	LinkStackPtr p;
+	<span class="hljs-keyword">if</span>(S == <span class="hljs-literal">NULL</span> || S-&gt;top == <span class="hljs-literal">NULL</span>)
+		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+	
+	<span class="hljs-keyword">if</span>(p_dat != <span class="hljs-literal">NULL</span>)
+	*p_dat = S-&gt;top-&gt;data;
+	
+	p = S-&gt;top-&gt;next;
+	<span class="hljs-built_in">free</span>(S-&gt;top);
+	S-&gt;top = p;
+	S-&gt;count--;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+&#125;</code></pre>
 
 <ul>
 <li>遍历整个栈,从栈顶一直遍历到栈底</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">int print_all(LinkStack *S)</span><br><span class="line">&#123;</span><br><span class="line">	if(S &#x3D;&#x3D; NULL || S-&gt;top &#x3D;&#x3D; NULL)</span><br><span class="line">		return 0;</span><br><span class="line">    do&#123;</span><br><span class="line">		printf(&quot;data is %d \n&quot;,S-&gt;top-&gt;data);</span><br><span class="line">		S-&gt;top &#x3D; S-&gt;top-&gt;next;</span><br><span class="line">	   &#125;while(S-&gt;top !&#x3D; NULL);</span><br><span class="line">	return 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">print_all</span><span class="hljs-params">(LinkStack *S)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">if</span>(S == <span class="hljs-literal">NULL</span> || S-&gt;top == <span class="hljs-literal">NULL</span>)
+		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+    <span class="hljs-keyword">do</span>&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"data is %d \n"</span>,S-&gt;top-&gt;data);
+		S-&gt;top = S-&gt;top-&gt;next;
+	   &#125;<span class="hljs-keyword">while</span>(S-&gt;top != <span class="hljs-literal">NULL</span>);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;
+&#125;</code></pre>
 
 <blockquote>
 <p>注意栈结构中的链表操作有所不同</p>

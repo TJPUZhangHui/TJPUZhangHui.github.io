@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    19
+                    18
                      分钟
                   </span>
                 
@@ -211,45 +211,214 @@
 <li>Decorator: 抽象装饰类</li>
 <li>ConcreteDecorator: 具体装饰类，可以有多个</li>
 </ul>
-
-
-
+<p><img src="/img/%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%BC%8F/1.svg" srcset="/img/loading.gif" alt=""></p>
 <h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>** 书本类 **</p>
 <p>书本类是一个抽象构件，包括书的名字，页数和价格，都是纯虚函数，因此这是一个虚基类。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class book</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	virtual ~book();</span><br><span class="line"></span><br><span class="line">	virtual void name(char *p_name) &#x3D; 0;</span><br><span class="line">	virtual int page() &#x3D; 0;</span><br><span class="line">	virtual int price() &#x3D; 0;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">book</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	<span class="hljs-keyword">virtual</span> ~book();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span> </span>= <span class="hljs-number">0</span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">page</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">price</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;
+&#125;;</code></pre>
 
 <p>** 数学书和英语书 **</p>
 <ul>
 <li>这是两个具体的抽象构件，对比上面的模式结构图，即把ConcreteComponent扩展成两个。</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">class MathBook : public book</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	MathBook();</span><br><span class="line">	~MathBook();</span><br><span class="line"></span><br><span class="line">	virtual void name(char *p_name);</span><br><span class="line">	virtual int page();</span><br><span class="line">	virtual int price();</span><br><span class="line">&#125;;</span><br><span class="line">MathBook::MathBook()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MathBook::~MathBook()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void MathBook::name(char *p_name)</span><br><span class="line">&#123;</span><br><span class="line">	memcpy(p_name, &quot;math book\0&quot;, sizeof(&quot;math book\0&quot;));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int MathBook::page()</span><br><span class="line">&#123;</span><br><span class="line">	return 100;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int MathBook::price()</span><br><span class="line">&#123;</span><br><span class="line">	return 20;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class EnglishBook : public book</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	EnglishBook();</span><br><span class="line">	~EnglishBook();</span><br><span class="line"></span><br><span class="line">	virtual void name(char *p_name);</span><br><span class="line">	virtual int page();</span><br><span class="line">	virtual int price();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">EnglishBook::EnglishBook()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">EnglishBook::~EnglishBook()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void EnglishBook::name (char *p_name)</span><br><span class="line">&#123;</span><br><span class="line">	memcpy(p_name, &quot;English book\0&quot;, sizeof(&quot;English book\0&quot;));</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int EnglishBook::page()</span><br><span class="line">&#123;</span><br><span class="line">	return 200;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int EnglishBook::price()</span><br><span class="line">&#123;</span><br><span class="line">	return 80;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MathBook</span> :</span> <span class="hljs-keyword">public</span> book
+&#123;
+<span class="hljs-keyword">public</span>:
+	MathBook();
+	~MathBook();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">page</span><span class="hljs-params">()</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">price</span><span class="hljs-params">()</span></span>;
+&#125;;
+MathBook::MathBook()
+&#123;
+&#125;
+
+MathBook::~MathBook()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">MathBook::name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">memcpy</span>(p_name, <span class="hljs-string">"math book\0"</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-string">"math book\0"</span>));
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">MathBook::page</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">100</span>;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">MathBook::price</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">20</span>;
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">EnglishBook</span> :</span> <span class="hljs-keyword">public</span> book
+&#123;
+<span class="hljs-keyword">public</span>:
+	EnglishBook();
+	~EnglishBook();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">page</span><span class="hljs-params">()</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">price</span><span class="hljs-params">()</span></span>;
+&#125;;
+
+EnglishBook::EnglishBook()
+&#123;
+&#125;
+
+EnglishBook::~EnglishBook()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">EnglishBook::name</span> <span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">memcpy</span>(p_name, <span class="hljs-string">"English book\0"</span>, <span class="hljs-keyword">sizeof</span>(<span class="hljs-string">"English book\0"</span>));
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">EnglishBook::page</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">200</span>;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">EnglishBook::price</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">80</span>;
+&#125;</code></pre>
 
 <p>** 抽象装饰类 **</p>
 <p>装饰类继承book类，这里面没有方法，只有一个book类的指针对象,这个类用于被具体的装饰类继承，book类的指针对象用来在运行时动态的选择装饰哪一个具体的构件，这里指数学书或英语书。<br><strong>这里说一下为什么类里面包含了book类的指针对象，还要继承book</strong>：继承是为了接口的规范性，让子类必须重写父类的接口，包含是为了在运行时动态的加载具体的构件，这样的设计非常巧妙，这也是这个模式的核心所在。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class DecratorBook : public book</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	DecratorBook(book *book1);</span><br><span class="line">	~DecratorBook();</span><br><span class="line"></span><br><span class="line">	&#x2F;* 运行时决定是哪种book *&#x2F;</span><br><span class="line">	book *my_book;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">DecratorBook::DecratorBook(book *book1):my_book(book1)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">DecratorBook::~DecratorBook()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DecratorBook</span> :</span> <span class="hljs-keyword">public</span> book
+&#123;
+<span class="hljs-keyword">public</span>:
+	DecratorBook(book *book1);
+	~DecratorBook();
+
+	<span class="hljs-comment">/* 运行时决定是哪种book */</span>
+	book *my_book;
+&#125;;
+
+DecratorBook::DecratorBook(book *book1):my_book(book1)
+&#123;
+&#125;
+
+DecratorBook::~DecratorBook()
+&#123;
+&#125;</code></pre>
 
 <p>** 两个具体装饰类 **<br>具体装饰类继承自抽象装饰类，在构造函数中传入book的指针对象来初始化父类的my_book指针，动态的选择装饰哪一个具体构件，在这里是数学书或者英语书<br>这里我们把读书和买书当成是对书的功能的扩展。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line">class GetBook : public DecratorBook</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	GetBook(book* my_book);</span><br><span class="line">	~GetBook();</span><br><span class="line"></span><br><span class="line">	virtual void name(char *p_name);</span><br><span class="line">	virtual int page();</span><br><span class="line">	virtual int price();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">GetBook::GetBook(book* my_book) : DecratorBook(my_book)</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">GetBook::~GetBook()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void GetBook::name(char *p_name)</span><br><span class="line">&#123;</span><br><span class="line">	char name[100];</span><br><span class="line">	my_book-&gt;name(name);</span><br><span class="line"></span><br><span class="line">	printf(&quot;I get book %s , %d ￥ \n&quot;, name, my_book-&gt;price());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int GetBook::page()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;this book page is %d \n&quot;, my_book-&gt;page());</span><br><span class="line">	return my_book-&gt;page();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int GetBook::price()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;this book price is %d \n&quot;, my_book-&gt;price());</span><br><span class="line">	return  my_book-&gt;price();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class ReadBook : public DecratorBook</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	ReadBook(book* my_book);</span><br><span class="line">	~ReadBook();</span><br><span class="line"></span><br><span class="line">	virtual void name(char *p_name);</span><br><span class="line">	virtual int page();</span><br><span class="line">	virtual int price();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">ReadBook::ReadBook(book *my_book) : DecratorBook(my_book)</span><br><span class="line">&#123;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ReadBook::~ReadBook()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void ReadBook::name(char *p_name)</span><br><span class="line">&#123;</span><br><span class="line">	char name[100];</span><br><span class="line">	my_book-&gt;name(name);</span><br><span class="line"></span><br><span class="line">	printf(&quot;I read book %s , %d pages \n&quot;, name, my_book-&gt;page());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int ReadBook::page()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;this book page is %d \n&quot;, my_book-&gt;page());</span><br><span class="line">	return my_book-&gt;page();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int ReadBook::price()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;this book price is %d \n&quot;, my_book-&gt;price());</span><br><span class="line">	return my_book-&gt;page();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">GetBook</span> :</span> <span class="hljs-keyword">public</span> DecratorBook
+&#123;
+<span class="hljs-keyword">public</span>:
+	GetBook(book* my_book);
+	~GetBook();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">page</span><span class="hljs-params">()</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">price</span><span class="hljs-params">()</span></span>;
+&#125;;
+
+GetBook::GetBook(book* my_book) : DecratorBook(my_book)
+&#123;
+&#125;
+
+GetBook::~GetBook()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">GetBook::name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">char</span> name[<span class="hljs-number">100</span>];
+	my_book-&gt;name(name);
+
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"I get book %s , %d ￥ \n"</span>, name, my_book-&gt;price());
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">GetBook::page</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"this book page is %d \n"</span>, my_book-&gt;page());
+	<span class="hljs-keyword">return</span> my_book-&gt;page();
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">GetBook::price</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"this book price is %d \n"</span>, my_book-&gt;price());
+	<span class="hljs-keyword">return</span>  my_book-&gt;price();
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">ReadBook</span> :</span> <span class="hljs-keyword">public</span> DecratorBook
+&#123;
+<span class="hljs-keyword">public</span>:
+	ReadBook(book* my_book);
+	~ReadBook();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">page</span><span class="hljs-params">()</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">int</span> <span class="hljs-title">price</span><span class="hljs-params">()</span></span>;
+&#125;;
+
+ReadBook::ReadBook(book *my_book) : DecratorBook(my_book)
+&#123;
+	
+&#125;
+
+ReadBook::~ReadBook()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">ReadBook::name</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *p_name)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">char</span> name[<span class="hljs-number">100</span>];
+	my_book-&gt;name(name);
+
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"I read book %s , %d pages \n"</span>, name, my_book-&gt;page());
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">ReadBook::page</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"this book page is %d \n"</span>, my_book-&gt;page());
+	<span class="hljs-keyword">return</span> my_book-&gt;page();
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">ReadBook::price</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"this book price is %d \n"</span>, my_book-&gt;price());
+	<span class="hljs-keyword">return</span> my_book-&gt;page();
+&#125;</code></pre>
 
 <p><strong>main函数测试</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	book* mathbook &#x3D; new MathBook;</span><br><span class="line">	book* englishbook &#x3D; new EnglishBook;</span><br><span class="line"></span><br><span class="line">	GetBook *getbook &#x3D; new GetBook(mathbook);</span><br><span class="line">	getbook-&gt;name(NULL);	</span><br><span class="line"></span><br><span class="line">	ReadBook *readbook &#x3D; new ReadBook(mathbook); </span><br><span class="line">	readbook-&gt;name(NULL);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	book* mathbook = <span class="hljs-keyword">new</span> MathBook;
+	book* englishbook = <span class="hljs-keyword">new</span> EnglishBook;
 
-<p>测试结果：</p>
+	GetBook *getbook = <span class="hljs-keyword">new</span> GetBook(mathbook);
+	getbook-&gt;name(<span class="hljs-literal">NULL</span>);	
 
+	ReadBook *readbook = <span class="hljs-keyword">new</span> ReadBook(mathbook); 
+	readbook-&gt;name(<span class="hljs-literal">NULL</span>);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
 
+<p>测试结果：<br><img src="/img/%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%BC%8F/4.png" srcset="/img/loading.gif" alt=""></p>
 <p>两种模式的比较：</p>
 <ul>
 <li>使用继承<br>可以看到随着组合的增加，子类的个数成倍的增加</li>
 </ul>
-
-
+<p><img src="/img/%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%BC%8F/2.png" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li>使用Decrator<br>对于每一种书扩展的动作是一样的，不需要每次都继承一个子类，可以把这些动作都提取出来，减少了代码的重复性，不管有多少种组合方式，只需要在实用的时候动态的加载具体的构件即可。</li>
 </ul>
-
-
-
-
+<p><img src="/img/%E8%A3%85%E9%A5%B0%E6%A8%A1%E5%BC%8F/3.png" srcset="/img/loading.gif" alt=""></p>
 <blockquote>
 <p>Decorator类在接口上表现为is-a Component的继承关系，即 Decorator类继承了Component类所具有的接口。但在实现上又表现为has-a Component的组合关系，即Decorator类又使用了另外一个Component类，这里指具体的英语书或者数学书<br>继承是为了接口的规范性，组合是为了动态的加载具体的构件，<strong>在代码中看到即有继承又有组合的方式，大部分都是使用了Decrator模式</strong></p>
 </blockquote>

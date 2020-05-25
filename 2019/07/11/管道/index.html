@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    780 字
+                    695 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    12
+                    10
                      分钟
                   </span>
                 
@@ -200,11 +200,102 @@
               <blockquote>
 <p>管道是一种进程间通信的方式，也就是 | 符号的含义</p>
 </blockquote>
-
-<p>图片来自于xmind导出的svg格式,右键打开图片，查看大图。。。</p>
+<p><img src="/img/%E7%AE%A1%E9%81%93/1.svg" srcset="/img/loading.gif" alt=""><br>图片来自于xmind导出的svg格式,右键打开图片，查看大图。。。</p>
 <p>要讲的东西不多，直接看代码</p>
 <h3 id="父子进程通信例子"><a href="#父子进程通信例子" class="headerlink" title="父子进程通信例子"></a>父子进程通信例子</h3><p><strong>示例程序</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;wait.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;signal.h&gt;</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">	int fcntl(int fd, int cmd, ... &#x2F;&#x2F; arg  );</span><br><span class="line">*&#x2F;</span><br><span class="line"></span><br><span class="line">void handler(int signum)</span><br><span class="line">&#123;</span><br><span class="line">	if (signum &#x3D;&#x3D; SIGPIPE)</span><br><span class="line">	&#123;</span><br><span class="line">		printf(&quot;rcv sig %d \n&quot;,signum);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	int ret &#x3D; 0;</span><br><span class="line">	int pipefd[2];</span><br><span class="line">	signal(SIGPIPE, handler);</span><br><span class="line">	&#x2F;* </span><br><span class="line">		pipefd[0] 用于读 </span><br><span class="line">		pipefd[1] 用于写 </span><br><span class="line">	*&#x2F;</span><br><span class="line">	ret &#x3D; pipe(pipefd);</span><br><span class="line">	if (ret &lt; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;pipe err&quot;);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	pid_t pid;</span><br><span class="line">	pid &#x3D; fork();</span><br><span class="line">	if (pid &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;fork err&quot;);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	if (pid &#x3D;&#x3D; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		close(pipefd[0]);</span><br><span class="line">		</span><br><span class="line">		sleep(2);</span><br><span class="line">		write(pipefd[1], &quot;childssssssssssss&quot;, 10);</span><br><span class="line"></span><br><span class="line">		sleep(2);</span><br><span class="line">		write(pipefd[1], &quot;childssssssssssss&quot;, 10);</span><br><span class="line">		</span><br><span class="line">		printf(&quot;child quit...\n&quot;);</span><br><span class="line">		close(pipefd[1]);</span><br><span class="line">		</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	unsigned char buf[1024];</span><br><span class="line">	memset(buf,0,sizeof(buf));</span><br><span class="line">	close(pipefd[1]);</span><br><span class="line">	&#x2F;*</span><br><span class="line">		fcntl 更改管道描述符属性为非阻塞&#x2F;阻塞</span><br><span class="line">	*&#x2F;</span><br><span class="line">	int flag;</span><br><span class="line">	flag &#x3D; fcntl(pipefd[0], F_SETFL);</span><br><span class="line">	&#x2F;&#x2F;flag |&#x3D; O_NONBLOCK;</span><br><span class="line">	flag &amp;&#x3D; ~O_NONBLOCK;</span><br><span class="line">	fcntl(pipefd[0], F_SETFL, flag);</span><br><span class="line"></span><br><span class="line">	ret &#x3D; read(pipefd[0], buf, sizeof(buf));</span><br><span class="line">	if (ret &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;read err&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	if (ret &#x3D;&#x3D; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;read err&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">	buf[ret] &#x3D; &#39;\0&#39;;</span><br><span class="line">	printf(&quot;rcv : %s \n&quot;,buf);</span><br><span class="line">	</span><br><span class="line">	close(pipefd[0]);</span><br><span class="line">	wait(NULL);</span><br><span class="line">	printf(&quot;parent quit...\n&quot;);</span><br><span class="line">	exit(0);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;errno.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/wait.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;signal.h&gt;</span></span>
+
+<span class="hljs-comment">/*</span>
+<span class="hljs-comment">	int fcntl(int fd, int cmd, ... // arg  );</span>
+<span class="hljs-comment">*/</span>
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">handler</span><span class="hljs-params">(<span class="hljs-keyword">int</span> signum)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">if</span> (signum == SIGPIPE)
+	&#123;
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"rcv sig %d \n"</span>,signum);
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> ret = <span class="hljs-number">0</span>;
+	<span class="hljs-keyword">int</span> pipefd[<span class="hljs-number">2</span>];
+	signal(SIGPIPE, handler);
+	<span class="hljs-comment">/* </span>
+<span class="hljs-comment">		pipefd[0] 用于读 </span>
+<span class="hljs-comment">		pipefd[1] 用于写 </span>
+<span class="hljs-comment">	*/</span>
+	ret = pipe(pipefd);
+	<span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>)
+	&#123;
+		perror(<span class="hljs-string">"pipe err"</span>);
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+	<span class="hljs-keyword">pid_t</span> pid;
+	pid = fork();
+	<span class="hljs-keyword">if</span> (pid == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"fork err"</span>);
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+	<span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>)
+	&#123;
+		<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">0</span>]);
+		
+		sleep(<span class="hljs-number">2</span>);
+		<span class="hljs-built_in">write</span>(pipefd[<span class="hljs-number">1</span>], <span class="hljs-string">"childssssssssssss"</span>, <span class="hljs-number">10</span>);
+
+		sleep(<span class="hljs-number">2</span>);
+		<span class="hljs-built_in">write</span>(pipefd[<span class="hljs-number">1</span>], <span class="hljs-string">"childssssssssssss"</span>, <span class="hljs-number">10</span>);
+		
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"child quit...\n"</span>);
+		<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">1</span>]);
+		
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+	
+	<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> buf[<span class="hljs-number">1024</span>];
+	<span class="hljs-built_in">memset</span>(buf,<span class="hljs-number">0</span>,<span class="hljs-keyword">sizeof</span>(buf));
+	<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">1</span>]);
+	<span class="hljs-comment">/*</span>
+<span class="hljs-comment">		fcntl 更改管道描述符属性为非阻塞/阻塞</span>
+<span class="hljs-comment">	*/</span>
+	<span class="hljs-keyword">int</span> flag;
+	flag = fcntl(pipefd[<span class="hljs-number">0</span>], F_SETFL);
+	<span class="hljs-comment">//flag |= O_NONBLOCK;</span>
+	flag &amp;= ~O_NONBLOCK;
+	fcntl(pipefd[<span class="hljs-number">0</span>], F_SETFL, flag);
+
+	ret = <span class="hljs-built_in">read</span>(pipefd[<span class="hljs-number">0</span>], buf, <span class="hljs-keyword">sizeof</span>(buf));
+	<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"read err"</span>);
+	&#125;
+	<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">0</span>)
+	&#123;
+		perror(<span class="hljs-string">"read err"</span>);
+	&#125;
+	buf[ret] = <span class="hljs-string">'\0'</span>;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"rcv : %s \n"</span>,buf);
+	
+	<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">0</span>]);
+	wait(<span class="hljs-literal">NULL</span>);
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"parent quit...\n"</span>);
+	<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+&#125;</code></pre>
 
 <ul>
 <li>子进程关闭读，父进程关闭写，只能有子进程想父进程写数据</li>
@@ -213,9 +304,64 @@
 <li>父进程等待子进程退出，父进程退出</li>
 </ul>
 <h3 id="实现ls-wc-w"><a href="#实现ls-wc-w" class="headerlink" title="实现ls | wc -w"></a>实现ls | wc -w</h3><p>该命令是统计当前目录下文件和目录的单词数</p>
+<p><img src="/img/%E7%AE%A1%E9%81%93/2.png" srcset="/img/loading.gif" alt=""></p>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment">	实现 ls | wc -w</span>
+<span class="hljs-comment">*/</span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;errno.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/wait.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;signal.h&gt;</span></span>
 
 
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line">	实现 ls | wc -w</span><br><span class="line">*&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;wait.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;signal.h&gt;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	int ret;</span><br><span class="line">	int pipefd[2];</span><br><span class="line">	</span><br><span class="line">	&#x2F;* pipefd[0] 用于读 pipefd[1] 用于写 *&#x2F;</span><br><span class="line">	ret &#x3D; pipe(pipefd);</span><br><span class="line">	if (ret &lt; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;pipe err&quot;);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	pid_t pid;</span><br><span class="line">	pid &#x3D; fork();</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 子进程执行ls 写管道 *&#x2F;</span><br><span class="line">	if (pid &#x3D;&#x3D; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		close(pipefd[0]);</span><br><span class="line">		&#x2F;* 复制管道的输出到标准输出 *&#x2F;</span><br><span class="line">		dup2(pipefd[1],STDOUT_FILENO);</span><br><span class="line">		close(pipefd[1]);</span><br><span class="line">		</span><br><span class="line">		execlp(&quot;ls&quot;, &quot;ls&quot;, NULL);</span><br><span class="line">		exit(0);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 父进程执行wc -c 读管道 *&#x2F;</span><br><span class="line">	else if (pid &gt; 0)</span><br><span class="line">	&#123;</span><br><span class="line">		close(pipefd[1]);</span><br><span class="line">		&#x2F;* 复制管道的读到标准输入 *&#x2F;</span><br><span class="line">		dup2(pipefd[0],STDIN_FILENO);</span><br><span class="line">		close(pipefd[1]);</span><br><span class="line">		execlp(&quot;wc&quot;, &quot;wc&quot;, &quot;-w&quot;, NULL);</span><br><span class="line">	&#125;</span><br><span class="line">	wait(NULL);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> ret;
+	<span class="hljs-keyword">int</span> pipefd[<span class="hljs-number">2</span>];
+	
+	<span class="hljs-comment">/* pipefd[0] 用于读 pipefd[1] 用于写 */</span>
+	ret = pipe(pipefd);
+	<span class="hljs-keyword">if</span> (ret &lt; <span class="hljs-number">0</span>)
+	&#123;
+		perror(<span class="hljs-string">"pipe err"</span>);
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+	<span class="hljs-keyword">pid_t</span> pid;
+	pid = fork();
+	
+	<span class="hljs-comment">/* 子进程执行ls 写管道 */</span>
+	<span class="hljs-keyword">if</span> (pid == <span class="hljs-number">0</span>)
+	&#123;
+		<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">0</span>]);
+		<span class="hljs-comment">/* 复制管道的输出到标准输出 */</span>
+		dup2(pipefd[<span class="hljs-number">1</span>],STDOUT_FILENO);
+		<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">1</span>]);
+		
+		execlp(<span class="hljs-string">"ls"</span>, <span class="hljs-string">"ls"</span>, <span class="hljs-literal">NULL</span>);
+		<span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);
+	&#125;
+	
+	<span class="hljs-comment">/* 父进程执行wc -c 读管道 */</span>
+	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (pid &gt; <span class="hljs-number">0</span>)
+	&#123;
+		<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">1</span>]);
+		<span class="hljs-comment">/* 复制管道的读到标准输入 */</span>
+		dup2(pipefd[<span class="hljs-number">0</span>],STDIN_FILENO);
+		<span class="hljs-built_in">close</span>(pipefd[<span class="hljs-number">1</span>]);
+		execlp(<span class="hljs-string">"wc"</span>, <span class="hljs-string">"wc"</span>, <span class="hljs-string">"-w"</span>, <span class="hljs-literal">NULL</span>);
+	&#125;
+	wait(<span class="hljs-literal">NULL</span>);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
 <ul>
 <li>子进程复制管道的输出替换原来的标准输出，并拉起ls程序</li>
 <li>父进程复制管道的输入替换原来的标准输入，并拉起wc -w程序</li>
