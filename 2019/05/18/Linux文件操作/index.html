@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="ZhangHui">
+  <meta name="keywords" content="">
+  <title>Linux文件操作 - 章辉的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github.min.css" />
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_fmb4a04yx8h.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>ZH</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <div class="mt-3 post-meta">
+                  <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+                  <time datetime="2019-05-18 22:04">
+                    2019年5月18日 晚上
+                  </time>
+                </div>
+              
+
+              <div class="mt-1">
+                
+                  
+                  <span class="post-meta mr-2">
+                    <i class="iconfont icon-chart"></i>
+                    6k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta mr-2">
+                      <i class="iconfont icon-clock-fill"></i>
+                    
+                    
+                    78
+                     分钟
+                  </span>
+                
+
+                
+              </div>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <p><strong>目录结构</strong>  </p>
+<blockquote>
+<p>1  底层系统调用<br>2  标准IO库<br>3  格式化输入输出<br>4  带缓冲的IO和不带缓冲的IO<br>5  目录操作<br>6  文件和目录的维护<br>7  proc文件系统<br>8  锁文件<br>9  文件锁  </p>
+</blockquote>
+<p>想必在此之前，你已经听说过这么一句话，<strong>在linux中，一切（几乎一切）都是文件</strong>，设置硬件设备也被映射为文件，Linux中比较重要的设备文件有3个：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;dev&#x2F;console：系统控制台</span><br><span class="line">&#x2F;dev&#x2F;tty：终端控制，由系统自动运行的进程和脚本没有控制终端，所以它们不能打开&#x2F;dev&#x2F;tty</span><br><span class="line">&#x2F;dev&#x2F;null：空设备，在cp命令里把它用作复制空文件的源文件，例如：</span><br><span class="line">cp &#x2F;dev&#x2F;null empty_file</span><br></pre></td></tr></table></figure>
+
+<h2 id="一-底层系统调用"><a href="#一-底层系统调用" class="headerlink" title="一 底层系统调用"></a>一 底层系统调用</h2><p><strong>文件操作的底层系统调用常用的有以下几个：</strong>    </p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>open</td>
+<td>打开文件或设备</td>
+</tr>
+<tr>
+<td>read</td>
+<td>从打开的文件或者设备里面读数据</td>
+</tr>
+<tr>
+<td>write</td>
+<td>向文件或设备里写数据</td>
+</tr>
+<tr>
+<td>close</td>
+<td>关闭文件或设备</td>
+</tr>
+<tr>
+<td>lseek</td>
+<td>设置读写指针</td>
+</tr>
+<tr>
+<td>fstat/stat/lstat</td>
+<td>获取文件相关信息</td>
+</tr>
+<tr>
+<td>mmap/msync</td>
+<td>内存映射</td>
+</tr>
+</tbody></table>
+<p>当一个进程（process）开始运行时，一般会有3个已经打开的文件描述符：    </p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>标准输入</td>
+</tr>
+<tr>
+<td>1</td>
+<td>标准输出</td>
+</tr>
+<tr>
+<td>2</td>
+<td>标准错误</td>
+</tr>
+</tbody></table>
+<p><strong>open</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int open(const char *path,int oflags);</span><br><span class="line">int open(const char *path,int oflags,mode_t mode);</span><br></pre></td></tr></table></figure>
+<p>— 参数解释 —</p>
+<ul>
+<li>path:文件路径和文件名</li>
+<li>oflags:</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">O_RDONLY:以只读方式打开</span><br><span class="line">O_WRONLY:以只写方式打开</span><br><span class="line">O_RDWR:以读写方式打开</span><br><span class="line">可选的组合模式:</span><br><span class="line">O_APPEND:把写入的数据追加在文件的末尾</span><br><span class="line">O_TRUNC:把文件的长度设置为0，丢弃已有的内容</span><br><span class="line">O_CREAT:如果需要，则创建文件，比较常用</span><br><span class="line">O_EXCL:与O_CREAT一起使用，使用这个模式可以方式两个进程同时创建出一个文件，如果文件已经存在，则创建失败。</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>mode:<br>如果你使用O_CREAT标志的open来创建文件时，你必须使用三个参数的open函数。<br>第三个参数是文件的读/写/执行权限，一般是以0开头的三个八进制数，每个八进制数都是由1/2/4中的一个或几个进行相加得到的。<br>这三个八进制中，第一个表述属主的权限，第二个表示组的权限，第三个表示其他用户的权限。</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>允许任何权限</td>
+</tr>
+<tr>
+<td>1</td>
+<td>禁止执行权限</td>
+</tr>
+<tr>
+<td>2</td>
+<td>禁止写权限</td>
+</tr>
+<tr>
+<td>4</td>
+<td>禁止执行权限</td>
+</tr>
+</tbody></table>
+<ul>
+<li>返回值：<br>open调用成功时会返回一个新的文件描述符（非负整数），在失败时返回-1。<br>值得注意的是，返回的新的文件描述符总是未使用描述符的最小值，这个特征非常有用，后面的文章会提到。</li>
+</ul>
+<p><strong>read</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">size_t read(int fildes,void *buf,size_t nbytes);</span><br></pre></td></tr></table></figure>
+
+<p>—参数解释—</p>
+<ul>
+<li>filedes: 文件描述符</li>
+<li>buf: 存放数据的缓冲区</li>
+<li>nbytes: 读取的字节数</li>
+<li>返回值：返回实际读取的字节数，这可能会小于请求的字节数。如果返回的是0，表示已经到达文件尾，未读入任何数据，如果返回的是-1，表示read调用出现了错误。</li>
+</ul>
+<p><strong>write</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">size_t write(int fildes,const void *buf,size_t nbytes);</span><br></pre></td></tr></table></figure>
+
+<p>—参数解释—</p>
+<ul>
+<li>filedes: 文件描述符</li>
+<li>buf: 要写入的缓冲区</li>
+<li>nbytes: 准备写入的字节数，写入的是缓冲区的前nbytes个字节</li>
+<li>返回值：返回实际写入的字节数，可能会小于nbytes，如果返回0，表示未写入任何数据，返回-1，表示发生错误。</li>
+</ul>
+<p><strong>close</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int close(int fildes);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>终止文件描述符与其对应的文件之间的关系</li>
+<li>释放文件描述符并使其能够重新使用</li>
+<li>成功返回0，失败返回-1</li>
+</ul>
+<p><strong>lseek</strong></p>
+<blockquote>
+<p>lseek用于对文件描述符fildes的读写指针进行设置。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">off_t lseek(int fileds,off_t offset,int whence);</span><br></pre></td></tr></table></figure>
+<p>—参数解释—</p>
+<ul>
+<li>off_t offset：off_t是一个整数类型，offset表示偏移值</li>
+<li>whence   </li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SEEK_SET</td>
+<td>offset是一个绝对位置</td>
+</tr>
+<tr>
+<td>SEEK_CUR</td>
+<td>offset是一个相对于当前位置的相对位置</td>
+</tr>
+<tr>
+<td>SEEK_END</td>
+<td>offset是一个相对于文件尾的相对位置</td>
+</tr>
+</tbody></table>
+<ul>
+<li>返回值<br>返回从文件头到文件指针的字节偏移值，失败时返回-1.</li>
+</ul>
+<p><strong>fstat/stat/lstat</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int fstat(int fildes,struct stat *buf);</span><br><span class="line">int stat(const char *path,struct stat *buf);</span><br><span class="line">int lstat(const char *path,struct stat *buf);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>fstat 通过文件描述符返回相关的文件状态信息</li>
+<li>stat/lstat 是通过文件名查到文件的状态信息</li>
+<li>stat/lstat的区别：当查到的文件名是一个符号链接时，lstat返回的是该符号链接本身的信息，stat返回的是该链接指向的文件的信息。</li>
+</ul>
+<p><strong>mmap/msync</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);</span><br></pre></td></tr></table></figure>
+
+<p>函数功能</p>
+<ul>
+<li>mmap函数创建一段指向内存区域的指针，该内存区域与可以通过一个文件描述符访问的文件的内容相关联。</li>
+<li>简单的说，就是把二进制文件的内容放在内存里，读写文件就可以使用指针操作，方便对某个字节进行读写操作。</li>
+</ul>
+<p>函数参数</p>
+<ul>
+<li>addr ： 分配的内存地址，一般设置为NULL,即由系统进行分配</li>
+<li>len ： 需要分配的长度</li>
+<li>prot: 设置内存访问的权限，有PORT_READ读/PORT_WRITE写/PORE_EXEC执行，按位OR操作</li>
+<li>fildes ： 已经打开的文件描述符</li>
+<li>off：内存访问的文件中数据的起始偏移地址</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int msync(void *addr,size_t len,int flags);</span><br></pre></td></tr></table></figure>
+
+<p>函数功能：把映射的内存段写回到被映射的文件中</p>
+<ul>
+<li>flasgs：执行修改的具体方式</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>MS_ASYNC</td>
+<td>采用异步写方式</td>
+</tr>
+<tr>
+<td>MS_SYNC</td>
+<td>采用同步写方式</td>
+</tr>
+<tr>
+<td>MS_INVALIDATE</td>
+<td>从文件中读回数据</td>
+</tr>
+</tbody></table>
+<h2 id="二-标准IO库"><a href="#二-标准IO库" class="headerlink" title="二 标准IO库"></a>二 标准IO库</h2><p><strong>IO标准库提供的读写函数主要有以下几个</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>fopen</td>
+<td>打开文件</td>
+</tr>
+<tr>
+<td>fread</td>
+<td>读取文件数据</td>
+</tr>
+<tr>
+<td>fwrite</td>
+<td>向文件写数据</td>
+</tr>
+<tr>
+<td>flose</td>
+<td>关闭文件流</td>
+</tr>
+<tr>
+<td>fflush</td>
+<td>写出缓冲区中所有的数据</td>
+</tr>
+<tr>
+<td>fseek</td>
+<td>移动读写指针</td>
+</tr>
+<tr>
+<td>fgetc/getc/getchar</td>
+<td>从文件流中获取一个字节</td>
+</tr>
+<tr>
+<td>fputc/putc/putchar</td>
+<td>输出一个字节到文件流中</td>
+</tr>
+<tr>
+<td>fgets/gets</td>
+<td>从文件流中获取字符串</td>
+</tr>
+</tbody></table>
+<p>标注IO库stdio为底层I/O系统调用提供了一个通用的接口，还提供了许多复杂的函数用于格式化输出和扫面输入，它还负责满足设备的缓冲需求。<br>在标准IO库中，与文件描述符对应的是流（stream）,它是指向结构<strong>FILE</strong>的指针。<br>同样，在启动程序时，由3个流时自动打开的，分别是   </p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>stdin</td>
+<td>标准输入</td>
+</tr>
+<tr>
+<td>stdout</td>
+<td>标准输出</td>
+</tr>
+<tr>
+<td>stderr</td>
+<td>标准错误</td>
+</tr>
+</tbody></table>
+<p><strong>fopen</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">FILE *fopen(const char *filename,const char *mode);</span><br></pre></td></tr></table></figure>
+<p>— 参数解释 —</p>
+<ul>
+<li>filename:指定的文件</li>
+<li>moed:指定的打开方式</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&quot;r&quot; &#x2F; &quot;rb&quot; :只读</span><br><span class="line">&quot;w&quot; &#x2F; &quot;wb&quot; : 只写,把文件长度截短为零</span><br><span class="line">&quot;a&quot; &#x2F; &quot;ab&quot; : 只写，新内容追加在文件尾</span><br><span class="line">&quot;r+&quot;&#x2F;&quot;rb+&quot;&#x2F;&quot;r+b&quot; : 以更新方式打开，读&#x2F;写</span><br><span class="line">&quot;w+&quot;&#x2F;&quot;wb+&quot;&#x2F;&quot;w+b&quot; : 以更新方式打开,并把文件长度截短为0</span><br><span class="line">&quot;a+&quot;&#x2F;&quot;ab+&quot;&#x2F;&quot;a+b&quot; : 以更新方式打开,新内容追加在文件尾</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>返回值：<br>成功返回一个非空的FILE * 指针<br>失败返回NULL</li>
+</ul>
+<p><strong>fread</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">size_t fread(void *ptr,size_t size,size_t nitems,FILE *stream);</span><br></pre></td></tr></table></figure>
+
+<p>—参数解释—</p>
+<ul>
+<li>ptr : 数据存放的缓冲区</li>
+<li>size: 每次读取的长度</li>
+<li>nitems: 读取的次数</li>
+<li>stream:文件流</li>
+<li>返回值：放到缓冲区里面的数据块的个数，而不是字节数</li>
+</ul>
+<p><strong>fwrite</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">size_t fwrite(const void *ptr,size_t size,size_t nitems,FILE *stream);</span><br></pre></td></tr></table></figure>
+
+<p>—参数解释—</p>
+<ul>
+<li>ptr : 数据存放的缓冲区</li>
+<li>size: 每次写入的长度</li>
+<li>nitems: 写入的次数</li>
+<li>stream:文件流</li>
+<li>返回值：写入的个数</li>
+</ul>
+<p><strong>flose</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int fclose(FILE *stream);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>flose关闭文件流stream,使所有尚未写出的数据都写出，因为stdio会对数据进行缓冲，所以使用fclose是非常重要的。</li>
+</ul>
+<p><strong>fflush</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int fflush(FILE *stream);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>把文件流里面所有未写出的数据立刻写出，可以用这个函数来确保在试图读入一个用户响应之前，先向终端送出一个交互提示符。</li>
+<li>flose()隐含执行了一次fflush函数</li>
+</ul>
+<p><strong>fseek</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int fseek(FILE *stream,long int offset,int whence);</span><br></pre></td></tr></table></figure>
+<p>offset和whence的含义与lseek一样，不一样的时fseek返回的是一个整数，0表示成功，-1表示失败。</p>
+<p><strong>fgetc/getc/getchar</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int fgetc(FILE stream);</span><br><span class="line">int getc(FILE *stream);</span><br><span class="line">int getchar();</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>fgetc从文件流里面取出下一个字节并把它作为字符返回，当到达文件尾部或者发生错误时返回<strong>EOF</strong>.</li>
+<li>getc与fgetc的作用一样,但是它有可能被声明成一个宏（被ISO C声明为一个宏），所以它不可以作为函数指针，宏会需要更多的内存空间，但是有更高的执行效率。</li>
+<li>getchar的作用相当于getc(stdin),从标准里读取下一个字符</li>
+</ul>
+<p><strong>fputc/putc/putchar</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int fputc(int c,FILE *stream);</span><br><span class="line">int putc(int c,FILE *stream);</span><br><span class="line">int putchar(int c);</span><br></pre></td></tr></table></figure>
+
+<p>类似于<code>fgetc/fget/getchar</code>之间的关系<br>注意，<strong>putchar和getchar都是把字符当作int类型而不是char类型来使用的，这就允许文件尾(EOF)标识取值-1</strong></p>
+<p><strong>fgets/gets</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">char *fgets(char *s,int n,FILE *stream);</span><br><span class="line">char *gets(char *s);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>fgets把读到的字符写到S所指向的字符串里，<strong>直到遇到换行符或者文件尾</strong>，也会把换行符接受到字符串里，<strong>并加上结尾字符\0</strong>，一次调用最多传输<strong>n-1</strong>个字符，因为最后一个字符必须是<strong>\0</strong><br>成功时，返回指向s的指针，失败时，返回一个空指针</li>
+<li>gets类似于fgets，只不过它是从标准输入读取数据并<strong>丢弃换行符，并在结尾加上null字符</strong></li>
+</ul>
+<h2 id="三-格式化输入输出"><a href="#三-格式化输入输出" class="headerlink" title="三 格式化输入输出"></a>三 格式化输入输出</h2><h3 id="1-标准输出函数"><a href="#1-标准输出函数" class="headerlink" title="1 标准输出函数"></a>1 标准输出函数</h3><p><strong>printf/fprintf/sprintf</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int printf(const char *format,...);</span><br><span class="line">int sprintf(char *s,const char *format,...);</span><br><span class="line">int fprintf(FILE *stream,const char *format,...);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>printf   把自己的输出送到标准输出</li>
+<li>fprintf  把自己的输出送到一个指定的文件流##</li>
+<li>sprintf  把自己的输出和一个结尾空字符写到字符串s里面</li>
+</ul>
+<p><strong>scanf/fscanf/sscanf</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int scanf(const char *format,...);</span><br><span class="line">int fscanf(FILE *stream,const char *format,..);</span><br><span class="line">int sscanf(const char *s,const char *format,...);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>scanf 读入标准输入的值保存到对应的变量里去，这些变量的类型必须正确并且精确匹配格式字符串，斗则，内存数据会遭到破坏，使程序崩溃<br>使用%c控制符从输入中读取一个自读，它<strong>不会跳过起始的空白字符</strong><br>使用%s控制符来扫描字符串，它<strong>会跳过起始的空白字符</strong><br>返回值是成功读取的数据项个数<br>例：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">给定下面的输入行：</span><br><span class="line">hello, 1234, 5.678, X, string to the end of the line</span><br><span class="line">下面的scanf会正确读取4个数据项：</span><br><span class="line">char s[256];</span><br><span class="line">int n;</span><br><span class="line">float f;</span><br><span class="line">char c;</span><br><span class="line">scanf(&quot;Hello,%d,%g, %c, %[^\n]&quot;,&amp;n,&amp;f,&amp;c,s);</span><br><span class="line">&#x2F;*</span><br><span class="line"> * 1 注意%c前面有空格，是为了匹配字符X之前的空格</span><br><span class="line"> * 2 %[^\n]: 表示遇到\n停止读取字符串</span><br><span class="line"> *&#x2F;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>fscanf  从文件流读取数据到对应项中</li>
+<li>sscanf  从字符串读取数据到对应项中</li>
+</ul>
+<h2 id="四-带缓冲的IO与不带缓冲的IO"><a href="#四-带缓冲的IO与不带缓冲的IO" class="headerlink" title="四 带缓冲的IO与不带缓冲的IO"></a>四 带缓冲的IO与不带缓冲的IO</h2><p>底层系统调用提供的IO读写操作是不带缓存的IO<br>标准库stdio提供的IO读写操作是带缓存的IO</p>
+<p>看下面两个函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">size_t write(int fildes,const void *buf,size_t nbytes);</span><br><span class="line">size_t fwrite(const void *ptr,size_t size,size_t nitems,FILE *stream);</span><br></pre></td></tr></table></figure>
+
+<p>在数据读入buff或者是ptr之前，都会先写到内核所设置的缓冲存储器中。<strong>如果存储器未满，则并不将其排入到输出队列，直到缓存写满或者内核需要重新使用此缓存时才将其排入输出队列，再进行实际的IO操作，这种技术叫延迟写</strong></p>
+<p>标准IO在系统调用上多加了一个缓冲区，也因此引入了流的概念，FILE实际上包含了管理流所需要的所有信息：</p>
+<ul>
+<li>实际的IO文件描述符</li>
+<li>指向流缓存的指针</li>
+<li>缓存长度</li>
+<li>当前在缓存中的字节数     </li>
+</ul>
+<p>标准IO提供三种缓存模式：</p>
+<ul>
+<li>全缓存，即填满IO缓存后才执行IO操作</li>
+<li>行缓存，即输入输出遇到新行符或者缓存满时，才执行真正的IO操作，stdin,stdout通常是行缓存，当stdout被重定向到一个具体的文件时，那么它是全缓存的</li>
+<li>无缓存，相当于read write，stderr时不带任何缓存的</li>
+</ul>
+<p>带缓存的IO虽然数据复制了两次，但是无需考虑缓存以及最佳IO长度的选择，因此它不比read/write慢多少</p>
+<p>如何直观的看到标准IO库的缓存效果，看下面的例子：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	char buff[1024];</span><br><span class="line">	printf(&quot;This Line Should be Cached...&quot;);</span><br><span class="line">	sleep(3);    &#x2F;&#x2F;这时候在终端上是看不到任何输出</span><br><span class="line">	printf(&quot;\nThis Line Should be Cached Again&quot;);  &#x2F;&#x2F;这时候可以看到第一个printf的输出，因为被换行符刷新了</span><br><span class="line">	sleep(3);  </span><br><span class="line">	printf(&quot;This Line Should Not be Cached Again\n&quot;); &#x2F;&#x2F;这时候可以看到第二个和第三个printf的输出，因为被结尾的\n刷新</span><br><span class="line">	&#x2F;&#x2F;fgets(buff,20,stdin);		&#x2F;&#x2F; buff中带&#39;\n&#39;</span><br><span class="line">	gets(buff);					&#x2F;&#x2F; buff中不带&#39;\n&#39;</span><br><span class="line">	printf(&quot;%s &quot;,buff);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="五-目录操作"><a href="#五-目录操作" class="headerlink" title="五 目录操作"></a>五 目录操作</h2><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>opendir</td>
+<td>打开目录流</td>
+</tr>
+<tr>
+<td>readdir</td>
+<td>扫描目录</td>
+</tr>
+<tr>
+<td>telldir</td>
+<td>返回目录当前位置</td>
+</tr>
+<tr>
+<td>seekdir</td>
+<td>设置目录流指针</td>
+</tr>
+<tr>
+<td>closedir</td>
+<td>关闭一个目录流</td>
+</tr>
+</tbody></table>
+<p>Linux中，与目录操作有关的头文件在diret.h中，它们使用一个名为DIR的结构体作为目录操作的基础，被称为<strong>目录流</strong>的指针指向这个结构体。</p>
+<p><strong>opendir</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DIR *opendir(const char *name);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>打开并建立一个目录流，如果失败，则返回一个空指针</li>
+</ul>
+<p><strong>readdir</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct dirent *readdir(DIR *dirp);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>readdir返回一个指针，指向目录流的下一个目录项的有关资料，如果发生错误或者到达目录为，则返回NULL</li>
+<li>struct dirent 包含的内容：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ino_t d_ino: 文件的inode节点号</span><br><span class="line">char d_name[]: 文件的名字</span><br></pre></td></tr></table></figure>
+
+<p><strong>telldir</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long int telldir(DIR *dirp);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>返回值记录一个目录流的当前位置</li>
+</ul>
+<p><strong>seekdir</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void seekdir(DIR *dirp,long int loc);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置目录流dirp的目录项指针，loc的值用来设置指针位置，它应该通过<strong>telldir</strong>来获得</li>
+</ul>
+<p><strong>closedir</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int closedir(DIR *dirp);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>关闭一个目录流并释放与之关联的资源，执行成功返回0，错误返回-1</li>
+</ul>
+<h2 id="六-文件和目录的维护"><a href="#六-文件和目录的维护" class="headerlink" title="六 文件和目录的维护"></a>六 文件和目录的维护</h2><table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>chmod</td>
+<td>改变文件的访问权限</td>
+</tr>
+<tr>
+<td>unlink/link/symlink</td>
+<td>删除/建立文件链接</td>
+</tr>
+<tr>
+<td>mkdir/rmdir</td>
+<td>建立/删除目录</td>
+</tr>
+<tr>
+<td>chdir/getcwd</td>
+<td>获取当前目录</td>
+</tr>
+</tbody></table>
+<p><strong>chmod</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int chmod(const char *path,mode_t mode);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>path参数指定的文件被修改为具有mode参数给出的权限，参数mode与open中的一样</li>
+</ul>
+<p><strong>unlink/link/symlink</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">int unlink(const char *path);</span><br><span class="line">int link(const char *path1,const char *path2);</span><br><span class="line">int symlink(const char *path1,const char *path2);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>unlink,用来删除一个文件的目录项并减少它的连接数，成功返回0，失败返回-1，如果一个文件的链接数减少到0并且没有进程打开它，这个文件就会被删除</li>
+<li>link 将创建一个指向已有文件path1的新连接，新目录由path2给出</li>
+<li>symlink 以类似的方式创建符号链接</li>
+</ul>
+<p><strong>mkdir/rmdir</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int mkdir(const char *path,mode_t mode);</span><br><span class="line">int rmdir(const char *path);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>mkdir 用于创建目录，权限由mode参数给出</li>
+<li>rmdir 用于删除目录，只有在目录为空时才行</li>
+</ul>
+<p><strong>chdir/getcwd</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">int chdir(const char *path);</span><br><span class="line">char *getcwd(char *buf,size_t size);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>chdir 用于切换目录</li>
+<li>getcwd 用于获取当前目录，把当前目录的名字写到buff里面，size参数给出了buff的长度</li>
+</ul>
+<h2 id="七-proc文件系统"><a href="#七-proc文件系统" class="headerlink" title="七 /proc文件系统"></a>七 /proc文件系统</h2><p>Linux提供了一个特殊的文件系统procfs,它通常以/proc目录的形式呈现<br>  </p>
+<p>该目录中包含了许多驱动程序和内核信息，只要应用程序具有正确的访问权限，它们就可以通过读写这些文件来获得信息或者设置参数<br></p>
+<ul>
+<li>这是我阿里云服务器的/proc目录列表</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">1      143    23     430   54    6875  985          interrupts   modules        thread-self</span><br><span class="line">10     15     24     431   55    6893  acpi         iomem        mounts         timer_list</span><br><span class="line">11     16     274    446   56    6894  buddyinfo    ioports      mtrr           timer_stats</span><br><span class="line">11293  163    27448  47    57    6911  bus          irq          net            tty</span><br><span class="line">11296  165    27449  4700  573   7     cgroups      kallsyms     pagetypeinfo   uptime</span><br><span class="line">12     166    27456  474   58    7081  cmdline      kcore        partitions     version</span><br><span class="line">13     17     27457  479   59    786   consoles     keys         sched_debug    version_signature</span><br><span class="line">133    18     27458  48    599   8     cpuinfo      key-users    schedstat      vmallocinfo</span><br><span class="line">134    19     27507  49    60    81    crypto       kmsg         scsi           vmstat</span><br><span class="line">135    197    28     5     61    811   devices      kpagecgroup  self           zoneinfo</span><br><span class="line">137    2      29     50    62    82    diskstats    kpagecount   slabinfo</span><br><span class="line">138    20     3      504   6539  874   dma          kpageflags   softirqs</span><br><span class="line">139    20824  30     505   6559  882   driver       loadavg      stat</span><br><span class="line">14     21     31     51    6581  9     execdomains  locks        swaps</span><br><span class="line">140    218    394    52    6584  930   fb           mdstat       sys</span><br><span class="line">141    22     411    5220  68    952   filesystems  meminfo      sysrq-trigger</span><br><span class="line">142    22921  425    53    6857  953   fs           misc         sysvipc</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>常用的信息</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cat &#x2F;proc&#x2F;cpuinfo    输出cpu信息</span><br><span class="line">cat &#x2F;proc&#x2F;meminfo    输出内存使用情况</span><br><span class="line">cat &#x2F;proc&#x2F;version    输出内核版本信息</span><br><span class="line">... ...</span><br></pre></td></tr></table></figure>
+
+<h2 id="八-锁文件"><a href="#八-锁文件" class="headerlink" title="八 锁文件"></a>八 锁文件</h2><blockquote>
+<p>Linux提供了很多种方法来实现文件锁定，其中最简单的方法就是以原子操作的方式创建锁文件，所谓“原子操作”就是在创建锁文件时，这个过程不允许被打断。<br></p>
+</blockquote>
+<p>这种方式却把它所创建的文件是唯一的，而且这个文件不可能被其他程序在同一时间创<br></p>
+<ul>
+<li><p>锁文件只是<strong>建议锁</strong>，而不是<strong>强制锁</strong></p>
+<blockquote>
+<p>建议锁：进程在对某一个文件进行操作时，没有检测是否加锁或者直接向文件写入数据，内核是不会加以阻止的<br>强制锁：OS内核的文件锁，应用程序对文件进行读写操作时，OS内核会检测文件是否加锁，如果加锁将导致操作失败</p>
+</blockquote>
+</li>
+<li><p>锁文件的实现是通过open函数调用的<strong>O_EXCL</strong>标志来完成的   </p>
+</li>
+</ul>
+<ul>
+<li>示例代码</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line"> *  文件锁</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">        int file_desc;</span><br><span class="line">        int save_error;</span><br><span class="line"></span><br><span class="line">        file_desc &#x3D; open(&quot;.&#x2F;LCK.test&quot;,O_RDWR | O_CREAT | O_EXCL,0444);</span><br><span class="line">        if(file_desc &#x3D;&#x3D; -1)</span><br><span class="line">                &#123;</span><br><span class="line">                        save_error &#x3D; errno;</span><br><span class="line">                        printf(&quot;open failed with error %d \n&quot;,save_error);</span><br><span class="line">                &#125;</span><br><span class="line">        else</span><br><span class="line">                &#123;</span><br><span class="line">                        printf(&quot; open succeeded \n&quot;);</span><br><span class="line">                &#125;</span><br><span class="line">        exit(EXIT_SUCCESS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>通过O_EXCL标志以原子操作的方式创建了一个锁文件，但是需要注意以下两点：</p>
+<ul>
+<li>1 如果需要保证这个文件的名字是唯一的，那么所有的进程在创建文件时都需要加上O_EXCL，如果这个文件已经存在，则open()调用会返回错误</li>
+<li>2 如果其他进程不加O_EXCL标志，则可以直接读写这个文件，因为锁文件是<strong>建议锁而不是强制锁</strong></li>
+</ul>
+<h2 id="九-文件锁"><a href="#九-文件锁" class="headerlink" title="九 文件锁"></a>九 文件锁</h2><blockquote>
+<p>Linux至少提供两种系统调用，分别是fcntl系统调用和lockf系统调用，这些系统调用的好处是可以实现文件的<strong>区域锁定</strong>和<strong>段锁定</strong><br>fcntl和lockf使用不同的底层实现，因此两者不能混合使用<br>fcntl和lockf<strong>都是建议锁，而不是强制锁</strong></p>
+</blockquote>
+<h3 id="fcntl系统调用"><a href="#fcntl系统调用" class="headerlink" title="fcntl系统调用"></a>fcntl系统调用</h3><ul>
+<li>fcntl对一个打开的文件描述符进行操作，并能根据command参数完成不同的任务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int fcntl(int fildes,int command,struct flock *flock_structure);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>command选项如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 获取锁信息，信息存储在 struct flock 结构体中 *&#x2F;</span><br><span class="line">F_GETLK</span><br><span class="line"></span><br><span class="line">&#x2F;* 加锁或者解锁，加锁或者解锁的信息在 struct flock 结构体中  *&#x2F;</span><br><span class="line">F_SETLK</span><br><span class="line"></span><br><span class="line">&#x2F;* 与SETLK类似，但在无法获取锁时，这个调用将等待直到 1 获取锁 2 收到一个信号 才会返回 *&#x2F;</span><br><span class="line">F_SETLKW</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>struct flock的成员如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">short l_type</span><br><span class="line">short l_whence</span><br><span class="line">off_t l_start</span><br><span class="line">off_t l_len</span><br><span class="line">pid_t l_pid</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>l_type</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line"> * 共享锁&#x2F;读锁 </span><br><span class="line"> * 许多不同的进程可以拥有文件同一区域的共享锁</span><br><span class="line"> * 只要任一进程拥有共享锁，则没有进程可以获得该区域的独占锁</span><br><span class="line"> * 简单的说，这把锁的作用是使文件不让进程上锁</span><br><span class="line"> * 要想获取共享锁，文件必须以读或者读写的方式打开</span><br><span class="line"> * 一般读文件的进程设置共享锁</span><br><span class="line"> *&#x2F;</span><br><span class="line">F_RDLCK</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line"> *解锁，清除锁</span><br><span class="line"> *&#x2F;</span><br><span class="line">F_UNLCK</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line"> * 独占锁&#x2F;写锁 </span><br><span class="line"> * 有且只有一个进程可以在文件的特定区域拥有一把独占锁</span><br><span class="line"> * 只要有一个进程设置了独占锁，其他任何进程都不可以设置任何锁</span><br><span class="line"> * 获取独占锁的前提是，文件必须要以写或者读写的方式打开，（否则没有获取独占锁，因为不需要修改文件)</span><br><span class="line"> * 一般写文件的进程设置独占锁</span><br><span class="line"> *&#x2F;</span><br><span class="line">F_WRLCK</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>l_whence</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 文件头 *&#x2F;</span><br><span class="line">SEEK_SET</span><br><span class="line">&#x2F;* 当前位置 *&#x2F;</span><br><span class="line">SEEK_CUR</span><br><span class="line">&#x2F;* 文件尾 *&#x2F;</span><br><span class="line">SEEK_END</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>l_start / l_len<br>l_whence定义了l_start的相对偏移值，l_start定义了该区域的第一个字节，l_len定义了改区域的字节数</p>
+</li>
+<li><p>l_pid<br>l_pid记录 持有锁的进程</p>
+</li>
+</ul>
+<p><strong>示例代码</strong></p>
+<p>1 在文件上加锁</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line"> *	文件锁 </span><br><span class="line"> *  use fcntl</span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line"></span><br><span class="line">const char *test_file &#x3D; &quot;.&#x2F;tmp&#x2F;test_lock.txt&quot;;</span><br><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line">The structure describing an advisory lock.  This is the type of the third </span><br><span class="line">argument to &#96;fcntl&#39; for the F_GETLK, F_SETLK, and F_SETLKW requests.  </span><br><span class="line"></span><br><span class="line">struct flock</span><br><span class="line">  &#123;</span><br><span class="line">    __off_t l_start;	 	Offset where the lock begins.  </span><br><span class="line">    __off_t l_len;		    Size of the locked area; zero means until EOF.  </span><br><span class="line">    __pid_t l_pid;			Process holding the lock.  </span><br><span class="line">    short int l_type;		Type of lock: F_RDLCK, F_WRLCK, or F_UNLCK.  </span><br><span class="line">    short int l_whence;		Where &#96;l_start&#39; is relative to (like &#96;lseek&#39;).  </span><br><span class="line">  &#125;;</span><br><span class="line">*&#x2F;</span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	int file_desc;</span><br><span class="line">	int byte_count;</span><br><span class="line">	char * byte_to_write &#x3D; &#39;A&#39;;</span><br><span class="line">	struct flock region_1;</span><br><span class="line">	struct flock region_2;</span><br><span class="line">	int res;</span><br><span class="line"></span><br><span class="line">	file_desc &#x3D; open(test_file,O_RDWR | O_CREAT , 0666);</span><br><span class="line">	if(!file_desc)</span><br><span class="line">		&#123;</span><br><span class="line">			fprintf(stderr,&quot;unable to open file \n&quot;);</span><br><span class="line">			exit(EXIT_FAILURE);</span><br><span class="line">		&#125;</span><br><span class="line">	for(byte_count &#x3D; 0;byte_count &lt; 100;byte_count ++)</span><br><span class="line">		&#123;</span><br><span class="line">			write(file_desc,byte_to_write,1);</span><br><span class="line">		&#125;</span><br><span class="line">	&#x2F;* 10-30 字节设置为区域 1 ，设置共享锁 *&#x2F;</span><br><span class="line">	region_1.l_type &#x3D; F_RDLCK;</span><br><span class="line">	region_1.l_whence &#x3D; SEEK_SET;</span><br><span class="line">	region_1.l_start &#x3D;  10;</span><br><span class="line">	region_1.l_len &#x3D; 20;</span><br><span class="line"></span><br><span class="line">	&#x2F;* 40-50 字节设置为区域 2 ，设置独占锁 *&#x2F;</span><br><span class="line">	region_2.l_type &#x3D; F_WRLCK;</span><br><span class="line">	region_2.l_whence &#x3D; SEEK_SET;</span><br><span class="line">	region_2.l_start &#x3D;  40;</span><br><span class="line">	region_2.l_len &#x3D; 10;</span><br><span class="line"></span><br><span class="line">	&#x2F;* 锁定文件 *&#x2F;</span><br><span class="line">	printf(&quot; process %d locking file \n &quot;,getpid());</span><br><span class="line">	res &#x3D; fcntl(file_desc,F_SETLK,&amp;region_1); &#x2F;* F_SETLK : 区域加锁 *&#x2F;</span><br><span class="line">	if(res &#x3D;&#x3D; -1) fprintf(stderr,&quot;failed to lock region 1\n&quot;);</span><br><span class="line">	res &#x3D; fcntl(file_desc,F_SETLK,&amp;region_2); &#x2F;* F_SETLK : 区域加锁 *&#x2F;</span><br><span class="line">	if(res &#x3D;&#x3D; -1) fprintf(stderr,&quot;failed to lock region 2\n&quot;);</span><br><span class="line"></span><br><span class="line">	sleep(60);</span><br><span class="line"></span><br><span class="line">	printf(&quot;process %d close file \n&quot;,getpid());</span><br><span class="line">	close(file_desc);</span><br><span class="line">	exit(EXIT_SUCCESS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2 在另一个进程中读出这些锁</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&#x2F;*</span><br><span class="line"> *	测试文件中不同部分的文件锁</span><br><span class="line"> *  use fcntl </span><br><span class="line"> *&#x2F;</span><br><span class="line"></span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line"></span><br><span class="line">const char *test_file &#x3D; &quot;.&#x2F;tmp&#x2F;test_lock.txt&quot;;</span><br><span class="line">#define SIZE_TO_TRY 5</span><br><span class="line"></span><br><span class="line">void show_lock_info(struct flock * lck);</span><br><span class="line"></span><br><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	int file_desc;</span><br><span class="line">	int res;</span><br><span class="line">	struct flock region_to_test;</span><br><span class="line">	int start_byte;</span><br><span class="line"></span><br><span class="line">	file_desc &#x3D; open(test_file,O_RDWR | O_CREAT,0X666);</span><br><span class="line">	if(!file_desc)</span><br><span class="line">		&#123;	</span><br><span class="line">			fprintf(stderr,&quot;Unable to open file \n&quot;);</span><br><span class="line">		&#125;</span><br><span class="line">	for(start_byte &#x3D; 0;start_byte &lt; 99 ;start_byte +&#x3D; SIZE_TO_TRY)</span><br><span class="line">		&#123;</span><br><span class="line">			&#x2F;* 独占锁 *&#x2F;</span><br><span class="line">			region_to_test.l_type &#x3D; F_WRLCK;</span><br><span class="line">			region_to_test.l_whence &#x3D; SEEK_SET;	</span><br><span class="line">			region_to_test.l_start &#x3D; start_byte;</span><br><span class="line">			region_to_test.l_len &#x3D; SIZE_TO_TRY;</span><br><span class="line">			region_to_test.l_pid &#x3D; -1;</span><br><span class="line">			printf(&quot;testing F_WRLCK on region from %d to %d \n&quot;,start_byte,start_byte+SIZE_TO_TRY);</span><br><span class="line"></span><br><span class="line">			&#x2F;*  		F_GETLK   : 获取锁信息 *&#x2F;</span><br><span class="line">			res &#x3D; fcntl(file_desc,F_GETLK,&amp;region_to_test);</span><br><span class="line">			if(res &#x3D;&#x3D; -1)</span><br><span class="line">				&#123;</span><br><span class="line">					fprintf(stderr,&quot;lock fail,F_WRLCK retutn \n&quot;);</span><br><span class="line">					exit(EXIT_FAILURE);</span><br><span class="line">				&#125;</span><br><span class="line">			if(region_to_test.l_pid !&#x3D; -1)</span><br><span class="line">				&#123;</span><br><span class="line">					printf(&quot;lock fail,F_WRLCK retutn \n&quot;);</span><br><span class="line">					show_lock_info(&amp;region_to_test);						</span><br><span class="line">				&#125;</span><br><span class="line">			else</span><br><span class="line">				&#123;</span><br><span class="line">					printf(&quot; F_WRLCK - Lock would succeed \n&quot;);</span><br><span class="line">				&#125;</span><br><span class="line">			</span><br><span class="line"></span><br><span class="line">			&#x2F;* 共享锁 *&#x2F;</span><br><span class="line">			region_to_test.l_type &#x3D; F_RDLCK;</span><br><span class="line">			region_to_test.l_whence &#x3D; SEEK_SET;</span><br><span class="line">			region_to_test.l_start &#x3D; start_byte;</span><br><span class="line">			region_to_test.l_len &#x3D; SIZE_TO_TRY;</span><br><span class="line">			region_to_test.l_pid &#x3D; -1;</span><br><span class="line">			printf(&quot;testing F_RDLCK on region from %d to %d \n&quot;,start_byte,start_byte+SIZE_TO_TRY);</span><br><span class="line"></span><br><span class="line">			&#x2F;*      F_GETLK : 获取锁信息 *&#x2F;</span><br><span class="line">			res &#x3D; fcntl(file_desc,F_GETLK,&amp;region_to_test);</span><br><span class="line">			if(res &#x3D;&#x3D; -1)</span><br><span class="line">				&#123;</span><br><span class="line">					fprintf(stderr,&quot;lock fail,F_RDLCK retutn \n&quot;);</span><br><span class="line">					exit(EXIT_FAILURE);</span><br><span class="line">				&#125;</span><br><span class="line">			if(region_to_test.l_pid !&#x3D; -1)</span><br><span class="line">				&#123;</span><br><span class="line">					printf(&quot;lock fail,F_RDLCK retutn \n&quot;);</span><br><span class="line">					show_lock_info(&amp;region_to_test);						</span><br><span class="line">				&#125;</span><br><span class="line">			else</span><br><span class="line">				&#123;</span><br><span class="line">					printf(&quot; F_RDLCK - Lock would succeed \n&quot;);</span><br><span class="line">				&#125;</span><br><span class="line"></span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">		close(file_desc);</span><br><span class="line">		exit(EXIT_SUCCESS);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void show_lock_info(struct flock * lck)</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot; \t1_type %d &quot;, 	lck-&gt;l_type);</span><br><span class="line">	printf(&quot; \t1_whence %d &quot;,  lck-&gt;l_whence);</span><br><span class="line">	printf(&quot; \t1_start %d &quot;,   lck-&gt;l_start);</span><br><span class="line">	printf(&quot; \t1_len %d &quot;,      lck-&gt;l_len);</span><br><span class="line">	printf(&quot; \t1_pid %d \n&quot;,      lck-&gt;l_pid);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="lockf系统调用"><a href="#lockf系统调用" class="headerlink" title="lockf系统调用"></a>lockf系统调用</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">int lockf(int fildes,int function,off_t size_to_lock);</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>function定义如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">F_ULOCK:解锁</span><br><span class="line">F_LOCK : 设置独占锁</span><br><span class="line">F_TLOCK : 测试并设置独占锁</span><br><span class="line">F_TEST : 测试其他进程设置的锁</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>size_to_lock</li>
+</ul>
+<p>操作的字节数，从文件的当前偏移值开始计算</p>
+<blockquote>
+<p>lockf的接口更加简单，但是功能和灵活性比fcntl差一些</p>
+</blockquote>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Unix%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B/">Unix环境编程</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Unix%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B/">Unix环境编程</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/01/C++%E8%84%91%E5%9B%BE/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++脑图</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/05/18/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">
+                        <span class="hidden-mobile">Linux应用程序调试方法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script defer src="https://cdn.staticfile.org/valine/1.4.14/Valine.min.js" ></script>
+
+  <script type="text/javascript">
+    var oldLoadVa = window.onload;
+    window.onload = function () {
+      oldLoadVa && oldLoadVa();
+
+      new Valine({
+        el: "#vcomments",
+        app_id: "xOKV9J4UeQAtVkvnJC7Kq2Jn-gzGzoHsz",
+        app_key: "erIpQac4azoCmgfBB7Dl9maa",
+        placeholder: "说点什么吧",
+        path: window.location.pathname,
+        avatar: "retro",
+        meta: ["nick","mail","link"],
+        pageSize: "10",
+        lang: "zh-CN",
+        highlight: false,
+        recordIP: false,
+        serverURLs: "",
+      });
+    };
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div>
+    
+      <!-- 不蒜子统计PV -->
+      
+      <span id="busuanzi_container_site_pv" style="display: none">
+      总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    </span>
+    
+    
+      <!-- 不蒜子统计UV -->
+      
+      <span id="busuanzi_container_site_uv" style="display: none">
+      总访客数 <span id="busuanzi_value_site_uv"></span> 人
+    </span>
+    
+  </div>
+
+
+    
+  <!-- 备案信息 -->
+  <div>
+    <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-icp"
+       rel="nofollow noopener">京ICP证123456号</a>
+    
+      <a
+        href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+        rel="nofollow noopener"
+        class="beian-police"
+        target="_blank"
+      >
+        <span class="beian-police-sep">&nbsp;|&nbsp;</span>
+        
+          <img src="/img/police_beian.png" srcset="/img/loading.gif" alt="police-icon" />
+        
+        <span>京公网安备12345678号</span>
+      </a>
+     
+  </div>
+
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Linux文件操作&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="ZhangHui">
+  <meta name="keywords" content="">
+  <title>从0移植4.9内核(1) - 章辉的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github.min.css" />
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_fmb4a04yx8h.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>ZH</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <div class="mt-3 post-meta">
+                  <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+                  <time datetime="2019-06-14 22:04">
+                    2019年6月14日 晚上
+                  </time>
+                </div>
+              
+
+              <div class="mt-1">
+                
+                  
+                  <span class="post-meta mr-2">
+                    <i class="iconfont icon-chart"></i>
+                    2.3k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta mr-2">
+                      <i class="iconfont icon-clock-fill"></i>
+                    
+                    
+                    31
+                     分钟
+                  </span>
+                
+
+                
+              </div>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <blockquote>
+<p>简单说明：从搭建环境，安装虚拟机开始移植4.9内核到jz2440开发板，目的是复习Linux交叉编译环境和系统构建的过程</p>
+</blockquote>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><h3 id="安装ubuntu虚拟机18-04"><a href="#安装ubuntu虚拟机18-04" class="headerlink" title="安装ubuntu虚拟机18.04"></a>安装ubuntu虚拟机18.04</h3><ul>
+<li>下载地址</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https:&#x2F;&#x2F;www.ubuntu.com&#x2F;download&#x2F;desktop</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意虚拟机的网卡需要设置为桥接模式</p>
+</blockquote>
+<h3 id="下载linux内核4-9"><a href="#下载linux内核4-9" class="headerlink" title="下载linux内核4.9"></a>下载linux内核4.9</h3><ul>
+<li>下载地址</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">www.kernel.org</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>解压过程分为两步</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xz -d linux-4.9.180.tar.xz</span><br><span class="line">tar xvf linux-4.9.180.tar</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>开启SSH服务</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install openssh-server </span><br><span class="line">&#x2F;etc&#x2F;init.d&#x2F;ssh start (如果没启动，手动启动)</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装arm-linux-gcc工具链"><a href="#安装arm-linux-gcc工具链" class="headerlink" title="安装arm-linux-gcc工具链"></a>安装arm-linux-gcc工具链</h3><ul>
+<li>下载，解压，版本号:4.4.3</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-gcc-4.4.3.tar.gz</span><br><span class="line">tar -zxvf arm-linux-gcc-4.4.3.tar.gz</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在/usr/local目录中新建文件夹，并解压</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo mkdir &#x2F;usr&#x2F;local&#x2F;arm</span><br><span class="line">sudo cp * &#x2F;usr&#x2F;local&#x2F;arm -rf</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>设置环境变量</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo vi &#x2F;etc&#x2F;environment</span><br><span class="line">添加 &#x2F;usr&#x2F;local&#x2F;arm&#x2F;bin</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="内核的配置过程分析"><a href="#内核的配置过程分析" class="headerlink" title="内核的配置过程分析"></a>内核的配置过程分析</h2><blockquote>
+<p>在开始配置编译内核之前先来分析一下和内核编译息息相关的几个文件，Kconfig、.config、makefile，以及内核的编译过程</p>
+</blockquote>
+<ul>
+<li>Linux内核配置有2中不同的方法，make menuconfig是最常用的方法，本文重点分析make menuconfig的过程，这三种方法殊途同归。</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make .config &#x2F; make xxx_defconfig</span><br><span class="line">make menuconfig</span><br></pre></td></tr></table></figure>
+
+<h3 id="makefile-Kconfig-config之间的关系"><a href="#makefile-Kconfig-config之间的关系" class="headerlink" title="makefile/Kconfig/.config之间的关系"></a>makefile/Kconfig/.config之间的关系</h3><blockquote>
+<p>Makefile ：编译源文件的方法<br>Kconfig: 文本文件，内核的配置菜单，提供所有的配置选项<br>.config: 编译内核所依据的配置,菜单里选中的菜     </p>
+</blockquote>
+<p><strong>Makefile：(drivers/Makefile)</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 直接编译 *&#x2F;</span><br><span class="line">obj-y				+&#x3D; cdrom&#x2F;</span><br><span class="line">obj-y				+&#x3D; auxdisplay&#x2F;</span><br><span class="line"></span><br><span class="line">&#x2F;* 条件编译：根据.config的CONFIG_XXX来决定是否编译 *&#x2F;</span><br><span class="line">&#x2F;* CONFIG_XXX变量的取值是通过.config文件来集中赋值的 *&#x2F;</span><br><span class="line">obj-$(CONFIG_PCCARD)		+&#x3D; pcmcia&#x2F;</span><br><span class="line">obj-$(CONFIG_DIO)		+&#x3D; dio&#x2F;</span><br><span class="line"></span><br><span class="line">&#x2F;* 条件编译：只有make modules才会被编译 *&#x2F;</span><br><span class="line">obj-m				+&#x3D; cdrom&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Kconfig</strong><br>— 决定make menuconfig时展示的菜单项</p>
+<ul>
+<li>示例(drivers/leds/Kconfig）</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">config LEDS_S3C24XX</span><br><span class="line">tristate &quot;LED Support for Samsung S3C24XX GPIO LEDs&quot;</span><br><span class="line">depends on LEDS_CLASS</span><br><span class="line">depends on ARCH_S3C24XX</span><br><span class="line">help</span><br><span class="line">This option enables support for LEDs connected to GPIO lines</span><br><span class="line">on Samsung S3C24XX series CPUs, such as the S3C2410 and S3C2440.</span><br><span class="line"></span><br><span class="line">config ： 关键字，表示一个配置选项的开始</span><br><span class="line"></span><br><span class="line">tristate : 显示为&lt; &gt;,&quot;LED Support for Samsung S3C24XX GPIO LEDs&quot;:make menuconfig 时显示的</span><br><span class="line">		配置项名称，表示是否编译进内核，y&#x2F;m&#x2F;n</span><br><span class="line"></span><br><span class="line">bool：显示为[]，即无法配置成模块</span><br><span class="line"></span><br><span class="line">dependon ： 该选项依赖于另一个选项，只有依赖项被选中时，才能配置当前项</span><br><span class="line"></span><br><span class="line">select ： 反向依赖，该项选中时，同时选中select后面定义的那一项</span><br><span class="line"></span><br><span class="line">help: 帮助信息</span><br><span class="line"></span><br><span class="line">source：</span><br><span class="line">source &quot;arch&#x2F;$SRCARCH&#x2F;Kconfig&quot; --- (顶层makefile) ： 目录层次迭代，使各个</span><br><span class="line">目录管理自己的配置内容。</span><br></pre></td></tr></table></figure>
+
+<p><strong>.config</strong></p>
+<ul>
+<li><p>内核编译参考文件，查看里面内容可以知道哪些驱动被编译进内核</p>
+</li>
+<li><p>Kconfig提供了编译选项，.config提供当前选中了哪些选项，在make menuconfig的时候修改的选项在保存后会同步到.config文件中</p>
+</li>
+<li><p>– 不建议直接修改.config</p>
+</li>
+</ul>
+<p><strong>总结：三者之间的关系</strong></p>
+<ul>
+<li>makefile里面的条件编译的选项都是在.config里面集中定义的</li>
+<li>Kconfig在make menuconfig的时候提供界面的选项，.config提供当前选中的选项，前者相当于菜单，后者相当于选中的菜，makefile就是炒这些菜的方法</li>
+<li>make menuconfig 修改时会更新.config里面的配置项</li>
+</ul>
+<h3 id="make-menuconfig过程分析"><a href="#make-menuconfig过程分析" class="headerlink" title="make menuconfig过程分析"></a>make menuconfig过程分析</h3><p><strong>涉及到的文件：</strong></p>
+<blockquote>
+<p>1 Linux内核根目录下的scripts文件夹<br>2 arch/$ARCH/Kconfig文件、各层目录下的Kconfig文件<br>3 Linux内核根目录下的makefile文件、各层目录下的makefile文件<br>4 Linux内核根目录下的的.config文件、arm/$ARCH/下的config文件<br>5 Linux内核根目录下的 include/generated/autoconf.h文件</p>
+</blockquote>
+<p><strong>1 读取scripts文件夹中，存放的是make menuconfig 配置界面相关的文件</strong><br></p>
+<p><strong>2 读取arch/$ARCH/Kconfig以及各子目录下的Kcondig ，生成配置条目</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ARCH 由根目录下的makefile决定：</span><br><span class="line">	257 ARCH		?&#x3D; arm</span><br><span class="line">	258 CROSS_COMPILE	?&#x3D; arm-linux-</span><br><span class="line">Kconfig文件中为配置信息的宏定义，与我们在make menuconfig图形界面看到的信息一致</span><br></pre></td></tr></table></figure>
+
+<p><strong>3 读取内核目录下的.config文件，生成配置选项:[*]编译进内核 [M]编译为模块 []不编译</strong> </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">arch&#x2F;arm&#x2F;configs ： 存放了一些配置模板</span><br><span class="line">可以通过cp &#x2F;arch&#x2F;arm&#x2F;configs&#x2F;xx_defconfig .config来使用这些配置模板 </span><br><span class="line">通过图形界面变更配置选项会自动更新到.config文件中 </span><br><span class="line">make disclean 会删除.config</span><br></pre></td></tr></table></figure>
+
+<p><strong>4 编译过程根据.config生成 Linux内核根目录下的 include/config/auto.conf文件</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CONFIG_EEPROM_93CX6&#x3D;m </span><br><span class="line">CONFIG_DM9000&#x3D;y </span><br><span class="line">根目录Makefile以及子目录的Makefile根据auto.conf生成编译条件 </span><br><span class="line">obj-$(CONFIG_DM9000) +&#x3D; dm9000.o &#x2F;&#x2F;obj-m +&#x3D; dm9000.o</span><br></pre></td></tr></table></figure>
+
+<p><strong>5 编译过程根据.config生成Linux内核根目录下的 include/linux/autoconf.h文件</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">.config 或 auto.conf 中定义要编译为 m 模块的项，如： </span><br><span class="line">CONFIG_DEBUG_NX_TEST&#x3D;m </span><br><span class="line">在 autoconf.h 中会被定义为： </span><br><span class="line">#define CONFIG_DEBUG_NX_TEST_MODULE 1 </span><br><span class="line"></span><br><span class="line">.config或auto.conf 中定义为编译为 y 的选项,如： </span><br><span class="line">CONFIG_DM9000&#x3D; y </span><br><span class="line">在 autoconf.h 中会被定义为： </span><br><span class="line">#define CONFIG_DM9000 1 </span><br><span class="line"></span><br><span class="line">autoconf.h中是站在源码的角度，供源码使用的C语言宏定义。</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">1 确定架构arch，读取arch目录的Kconfig中的配置，生成编译条目</span><br><span class="line">				</span><br><span class="line">2 读取内核根目录下的.config选项，将配置信息显示在图像界面上[*] [M] []</span><br><span class="line"></span><br><span class="line">3 图像界面的改动会自动保存到.config文件中</span><br><span class="line"></span><br><span class="line">4 编译过程根据.config形成auto.config,它决定了makefile中各个文件的编译类型</span><br><span class="line">auto.config 相对于.config少了注释和增加了一些变量，顶层目录下的makefile包含auto.conf文件</span><br><span class="line"></span><br><span class="line">5 编译时生成autoconfig.h,以C语言宏的形式表达个各个文件是否被编译，源码中</span><br><span class="line">  会判断某文件是否被编译进行不同的处理。</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="配置编译内核"><a href="#配置编译内核" class="headerlink" title="配置编译内核"></a>配置编译内核</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*修改顶层makefile*&#x2F;</span><br><span class="line">257 ARCH		?&#x3D; arm</span><br><span class="line">258 CROSS_COMPILE	?&#x3D; arm-linux-</span><br><span class="line"></span><br><span class="line">&#x2F;* 复制默认的配置文件到顶层文件目录下的.config文件 *&#x2F;</span><br><span class="line">cd &#x2F;work&#x2F;sys&#x2F;linux-4.9.180&#x2F;arch&#x2F;arm&#x2F;configs</span><br><span class="line">cp  s3c2410_defconfig  &#x2F;work&#x2F;sys&#x2F;linux-4.9.180&#x2F;.config</span><br><span class="line"></span><br><span class="line">&#x2F;* 安装缺少的库 *&#x2F;</span><br><span class="line">sudo apt-get install libc6-dev</span><br><span class="line">sudo apt-get install libncurses5-dev libncursesw5-dev</span><br><span class="line"></span><br><span class="line">&#x2F;* 配置,裁剪内核  *&#x2F;</span><br><span class="line">make menuconfig</span><br><span class="line">make uImage</span><br><span class="line">出现错误 ：&#x2F;usr&#x2F;local&#x2F;arm&#x2F;bin&#x2F;arm-linux-gcc: 15: exec: &#x2F;usr&#x2F;local&#x2F;arm&#x2F;bin&#x2F;.arm-none-linux-gnueabi-gcc: not found</span><br><span class="line">原因：64位的系统缺少32位的库</span><br><span class="line">根据错误提示安装32位的库：</span><br><span class="line">sudo apt-get install lib32z1</span><br><span class="line">sudo apt-get install lib32stdc++6</span><br><span class="line">再次make uImage </span><br><span class="line"></span><br><span class="line">错误：arch&#x2F;arm&#x2F;boot&#x2F;Makefile:79: recipe for target &#39;arch&#x2F;arm&#x2F;boot&#x2F;uImage&#39; failed</span><br><span class="line">解决：sudo apt-get install u-boot-tools</span><br><span class="line"></span><br><span class="line">再次make uImage ,即可编译通过</span><br><span class="line">Image Name:   Linux-4.9.180</span><br><span class="line">Created:      Sun Jun  9 23:09:38 2019</span><br><span class="line">Image Type:   ARM Linux Kernel Image (uncompressed)</span><br><span class="line">Data Size:    3150272 Bytes &#x3D; 3076.44 KiB &#x3D; 3.00 MiB</span><br><span class="line">Load Address: 30108000</span><br><span class="line">Entry Point:  30108000</span><br><span class="line"></span><br><span class="line">下载内核到开发板上：</span><br><span class="line">tftp 30000000 uImage</span><br><span class="line">bootm 30000000</span><br><span class="line">可以打印出内核信息，但是并不能正常启动内核，因此需要修改内核</span><br></pre></td></tr></table></figure>
+
+<h2 id="修改内核"><a href="#修改内核" class="headerlink" title="修改内核"></a>修改内核</h2><p><strong>设置机器ID</strong>        </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">Error: unrecognized&#x2F;unsupported machine ID (r1 &#x3D; 0x000000c1).</span><br><span class="line"></span><br><span class="line">Available machine support:</span><br><span class="line"></span><br><span class="line">ID (hex)        NAME</span><br><span class="line">000002de        Simtec-Anubis</span><br><span class="line">00000707        AT2440EVB</span><br><span class="line">000007cf        MINI2440</span><br><span class="line">000002a9        NexVision - Nexcoder 2440</span><br><span class="line">0000034a        Simtec-OSIRIS</span><br><span class="line">00000250        IPAQ-RX3715</span><br><span class="line">0000016a        SMDK2440</span><br><span class="line"></span><br><span class="line">设置：</span><br><span class="line">上面是.config文件中配置成y的机器类型：因此set machid 选择单板和其中最相近的一个单板即可。</span><br><span class="line">uboot设置机器ID参数  set machid 0x16a;save</span><br></pre></td></tr></table></figure>
+
+<p><strong>修改时钟</strong>              </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">linux-4.9.180&#x2F;arch&#x2F;arm&#x2F;mach-s3c24xx$ vi mach-smdk2440.c</span><br><span class="line">static void __init smdk2440_init_time(void)</span><br><span class="line">&#123;</span><br><span class="line">		&#x2F;&#x2F;s3c2440_init_clocks(16934400);</span><br><span class="line">		s3c2440_init_clocks(12000000);</span><br><span class="line">		samsung_timer_init();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>修改MTD分区</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">与uboot里面设置的一样</span><br><span class="line">arch\arm\mach-s3c24xx\common-smdk.c</span><br><span class="line">static struct mtd_partition smdk_default_nand_part[] &#x3D; &#123;</span><br><span class="line">	[0] &#x3D; &#123;</span><br><span class="line">		.name	&#x3D; &quot;u-boot&quot;,</span><br><span class="line">		.size	&#x3D; SZ_256K,</span><br><span class="line">		.offset	&#x3D; 0,</span><br><span class="line">	&#125;,</span><br><span class="line">	[1] &#x3D; &#123;</span><br><span class="line">		.name	&#x3D; &quot;params&quot;,</span><br><span class="line">		.offset &#x3D; MTDPART_OFS_APPEND,</span><br><span class="line">		.size	&#x3D; SZ_128K,</span><br><span class="line">	&#125;,</span><br><span class="line">	[2] &#x3D; &#123;</span><br><span class="line">		.name	&#x3D; &quot;kernel&quot;,</span><br><span class="line">		.offset &#x3D; MTDPART_OFS_APPEND,</span><br><span class="line">		.size	&#x3D; SZ_4M,</span><br><span class="line">	&#125;</span><br><span class="line">	[3] &#x3D; &#123;</span><br><span class="line">		.name	&#x3D; &quot;rootfs&quot;,</span><br><span class="line">		.offset &#x3D; MTDPART_OFS_APPEND,</span><br><span class="line">		.size	&#x3D; MTDPART_SIZ_FULL,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>下载内核并启动，nandflash已经正确显示分区，看到内核panic信息：mount root 错误，没有挂接到正确的文件系统</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">VFS: Cannot open root device &quot;mtdblock3&quot; or unknown-block(0,0): error -6</span><br></pre></td></tr></table></figure>
+
+<p>原因可能是：</p>
+<blockquote>
+<p>1 MTD分区和boot的分区对不上,找不到根文件系统<br>2 nand flash中对应的位置没有根文件系统<br>3 命令行参数设置的不对<br>4 内核中没有对应的文件系统</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">由于uboot设置的nandflash分区内核部分为2M,而4.9的内核大于2M,</span><br><span class="line">因此需要修改uboot的nandflash分区</span><br><span class="line"></span><br><span class="line">修改uboot2012:</span><br><span class="line">1 修改分区 </span><br><span class="line">	&#x2F;include&#x2F;configs&#x2F;smdk2440.h</span><br><span class="line">	#define MTDPARTS_DEFAULT        &quot;mtdparts&#x3D;jz2440-0:256k(u-boot),&quot;       \</span><br><span class="line">                                    &quot;128k(params),&quot;         \</span><br><span class="line">                                    &quot;4m(kernel),&quot;   \</span><br><span class="line">                                    &quot;-(rootfs)&quot;             \</span><br><span class="line">重新 make</span><br></pre></td></tr></table></figure>
+
+<p>2 u-boot nandflash 操作方法介绍</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">烧写u-boot:</span><br><span class="line">	tftp 30000000 u-boot.bin; protect off all; erase 0 0x3ffff; cp.b 30000000 0 40000</span><br><span class="line"></span><br><span class="line">tftp烧写内核到nandflash:</span><br><span class="line">	tftp 30000000 uImage</span><br><span class="line">	nand erase.part kernel</span><br><span class="line">	nand write 30000000 kernel</span><br><span class="line"></span><br><span class="line">tftp烧写jffs文件系统：</span><br><span class="line">	tftp 30000000 fs_mini_mdev.jffs2</span><br><span class="line">	nand erase.part rootfs</span><br><span class="line">	&#x2F;                        目标地址  大小&#x2F;</span><br><span class="line">	nand write.jffs2 30000000 260000 5b89a8</span><br><span class="line">	set boota rgs console&#x3D;ttySAC0 root&#x3D;&#x2F;dev&#x2F;mtdblock3 rootfstype&#x3D;jffs2</span><br><span class="line"></span><br><span class="line">tftp烧写yaffs文件系统：  </span><br><span class="line">	tftp 30000000 fs_qtopia.yaffs2</span><br><span class="line">	nand erase.part rootfs</span><br><span class="line">	&#x2F;                        目标地址  大小&#x2F;</span><br><span class="line">	nand write.yaffs 30000000 260000 889bc0</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>到此为止，内核和u-boot需要修改的部分以及修改完成，下一步制作最小根文件系统</p>
+</blockquote>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux%E7%B3%BB%E7%BB%9F%E6%9E%84%E5%BB%BA/">Linux系统构建</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux%E7%B3%BB%E7%BB%9F%E6%9E%84%E5%BB%BA/">Linux系统构建</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/06/24/%E9%80%9A%E7%94%A8Makefile/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">通用Makefile</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/06/14/%E4%BB%8E0%E7%A7%BB%E6%A4%8D4.9%E5%86%85%E6%A0%B8(2)/">
+                        <span class="hidden-mobile">从0移植4.9内核(2)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script defer src="https://cdn.staticfile.org/valine/1.4.14/Valine.min.js" ></script>
+
+  <script type="text/javascript">
+    var oldLoadVa = window.onload;
+    window.onload = function () {
+      oldLoadVa && oldLoadVa();
+
+      new Valine({
+        el: "#vcomments",
+        app_id: "xOKV9J4UeQAtVkvnJC7Kq2Jn-gzGzoHsz",
+        app_key: "erIpQac4azoCmgfBB7Dl9maa",
+        placeholder: "说点什么吧",
+        path: window.location.pathname,
+        avatar: "retro",
+        meta: ["nick","mail","link"],
+        pageSize: "10",
+        lang: "zh-CN",
+        highlight: false,
+        recordIP: false,
+        serverURLs: "",
+      });
+    };
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div>
+    
+      <!-- 不蒜子统计PV -->
+      
+      <span id="busuanzi_container_site_pv" style="display: none">
+      总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    </span>
+    
+    
+      <!-- 不蒜子统计UV -->
+      
+      <span id="busuanzi_container_site_uv" style="display: none">
+      总访客数 <span id="busuanzi_value_site_uv"></span> 人
+    </span>
+    
+  </div>
+
+
+    
+  <!-- 备案信息 -->
+  <div>
+    <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-icp"
+       rel="nofollow noopener">京ICP证123456号</a>
+    
+      <a
+        href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+        rel="nofollow noopener"
+        class="beian-police"
+        target="_blank"
+      >
+        <span class="beian-police-sep">&nbsp;|&nbsp;</span>
+        
+          <img src="/img/police_beian.png" srcset="/img/loading.gif" alt="police-icon" />
+        
+        <span>京公网安备12345678号</span>
+      </a>
+     
+  </div>
+
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "从0移植4.9内核(1)&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

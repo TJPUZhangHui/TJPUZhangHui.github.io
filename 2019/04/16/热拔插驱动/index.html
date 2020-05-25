@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="ZhangHui">
+  <meta name="keywords" content="">
+  <title>热拔插驱动 - 章辉的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github.min.css" />
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_fmb4a04yx8h.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>ZH</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <div class="mt-3 post-meta">
+                  <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+                  <time datetime="2019-04-16 18:10">
+                    2019年4月16日 晚上
+                  </time>
+                </div>
+              
+
+              <div class="mt-1">
+                
+                  
+                  <span class="post-meta mr-2">
+                    <i class="iconfont icon-chart"></i>
+                    847 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta mr-2">
+                      <i class="iconfont icon-clock-fill"></i>
+                    
+                    
+                    11
+                     分钟
+                  </span>
+                
+
+                
+              </div>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h2 id="热拔插驱动"><a href="#热拔插驱动" class="headerlink" title="热拔插驱动"></a>热拔插驱动</h2><ul>
+<li>hotplug/uevent机制</li>
+</ul>
+<h3 id="hotplug内核框架"><a href="#hotplug内核框架" class="headerlink" title="hotplug内核框架"></a>hotplug内核框架</h3><pre><code class="hljs arduino">class_device_create
+	class_device_register
+		class_device_add
+			kobject_uevent
+				kobject_uevent_env(kobj, action, <span class="hljs-literal">NULL</span>)
+  					 <span class="hljs-comment">// action_string  = “add”</span>
+					action_string = action_to_string(action)
+					<span class="hljs-comment">/* 分配保存环境变量的内存 */</span>
+					<span class="hljs-comment">/* environment values */</span>
+					<span class="hljs-built_in">buffer</span> = kmalloc(BUFFER_SIZE, GFP_KERNEL)
+					<span class="hljs-comment">/* 设置环境变量 */</span>
+					scratch = <span class="hljs-built_in">buffer</span>;
+					envp [i++] = scratch;
+					scratch += <span class="hljs-built_in">sprintf</span>(scratch, <span class="hljs-string">"ACTION=%s"</span>, action_string) + <span class="hljs-number">1</span>;
+					envp [i++] = scratch;
+					scratch += <span class="hljs-built_in">sprintf</span> (scratch, <span class="hljs-string">"DEVPATH=%s"</span>, devpath) + <span class="hljs-number">1</span>;
+					envp [i++] = scratch;
+					scratch += <span class="hljs-built_in">sprintf</span>(scratch, <span class="hljs-string">"SUBSYSTEM=%s"</span>, subsystem) + <span class="hljs-number">1</span>;
+					
+					<span class="hljs-comment">/* 调用应用程序：比如mdev */</span>
+					argv [<span class="hljs-number">0</span>] = uevent_helper; = “mdev”
+					argv [<span class="hljs-number">1</span>] = (<span class="hljs-keyword">char</span> *)subsystem;
+					argv [<span class="hljs-number">2</span>] = <span class="hljs-literal">NULL</span>;
+					call_usermodehelper (argv[<span class="hljs-number">0</span>], argv, envp, <span class="hljs-number">0</span>);</code></pre>
+
+<ul>
+<li>过程总结：</li>
+</ul>
+<blockquote>
+<p>上述的代码从<code>class_device_class</code>开始,创建一个设备节点，然后层层深入每个函数调用的关键函数，最终找到<code>kobject_uevent</code>函数，根据传入的action，如<code>add</code>命令,则分配环境变量所需要的内存，再设置环境变量，设置完毕之后，调用<code>call_usermodehelper</code>,调用一个应用程序，这个应该程序会根据环境变量创建设备节点，这个外部函数一般设置为<code>/sbin/mdev</code></p>
+</blockquote>
+<ul>
+<li><p>mdev介绍</p>
+<blockquote>
+<p>mdev是busybox中的一个udev管理程序的精简版本，它也可以自己创建设备节点和设备的自动挂载，只是mdev是被hotplug直接调用<br>mdev扫描/sys/class和/sys/block中所有的类设备目录，如果在目录中含有名为”dev”的文件，且文件中包含的是设备号，则mdev就利用这些信息为这个设备在/dev下创建设备节点</p>
+</blockquote>
+</li>
+<li><p>为什么是/sbin/mdev？</p>
+<blockquote>
+<p>启动脚本<code>cat /etc/init.d/rcS</code>:<br> <code>echo /sbin/mdev &gt; /proc/sys/kernel/hotplug</code>设置了uevent_helper 为“/sbin/mdev”.</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="如何实现自动挂载"><a href="#如何实现自动挂载" class="headerlink" title="如何实现自动挂载"></a>如何实现自动挂载</h3><ul>
+<li><p>如果想实现U盘的自动挂载<br>1 内核支持hotplug<br>2 需要编辑配置文件<code>/etc/mdev.conf</code>,该文件的作用是在找到匹配设备时自动执行自定义命令</p>
+<p><strong>mdev.conf的格式</strong> </p>
+</li>
+</ul>
+<pre><code class="hljs fsharp">&lt;device regex&gt; &lt;uid&gt;:&lt;gid&gt; &lt;octal permissions&gt; <span class="hljs-meta">[&lt;@|$|*&gt; &lt;command&gt;]</span></code></pre>
+
+<blockquote>
+<p><code>device regex</code> 正则表达式，表示哪一个设备<br><code>uid</code> owner<br><code>gid</code> 组ID<br><code>octal permissions</code>  以八进制表示的属性，默认660<br><code>@</code>  创建设备节点之后执行命令<br><code>$</code> 删除设备节点之前执行命令<br><code>*</code> 创建设备节点之后执行，删除设备节点之前执行命令<br><code>command</code> 要执行的命令</p>
+</blockquote>
+<h4 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h4><ul>
+<li>什么是正则表达式：            <blockquote>
+<p>1 在电脑上查文件，<em>.c :  *是通配符，表示任意字符<br>2 更精确的查找，使用正则表达式<br>  <code>.</code>表示任意字符（换行符除外）<br>  `</em> <code>表示重复0次或者更多次</code>+<code>表示重复1次或者更多次</code>？<code>表示重复0次或者1次</code>[  xxx  ] <code>表示这些字符里面的某一个，如</code>[abc]<code>、</code>[1~9]`</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="写mdev-conf-参考-busybox-的-mdev-txt"><a href="#写mdev-conf-参考-busybox-的-mdev-txt" class="headerlink" title="写mdev.conf:(参考 busybox 的 mdev.txt )"></a>写mdev.conf:(参考 busybox 的 mdev.txt )</h4><p>1 <strong>实现led驱动在挂载时输出相关信息</strong>   </p>
+<p>1.1 原始的做法</p>
+<pre><code class="hljs angelscript">vi /etc/mdev.conf
+leds <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span>
+led1 <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span>
+led2 <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span>
+led3 <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span></code></pre>
+
+<p>1.2 修改为    </p>
+<pre><code class="hljs angelscript">leds? [<span class="hljs-number">123</span>]? <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span></code></pre>
+
+<p>1.3 添加打印命令   </p>
+<pre><code class="hljs angelscript">leds? [<span class="hljs-number">123</span>]? <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span> * echo create /dev/$MDEV &gt; /dev/console</code></pre>
+
+<p>1.4 改成输入输出打印不同的命令</p>
+<pre><code class="hljs routeros">leds? [123]? 0:0 777 * <span class="hljs-keyword">if</span> [ <span class="hljs-variable">$ACTION</span> = “add”]; then echo create /dev/<span class="hljs-variable">$MDEV</span> &gt; /dev<span class="hljs-built_in">/console; </span>
+<span class="hljs-keyword">else</span> echo <span class="hljs-builtin-name">remove</span> /dev/<span class="hljs-variable">$MDEV</span> &gt; /dev/console;</code></pre>
+
+<p>1.5 把上面的命令写入一个脚本 add_remove_led.sh</p>
+<pre><code class="hljs routeros"><span class="hljs-comment">#!/bin/sh</span>
+<span class="hljs-keyword">if</span> [ <span class="hljs-variable">$ACTION</span> = “add”]
+then
+echo create /dev/<span class="hljs-variable">$MDEV</span> &gt; /dev/console;
+<span class="hljs-keyword">else</span>
+echo <span class="hljs-builtin-name">remove</span> /dev/<span class="hljs-variable">$MDEV</span> &gt; /dev/console;
+fi</code></pre>
+
+<p>1.6 再修改/etc/mdev.conf文件</p>
+<pre><code class="hljs angelscript">leds?[<span class="hljs-number">123</span>]? <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span> * /bin/add_remove_led.sh</code></pre>
+
+
+<p>2 <strong>设置U盘自动挂载</strong></p>
+<pre><code class="hljs angelscript">sda[<span class="hljs-number">1</span><span class="hljs-number">-9</span>]+ <span class="hljs-number">0</span>:<span class="hljs-number">0</span> <span class="hljs-number">777</span> * <span class="hljs-keyword">if</span> [$ACTION = “add”];then mount /dev/$MDEV /mnt; 
+<span class="hljs-keyword">else</span> umount /mnt;</code></pre>
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/04/21/callback%E6%9C%BA%E5%88%B6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">call back机制</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/04/11/DMA%E9%A9%B1%E5%8A%A8/">
+                        <span class="hidden-mobile">DMA驱动</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script defer src="https://cdn.staticfile.org/valine/1.4.14/Valine.min.js" ></script>
+
+  <script type="text/javascript">
+    var oldLoadVa = window.onload;
+    window.onload = function () {
+      oldLoadVa && oldLoadVa();
+
+      new Valine({
+        el: "#vcomments",
+        app_id: "xOKV9J4UeQAtVkvnJC7Kq2Jn-gzGzoHsz",
+        app_key: "erIpQac4azoCmgfBB7Dl9maa",
+        placeholder: "说点什么吧",
+        path: window.location.pathname,
+        avatar: "retro",
+        meta: ["nick","mail","link"],
+        pageSize: "10",
+        lang: "zh-CN",
+        highlight: false,
+        recordIP: false,
+        serverURLs: "",
+      });
+    };
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div>
+    
+      <!-- 不蒜子统计PV -->
+      
+      <span id="busuanzi_container_site_pv" style="display: none">
+      总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    </span>
+    
+    
+      <!-- 不蒜子统计UV -->
+      
+      <span id="busuanzi_container_site_uv" style="display: none">
+      总访客数 <span id="busuanzi_value_site_uv"></span> 人
+    </span>
+    
+  </div>
+
+
+    
+  <!-- 备案信息 -->
+  <div>
+    <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-icp"
+       rel="nofollow noopener">京ICP证123456号</a>
+    
+      <a
+        href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+        rel="nofollow noopener"
+        class="beian-police"
+        target="_blank"
+      >
+        <span class="beian-police-sep">&nbsp;|&nbsp;</span>
+        
+          <img src="/img/police_beian.png" srcset="/img/loading.gif" alt="police-icon" />
+        
+        <span>京公网安备12345678号</span>
+      </a>
+     
+  </div>
+
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "热拔插驱动&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

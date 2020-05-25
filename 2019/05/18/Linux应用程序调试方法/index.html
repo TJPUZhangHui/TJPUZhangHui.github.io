@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="ZhangHui">
+  <meta name="keywords" content="">
+  <title>Linux应用程序调试方法 - 章辉的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github.min.css" />
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_fmb4a04yx8h.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>ZH</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <div class="mt-3 post-meta">
+                  <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+                  <time datetime="2019-05-18 17:22">
+                    2019年5月18日 下午
+                  </time>
+                </div>
+              
+
+              <div class="mt-1">
+                
+                  
+                  <span class="post-meta mr-2">
+                    <i class="iconfont icon-chart"></i>
+                    2.2k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta mr-2">
+                      <i class="iconfont icon-clock-fill"></i>
+                    
+                    
+                    32
+                     分钟
+                  </span>
+                
+
+                
+              </div>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h2 id="一-使用strace命令跟踪系统调用"><a href="#一-使用strace命令跟踪系统调用" class="headerlink" title="一 使用strace命令跟踪系统调用"></a>一 使用strace命令跟踪系统调用</h2><h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><ul>
+<li>打补丁<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patch -p1 &lt; ..&#x2F;xxx.patch</span><br></pre></td></tr></table></figure></li>
+<li>配置strace &amp;&amp; 编译<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure --host&#x3D;arm-linux CC&#x3D;arm-linux-gcc</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+编译完成之后得到一个strace应用程序，拷贝到开发板上就可以使用了<br>使用方法：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;strace -o log.txt .&#x2F;firstdrvtext on</span><br></pre></td></tr></table></figure>
+<code>log.txt</code>是调试信息输出的文件，<code>./firstdrvtext on</code>是应用程序使用方法</li>
+</ul>
+<h3 id="简单介绍strace的原理"><a href="#简单介绍strace的原理" class="headerlink" title="简单介绍strace的原理"></a>简单介绍strace的原理</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;strace(父进程) -o log.txt .&#x2F;firstdrvtext on(子进程)</span><br></pre></td></tr></table></figure>
+
+<p><strong>父进程启动一个子进程，子进程先判断是否被跟踪，如果是，则会发送给父进程一些信号，然后进入休眠，父进程根据信号值决定记录哪些数据，父进程处理完之后（如记录），子进程继续运行。</strong></p>
+<blockquote>
+<p>子进程里面的open,read,write(c库)函数会调用一条swi指令 swi val<br>open   —-  swi  #val1<br>read    —- swi  #val2<br>write   —- swi  #val3<br>这条指令会导致系统swi异常，进入内核态，调用sys_open,sys_read …   </p>
+</blockquote>
+<ul>
+<li>打开内核文件<code>arch/arm/kernel/entry-common.s</code>:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">tst	ip, #_TIF_SYSCALL_TRACE		@ are we tracing syscalls?</span><br><span class="line">bne	__sys_trace</span><br><span class="line">&#x2F;&#x2F; 测试标记为，看是否被跟踪，如果被跟踪，则调用	__sys_trace</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
+<li>__sys_trace：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line"> * This is the really slow path.  We&#39;re going to be doing</span><br><span class="line"> * context switches, and waiting for our parent to respond.</span><br><span class="line"> *&#x2F;</span><br><span class="line">__sys_trace:</span><br><span class="line">	mov	r2, scno</span><br><span class="line">	add	r1, sp, #S_OFF</span><br><span class="line">	mov	r0, #0				@ trace entry [IP &#x3D; 0]</span><br><span class="line">	bl	syscall_trace</span><br><span class="line"></span><br><span class="line">	adr	lr, __sys_trace_return		@ return address</span><br><span class="line">	mov	scno, r0			@ syscall number (possibly new)</span><br><span class="line">	add	r1, sp, #S_R0 + S_OFF		@ pointer to regs</span><br><span class="line">	cmp	scno, #NR_syscalls		@ check upper syscall limit</span><br><span class="line">	ldmccia	r1, &#123;r0 - r3&#125;			@ have to reload r0 - r3</span><br><span class="line">	ldrcc	pc, [tbl, scno, lsl #2]		@ call sys_* routine</span><br><span class="line">	b	2b</span><br></pre></td></tr></table></figure>
+<h3 id="strace的其他用法"><a href="#strace的其他用法" class="headerlink" title="strace的其他用法"></a>strace的其他用法</h3></li>
+</ul>
+<h2 id="二-使用GDB调试应用程序"><a href="#二-使用GDB调试应用程序" class="headerlink" title="二 使用GDB调试应用程序"></a>二 使用GDB调试应用程序</h2><h3 id="编译与安装"><a href="#编译与安装" class="headerlink" title="编译与安装"></a>编译与安装</h3><ul>
+<li>配置 &amp;&amp; 编译 &amp;&amp; 安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure --target&#x3D;arm-linux --disable-werror</span><br></pre></td></tr></table></figure></li>
+<li>查看安装目录<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi makefile</span><br><span class="line">prefix &#x3D; &#x2F;usr&#x2F;local</span><br></pre></td></tr></table></figure></li>
+<li>安装目录修改当前目录下的tmp<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir tmp</span><br><span class="line">make install prefix&#x3D;$PWD&#x2F;tmp</span><br></pre></td></tr></table></figure></li>
+<li>配置 &amp;&amp; 编译gdbserver，并复制到网络文件系统<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd gdb&#x2F;gdbserver</span><br><span class="line">.&#x2F;configure --host&#x3D;arm-linux</span><br><span class="line">make</span><br><span class="line">cp gdbserver &#x2F;work&#x2F;fs.. &#x2F;bin&#x2F;gdbserver</span><br></pre></td></tr></table></figure>
+<h3 id="GDB远程调试步骤"><a href="#GDB远程调试步骤" class="headerlink" title="GDB远程调试步骤"></a>GDB远程调试步骤</h3><blockquote>
+<p>编译要调试的应用程序，编译时要加上-g选项</p>
+</blockquote>
+</li>
+<li>在ARM板上<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdbserver 192.168.1.17:2345 .&#x2F;test_debug</span><br><span class="line">&#x2F;&#x2F;  ip是arm板的ip，端口随便写</span><br></pre></td></tr></table></figure></li>
+<li>在pc机上<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;bin&#x2F;arm-linux-gdb  .&#x2F;test_debug</span><br><span class="line">target remote 192.168.1.17:2345</span><br></pre></td></tr></table></figure></li>
+<li>常用的命令：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">l： 查看源码</span><br><span class="line">break main  &#x2F;  break test_debug:31： 打断点	 &#x2F;&#x2F;main函数打断点 &#x2F;  31行打断点</span><br><span class="line">c：继续执行</span><br><span class="line">step ：单步调试</span><br><span class="line">print *p：输出</span><br><span class="line">quit：退出</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="GDB的另一种使用方法"><a href="#GDB的另一种使用方法" class="headerlink" title="GDB的另一种使用方法"></a>GDB的另一种使用方法</h3><blockquote>
+<p>让程序在开发板上直接运行，当它发送错误时，令它产生<strong>core dump</strong>文件<br>然后使用gdb根据core dump文件找到发生错误的地方。</p>
+</blockquote>
+<ul>
+<li><p>在开发板上输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ulimit -c unlimited</span><br></pre></td></tr></table></figure></li>
+<li><p>执行应用程序 <code>./test_debug</code> 程序出错会在当前目录下生成名为<code>core</code>的文件</p>
+</li>
+<li><p>拷贝core文件到pc上，pc机上执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cp core &#x2F;work&#x2F;xxx&#x2F;core</span><br><span class="line">&#x2F;bin&#x2F;arm-linux-gdb  .&#x2F;test_debug  .&#x2F;core</span><br></pre></td></tr></table></figure>
+<p>若程序出错，就可以看到很多调试信息。</p>
+</li>
+</ul>
+<h2 id="三-配置内核，输出应用程序的段错误信息"><a href="#三-配置内核，输出应用程序的段错误信息" class="headerlink" title="三 配置内核，输出应用程序的段错误信息"></a>三 配置内核，输出应用程序的段错误信息</h2><h3 id="配置内核，输出错误信息"><a href="#配置内核，输出错误信息" class="headerlink" title="配置内核，输出错误信息"></a>配置内核，输出错误信息</h3><ul>
+<li>根据应用程序报错的信息在内核源码中搜索：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep &quot;Unable to handle kernel&quot; * -nR</span><br></pre></td></tr></table></figure></li>
+<li>找到并打开<code>arch/arm/mm/fault.c</code>,看到下面的函数：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 处理应用程序错误函数 *&#x2F;</span><br><span class="line">static void</span><br><span class="line">__do_user_fault(struct task_struct *tsk, unsigned long addr,</span><br><span class="line">		unsigned int fsr, unsigned int sig, int code,</span><br><span class="line">		struct pt_regs *regs)</span><br><span class="line">&#123;</span><br><span class="line">	struct siginfo si;</span><br><span class="line">	unsigned long ret;</span><br><span class="line">	unsigned long val;</span><br><span class="line">	int i &#x3D;0;</span><br><span class="line"></span><br><span class="line">#ifdef CONFIG_DEBUG_USER			&#x2F;&#x2F; 1  配置内核</span><br><span class="line">	if (user_debug &amp; UDBG_SEGV) &#123;   &#x2F;&#x2F; 2 设置启动参数</span><br><span class="line">		printk(KERN_DEBUG &quot;%s: unhandled page fault (%d) at 0x%08lx, code 0x%03x\n&quot;,</span><br><span class="line">		       tsk-&gt;comm, sig, addr, fsr);</span><br><span class="line">		show_pte(tsk-&gt;mm, addr);</span><br><span class="line">		show_regs(regs);</span><br><span class="line">	&#x2F;*  开始打印栈信息   *&#x2F;		</span><br><span class="line">		printk(&quot;Stack: \n&quot;);</span><br><span class="line">		while(i&lt;1024)</span><br><span class="line">			&#123;	</span><br><span class="line">				if(copy_from_user(&amp;val,(const void __user *)(regs-&gt;ARM_sp+i*4),4)</span><br><span class="line">					break;</span><br><span class="line">				printk(&quot;%08x &quot;,val);</span><br><span class="line">				i++;</span><br><span class="line">				if(i % 8 &#x3D;&#x3D; 0)</span><br><span class="line">					printk(&quot;\n&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">		printk(&quot;\nEnd of stack \n&quot;);</span><br><span class="line">	&#x2F;*  打印栈信息结束   *&#x2F;		</span><br><span class="line">	&#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">	tsk-&gt;thread.address &#x3D; addr;</span><br><span class="line">	tsk-&gt;thread.error_code &#x3D; fsr;</span><br><span class="line">	tsk-&gt;thread.trap_no &#x3D; 14;</span><br><span class="line">	si.si_signo &#x3D; sig;</span><br><span class="line">	si.si_errno &#x3D; 0;</span><br><span class="line">	si.si_code &#x3D; code;</span><br><span class="line">	si.si_addr &#x3D; (void __user *)addr;</span><br><span class="line">	force_sig_info(sig, &amp;si, tsk);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>配置内核 CONFIG_DEBUG_USER<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make menuconfig </span><br><span class="line">&#x2F;DEBUG_USER 	 &#x2F;&#x2F;  搜索，配置成y</span><br><span class="line">make uImage</span><br></pre></td></tr></table></figure></li>
+<li>uboot设置启动参数 user_debug<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set bootargs user_debug&#x3D;0xff ... ...</span><br></pre></td></tr></table></figure></li>
+<li>执行./test_debug，可以看到调试信息和寄存器的值</li>
+<li>反汇编app<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-objdump -D test_debug &gt; test_debug.dis</span><br></pre></td></tr></table></figure>
+在反汇编中找到pc值处的代码，根据寄存器的值找到程序出错的原因</li>
+</ul>
+<h3 id="修改内核，打印栈信息"><a href="#修改内核，打印栈信息" class="headerlink" title="修改内核，打印栈信息"></a>修改内核，打印栈信息</h3><p><code>struct pt_regs</code> 包含发生错误的瞬间所有寄存器的值：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">struct pt_regs &#123;</span><br><span class="line">	long uregs[18];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#define ARM_cpsr	uregs[16]</span><br><span class="line">#define ARM_pc		uregs[15]</span><br><span class="line">#define ARM_lr		uregs[14]</span><br><span class="line">#define ARM_sp		uregs[13]</span><br><span class="line">#define ARM_ip		uregs[12]</span><br><span class="line">#define ARM_fp		uregs[11]</span><br><span class="line">#define ARM_r10		uregs[10]</span><br><span class="line">#define ARM_r9		uregs[9]</span><br><span class="line">#define ARM_r8		uregs[8]</span><br><span class="line">#define ARM_r7		uregs[7]</span><br><span class="line">#define ARM_r6		uregs[6]</span><br><span class="line">#define ARM_r5		uregs[5]</span><br><span class="line">#define ARM_r4		uregs[4]</span><br><span class="line">#define ARM_r3		uregs[3]</span><br><span class="line">#define ARM_r2		uregs[2]</span><br><span class="line">#define ARM_r1		uregs[1]</span><br><span class="line">#define ARM_r0		uregs[0]</span><br><span class="line">#define ARM_ORIG_r0	uregs[17]</span><br></pre></td></tr></table></figure>
+
+<p>在<code>arch/arm/mm/__do_user_fault</code>中加入下面的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">unsigned long ret;</span><br><span class="line">unsigned long val;</span><br><span class="line">int i &#x3D;0;</span><br><span class="line">printk(&quot;Stack: \n&quot;);</span><br><span class="line">while(i&lt;1024)</span><br><span class="line">	&#123;	</span><br><span class="line">		&#x2F;* 从堆栈指针sp处开始打印栈信息 *&#x2F;</span><br><span class="line">		if(copy_from_user(&amp;val,(const void __user *)(regs-&gt;ARM_sp+i*4),4)  </span><br><span class="line">		break; </span><br><span class="line">		printk(&quot;%08x &quot;,val);</span><br><span class="line">		i++;</span><br><span class="line">		if(i % 8 &#x3D;&#x3D; 0)</span><br><span class="line">			printk(&quot;\n&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">printk(&quot;\nEnd of stack \n&quot;);</span><br></pre></td></tr></table></figure>
+<ul>
+<li>重新编译内核,复制到网络文件系统，并用新内核启动<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">make uImage </span><br><span class="line">cp arch&#x2F;arm&#x2F;uImage  &#x2F;work&#x2F;nfs_root&#x2F;fs_mini_mdev&#x2F;uImage</span><br><span class="line">reboot</span><br><span class="line">nfs 32000000 192.168.1.123:&#x2F;work&#x2F;...&#x2F;uImage_new</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>main函数被动态库调用，怎么知道动态库的地址？</strong></p>
+<ul>
+<li>方法1</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ps						 &#x2F;&#x2F;		查看进程ID</span><br><span class="line">cat &#x2F;proc&#x2F;xxx(进程ID)</span><br><span class="line">cat maps     			 &#x2F;&#x2F;	    查看应用程序里面各段地址</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>方法2，使用gdb调试,先启动gdb,使用命令<code>info file</code>查看程序里面的各个段</li>
+</ul>
+<blockquote>
+<p>动态链接不容易看程序调用信息，把应用程序编译成静态链接的方式：</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-gcc -o test test.c -static</span><br></pre></td></tr></table></figure>
+
+<h2 id="四-自制系统调用"><a href="#四-自制系统调用" class="headerlink" title="四 自制系统调用"></a>四 自制系统调用</h2><blockquote>
+<p>ps:这种方法很少用，也比较繁琐，适合长时间打印调试信息</p>
+</blockquote>
+<h3 id="原理简介"><a href="#原理简介" class="headerlink" title="原理简介"></a>原理简介</h3><p>app 调用<code>open read write</code>函数，导致：swi #val<br>程序跳转到<code>vector_swi</code>处去执行，得到“导致异常的指令”，取出里面的val,根据这个val调用对应的处理函数，如<code>sys_open,sys_write，sys_read...</code><br>这些函数在一个数组里，通过查找数组调用对应的函数。   </p>
+<ul>
+<li>仿照这种形式写一个自己的系统调用</li>
+</ul>
+<h3 id="自制系统调用"><a href="#自制系统调用" class="headerlink" title="自制系统调用"></a>自制系统调用</h3><ul>
+<li><strong>写一个应用函数，仿glibc，用来触发系统调用</strong>   <blockquote>
+<p>仿照glibc里面的brk.c里面的_brk函数（c嵌入汇编的形式）</p>
+</blockquote>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#define __NR_OABI_SYSCALL_BASE	0x900000</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;#if defined(__thumb__) || defined(__ARM_EABI__)</span><br><span class="line">&#x2F;&#x2F;#define __NR_SYSCALL_BASE	0</span><br><span class="line">&#x2F;&#x2F;#else</span><br><span class="line">#define __NR_SYSCALL_BASE	__NR_OABI_SYSCALL_BASE</span><br><span class="line">&#x2F;&#x2F;#endif</span><br><span class="line"></span><br><span class="line">void hello(char *buf ,int count )</span><br><span class="line">&#123;</span><br><span class="line">	&#x2F;* swi *&#x2F;</span><br><span class="line">	 asm (&quot;mov r0, %0\n&quot;	&#x2F;* save the argment in r0 *&#x2F;</span><br><span class="line">          &quot;mov r1, %1\n&quot;	&#x2F;* save the argment in r0 *&#x2F;</span><br><span class="line">          &quot;swi %2\n&quot;		&#x2F;* do the system call *&#x2F;</span><br><span class="line">          : </span><br><span class="line">          : &quot;r&quot;(buf),&quot;r&quot;(count), &quot;i&quot; (__NR_SYSCALL_BASE + 352)</span><br><span class="line">          : &quot;r0&quot;,&quot;r1&quot;);		&#x2F;* 过程中会改变的寄存器 *&#x2F;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void main(int argc , char ** argv)</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot; in app, call hello  \n&quot;);</span><br><span class="line">	&#x2F;* 执行hello函数触发一个swi指令异常 *&#x2F;</span><br><span class="line">	hello(&quot;tjpuzh.top&quot;,10);</span><br><span class="line">	</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>修改内核，添加系统调用函数的声明和实现</strong> </li>
+<li>声明： </li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">include\linux\syscalls.h中加入</span><br><span class="line">asmlinkage ssize_t sys_hello(const char __user *buf,int count);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">在\fs\read_write.c中实现sys_hello</span><br><span class="line">asmlinkage ssize_t sys_hello(const char __user * buf,int count)</span><br><span class="line">&#123;</span><br><span class="line">	... ... </span><br><span class="line">	&#x2F;&#x2F; 此处实现想要实现的功能，如open,read,write...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加 </p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在 arch\arm\kernel\calls.S中，最后加入一项CALL(sys_hello)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>测试</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">make uImage</span><br><span class="line">cp arch&#x2F;arm&#x2F;uImage &#x2F;work&#x2F;nfs_root&#x2F;fs_mini_mdev&#x2F;uImage</span><br><span class="line">reboot</span><br><span class="line">nfs 32000000 192.168.3.123:&#x2F;work&#x2F;nfs_root&#x2F;fs_mini_mdev&#x2F;uImage_hello</span><br><span class="line">bootm 32000000</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用自制系统调用来打输出调试信息"><a href="#使用自制系统调用来打输出调试信息" class="headerlink" title="使用自制系统调用来打输出调试信息"></a>使用自制系统调用来打输出调试信息</h3><p> <strong>整体流程</strong></p>
+<ul>
+<li>修改应用程序的可执行文件，替换“某个位置”的代码为swi val   </li>
+<li>执行程序   </li>
+<li>执行到断点处，进入sys_hello    </li>
+<li>在sys_hello,打印调试信息，执行原来的指令，返回</li>
+</ul>
+<p><strong>测试步骤</strong></p>
+<ul>
+<li>写一个简单的应用程序 : <code>debug_with_system_call.c</code></li>
+<li>替换            </li>
+</ul>
+<ol>
+<li><p>输出反汇编文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-objdump -D debug_with_system_call &gt; debug_with_system_call.dis</span><br></pre></td></tr></table></figure></li>
+<li><p>根据适合打断点的指令，找到合适机器码    </p>
+
+</li>
+<li><p>反汇编自制系统调用的测试程序，可以看到swi指令的机器码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-objdump -D test_system_call &gt; test_system_call.dis</span><br></pre></td></tr></table></figure>
+    </li>
+<li><p>修改应用程序的机器码为swi指令的机器码    </p>
+    
+
+
+</li>
+</ol>
+<p>保存为  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">debug_with_system_call_swi</span><br></pre></td></tr></table></figure>
+<p>加上执行权限：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod +x debug_with_system_call_swi</span><br></pre></td></tr></table></figure>
+<ul>
+<li>修改自制的sys_hello函数<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;asm&#x2F;processor.h&gt;</span><br><span class="line">asmlinkage ssize_t sys_hello(const char __user * buf,int count)</span><br><span class="line">&#123;</span><br><span class="line">	int val;</span><br><span class="line">	struct pt_regs *regs;</span><br><span class="line">	&#x2F;* 1 输出一些打印调试信息 *&#x2F;</span><br><span class="line">	&#x2F;* 应用程序的反汇编里：00010788 &lt;cnt&gt; *&#x2F;</span><br><span class="line">	copy_from_user(&amp;val,(const void __user *)0x00010788,4);</span><br><span class="line">	printk(&quot;sys_hello:val &#x3D; %d\n&quot;,val);</span><br><span class="line">	&#x2F;* 2 执行被替换的指令: add r3, r3, #2	; 0x2 *&#x2F;</span><br><span class="line">	&#x2F;&#x2F; 搜索pt_regs，在它的结果里再搜索current</span><br><span class="line">	regs &#x3D; task_pt_regs(current);</span><br><span class="line">	regs-&gt;ARM_r3 +&#x3D; 2;</span><br><span class="line">	&#x2F;* 3 反回 *&#x2F;</span><br><span class="line">	return;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>运行<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;debug_with_system_call_swi</span><br></pre></td></tr></table></figure>
+<h2 id="五-编写输入模拟器"><a href="#五-编写输入模拟器" class="headerlink" title="五 编写输入模拟器"></a>五 编写输入模拟器</h2></li>
+</ul>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">Linux调试方法</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">Linux调试方法</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/05/18/Linux%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux文件操作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/04/21/callback%E6%9C%BA%E5%88%B6/">
+                        <span class="hidden-mobile">call back机制</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script defer src="https://cdn.staticfile.org/valine/1.4.14/Valine.min.js" ></script>
+
+  <script type="text/javascript">
+    var oldLoadVa = window.onload;
+    window.onload = function () {
+      oldLoadVa && oldLoadVa();
+
+      new Valine({
+        el: "#vcomments",
+        app_id: "xOKV9J4UeQAtVkvnJC7Kq2Jn-gzGzoHsz",
+        app_key: "erIpQac4azoCmgfBB7Dl9maa",
+        placeholder: "说点什么吧",
+        path: window.location.pathname,
+        avatar: "retro",
+        meta: ["nick","mail","link"],
+        pageSize: "10",
+        lang: "zh-CN",
+        highlight: false,
+        recordIP: false,
+        serverURLs: "",
+      });
+    };
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div>
+    
+      <!-- 不蒜子统计PV -->
+      
+      <span id="busuanzi_container_site_pv" style="display: none">
+      总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    </span>
+    
+    
+      <!-- 不蒜子统计UV -->
+      
+      <span id="busuanzi_container_site_uv" style="display: none">
+      总访客数 <span id="busuanzi_value_site_uv"></span> 人
+    </span>
+    
+  </div>
+
+
+    
+  <!-- 备案信息 -->
+  <div>
+    <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-icp"
+       rel="nofollow noopener">京ICP证123456号</a>
+    
+      <a
+        href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+        rel="nofollow noopener"
+        class="beian-police"
+        target="_blank"
+      >
+        <span class="beian-police-sep">&nbsp;|&nbsp;</span>
+        
+          <img src="/img/police_beian.png" srcset="/img/loading.gif" alt="police-icon" />
+        
+        <span>京公网安备12345678号</span>
+      </a>
+     
+  </div>
+
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Linux应用程序调试方法&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

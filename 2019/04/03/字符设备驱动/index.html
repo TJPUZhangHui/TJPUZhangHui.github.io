@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="">
+  <meta name="author" content="ZhangHui">
+  <meta name="keywords" content="">
+  <title>字符设备驱动 - 章辉的博客</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/highlight.js/10.0.0/styles/github.min.css" />
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_fmb4a04yx8h.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_pjno9b9zyxs.css">
+
+
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.1"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>ZH</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <div class="mt-3 post-meta">
+                  <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+                  <time datetime="2019-04-03 22:13">
+                    2019年4月3日 晚上
+                  </time>
+                </div>
+              
+
+              <div class="mt-1">
+                
+                  
+                  <span class="post-meta mr-2">
+                    <i class="iconfont icon-chart"></i>
+                    749 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta mr-2">
+                      <i class="iconfont icon-clock-fill"></i>
+                    
+                    
+                    12
+                     分钟
+                  </span>
+                
+
+                
+              </div>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h1 id="字符设备驱动"><a href="#字符设备驱动" class="headerlink" title="字符设备驱动"></a>字符设备驱动</h1><h2 id="之前的框架"><a href="#之前的框架" class="headerlink" title="之前的框架"></a>之前的框架</h2><pre><code class="hljs markdown"><span class="hljs-bullet">- </span>确定主设备号
+<span class="hljs-bullet">- </span>file_operation结构体
+<span class="hljs-bullet">- </span>register_chrdecv
+<span class="hljs-bullet">- </span>入口
+<span class="hljs-bullet">- </span>出口</code></pre>
+
+<p><strong>缺点：只有255个字符设备驱动</strong></p>
+<blockquote>
+<p><strong>之前：以主设备号为下标，在chardev里面找到之前注册的file_operations</strong><br><strong>现在：以主设备号和次设备号来找到file_operation结构体</strong></p>
+</blockquote>
+<h2 id="现在的框架"><a href="#现在的框架" class="headerlink" title="现在的框架"></a>现在的框架</h2><p>register_chardev拆分为以下几个部分：</p>
+<pre><code class="hljs">__register_chrdev_region
+cdev_alloc
+cdev_init
+cdev_add</code></pre>
+<h4 id="具体框架分析"><a href="#具体框架分析" class="headerlink" title="具体框架分析"></a>具体框架分析</h4><hr>
+<ul>
+<li>构造file_operation结构体</li>
+</ul>
+<pre><code class="hljs ini"><span class="hljs-attr">.owner</span> = THIS_MODULE
+<span class="hljs-attr">.open</span>  = hello</code></pre>
+
+<ul>
+<li>注册字符设备驱动</li>
+</ul>
+<pre><code class="hljs objectivec"><span class="hljs-keyword">if</span> major
+<span class="hljs-built_in">MKDEV</span>
+register_chrdev_region
+<span class="hljs-keyword">else</span> 
+alloc_chrdev_region  <span class="hljs-comment">//自动分配主设备号</span></code></pre>
+
+<ul>
+<li>定义一个cdev结构体，并初始化</li>
+</ul>
+<pre><code class="hljs ebnf"><span class="hljs-attribute">cdev_init</span>
+<span class="hljs-attribute">cdev_add</span></code></pre>
+
+<ul>
+<li>创建类，自动创建设备节点</li>
+</ul>
+<pre><code class="hljs ceylon">struct <span class="hljs-keyword">class</span> cls;
+cls = <span class="hljs-keyword">class</span><span class="hljs-number">_</span>create
+<span class="hljs-keyword">class</span><span class="hljs-number">_</span>device<span class="hljs-number">_</span>create</code></pre>
+
+<ul>
+<li>出口函数</li>
+</ul>
+<pre><code class="hljs ceylon"><span class="hljs-keyword">class</span><span class="hljs-number">_</span>device<span class="hljs-number">_</span>destroy
+<span class="hljs-keyword">class</span><span class="hljs-number">_</span>destroy
+cdev<span class="hljs-number">_</span>del
+unregister<span class="hljs-number">_</span>chrdev<span class="hljs-number">_</span>region</code></pre>
+
+<ul>
+<li>测试程序</li>
+</ul>
+<pre><code class="hljs arduino"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/stat.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+<span class="hljs-comment">/*</span>
+<span class="hljs-comment"> * hello_test /dev/hello</span>
+<span class="hljs-comment"> */</span>
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">print_usage</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *file)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%s &lt;dev&gt; \n"</span>,file);
+&#125;
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">int</span> argc,<span class="hljs-keyword">char</span> *argv[])</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> fd;
+	<span class="hljs-keyword">if</span>(argc != <span class="hljs-number">2</span>)
+	&#123;
+		print_usage(argv[<span class="hljs-number">0</span>]);
+		<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+	&#125;
+	fd = <span class="hljs-built_in">open</span>(argv[<span class="hljs-number">1</span>],O_RDWR);
+	<span class="hljs-keyword">if</span>(fd&lt;<span class="hljs-number">0</span>)
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"can not open %s \n"</span>,argv[<span class="hljs-number">1</span>]);
+	<span class="hljs-keyword">else</span> 
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"can open %s \n"</span>,argv[<span class="hljs-number">1</span>]);
+
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+
+<h4 id="驱动部分代码"><a href="#驱动部分代码" class="headerlink" title="驱动部分代码"></a>驱动部分代码</h4><pre><code class="hljs reasonml">#<span class="hljs-keyword">include</span> &lt;linux/<span class="hljs-keyword">module</span>.h&gt;
+#<span class="hljs-keyword">include</span> &lt;linux/kernel.h&gt;
+#<span class="hljs-keyword">include</span> &lt;linux/fs.h&gt;
+#<span class="hljs-keyword">include</span> &lt;linux/init.h&gt;
+#<span class="hljs-keyword">include</span> &lt;linux/delay.h&gt;
+#<span class="hljs-keyword">include</span> &lt;linux/irq.h&gt;
+#<span class="hljs-keyword">include</span> &lt;asm/uaccess.h&gt;
+#<span class="hljs-keyword">include</span> &lt;asm/irq.h&gt;
+#<span class="hljs-keyword">include</span> &lt;asm/io.h&gt;
+#<span class="hljs-keyword">include</span> &lt;asm/arch/regs-gpio.h&gt;
+#<span class="hljs-keyword">include</span> &lt;asm/hardware.h&gt;
+#<span class="hljs-keyword">include</span> &lt;linux/poll.h&gt;
+#<span class="hljs-keyword">include</span> &lt;linux/cdev.h&gt;
+
+<span class="hljs-comment">/* 1  确定主设备号 */</span>
+static <span class="hljs-built_in">int</span> major = <span class="hljs-number">0</span>;
+static <span class="hljs-keyword">struct</span> cdev cdev_hello; 
+static <span class="hljs-keyword">struct</span> cdev cdev2_hello;
+
+#define MAX_HELLO <span class="hljs-number">2</span>
+static dev_t devid;
+static <span class="hljs-keyword">struct</span> <span class="hljs-keyword">class</span> *cls;
+
+<span class="hljs-built_in">int</span>  hello<span class="hljs-constructor">_open(<span class="hljs-params">struct</span> <span class="hljs-params">inode</span> <span class="hljs-operator">*</span><span class="hljs-params">node</span>,<span class="hljs-params">struct</span> <span class="hljs-params">file</span> <span class="hljs-operator">*</span><span class="hljs-params">file</span>)</span>
+&#123;	
+	static count = <span class="hljs-number">0</span>;
+	printk(<span class="hljs-string">"hello1 is open %d \n"</span>,++count);
+	return <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-built_in">int</span>  hello2<span class="hljs-constructor">_open(<span class="hljs-params">struct</span> <span class="hljs-params">inode</span> <span class="hljs-operator">*</span><span class="hljs-params">node</span>,<span class="hljs-params">struct</span> <span class="hljs-params">file</span> <span class="hljs-operator">*</span><span class="hljs-params">file</span>)</span>
+&#123;	
+	static count = <span class="hljs-number">0</span>;  
+	printk(<span class="hljs-string">"hello2 is open %d \n"</span>,++count);
+	return <span class="hljs-number">0</span>;
+&#125;
+
+
+<span class="hljs-comment">/* 2  构造file_operation结构体*/</span>
+static <span class="hljs-keyword">struct</span> file_operations file_ops=
+&#123;
+	.owner = THIS_MODULE,
+	.<span class="hljs-keyword">open</span>  = hello_open,
+&#125;; 
+
+static <span class="hljs-keyword">struct</span> file_operations file_ops2=
+&#123;
+	.owner = THIS_MODULE,
+	.<span class="hljs-keyword">open</span>  = hello2_open,
+&#125;;
+
+
+static <span class="hljs-built_in">int</span> hello<span class="hljs-constructor">_init(<span class="hljs-params">void</span>)</span>
+&#123;	
+	<span class="hljs-comment">/*3 代替register_chrdev的方式 */</span>
+	<span class="hljs-comment">/* 创建次设备号为0 1的节点 */</span>
+	<span class="hljs-keyword">if</span> (major) &#123; 
+		devid = <span class="hljs-constructor">MKDEV(<span class="hljs-params">major</span>, 0)</span>;
+		register<span class="hljs-constructor">_chrdev_region(<span class="hljs-params">devid</span>, MAX_HELLO, <span class="hljs-string">"hello"</span>)</span>;<span class="hljs-comment">/* major(0~1)对应file_ops，其他的都不对应file_ops */</span>
+	&#125; 
+	<span class="hljs-keyword">else</span> &#123;
+		alloc<span class="hljs-constructor">_chrdev_region(&amp;<span class="hljs-params">devid</span>, 0, MAX_HELLO, <span class="hljs-string">"hello"</span>)</span>;<span class="hljs-comment">/* major(0~1)对应file_ops，其他的都不对应file_ops */</span>
+		major = <span class="hljs-constructor">MAJOR(<span class="hljs-params">devid</span>)</span>;
+	&#125;
+	cdev<span class="hljs-constructor">_init(&amp;<span class="hljs-params">cdev_hello</span>,&amp;<span class="hljs-params">file_ops</span>)</span>;
+	cdev<span class="hljs-constructor">_add(&amp;<span class="hljs-params">cdev_hello</span>,<span class="hljs-params">devid</span>,MAX_HELLO)</span>;
+	
+	<span class="hljs-comment">/* 创建次设备号为2的节点 */</span>
+	devid = <span class="hljs-constructor">MKDEV(<span class="hljs-params">major</span>, 2)</span>; <span class="hljs-comment">// 从2开始</span>
+	register<span class="hljs-constructor">_chrdev_region(<span class="hljs-params">devid</span>, 1, <span class="hljs-string">"hello"</span>)</span>; <span class="hljs-comment">// 需要1个节点</span>
+	cdev<span class="hljs-constructor">_init(&amp;<span class="hljs-params">cdev2_hello</span>,&amp;<span class="hljs-params">file_ops2</span>)</span>;
+	cdev<span class="hljs-constructor">_add(&amp;<span class="hljs-params">cdev2_hello</span>,<span class="hljs-params">devid</span>,1)</span>; 
+	
+	<span class="hljs-comment">/*4 自动创建设备节点 */</span>
+	cls = <span class="hljs-keyword">class</span><span class="hljs-constructor">_create(THIS_MODULE,<span class="hljs-string">"hello"</span>)</span>;
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,0)</span>,NULL,<span class="hljs-string">"hello0"</span>);<span class="hljs-comment">/*dev/hello0*/</span>
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,1)</span>,NULL,<span class="hljs-string">"hello1"</span>);<span class="hljs-comment">/*dev/hello1*/</span>
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,2)</span>,NULL,<span class="hljs-string">"hello2"</span>);<span class="hljs-comment">/*dev/hello2*/</span>
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_create(<span class="hljs-params">cls</span>,NULL,MKDEV(<span class="hljs-params">major</span>,3)</span>,NULL,<span class="hljs-string">"hello3"</span>);<span class="hljs-comment">/*dev/hello2*/</span>
+	return <span class="hljs-number">0</span>;
+&#125;
+
+static void hello<span class="hljs-constructor">_exit(<span class="hljs-params">void</span>)</span>
+&#123;
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,0)</span>);
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,1)</span>);
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,2)</span>);
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_device_destroy(<span class="hljs-params">cls</span>,MKDEV(<span class="hljs-params">major</span>,3)</span>);
+	<span class="hljs-keyword">class</span><span class="hljs-constructor">_destroy(<span class="hljs-params">cls</span>)</span>;
+	
+	cdev<span class="hljs-constructor">_del(&amp;<span class="hljs-params">cdev_hello</span>)</span>;
+	unregister<span class="hljs-constructor">_chrdev_region(MKDEV(<span class="hljs-params">major</span>,0)</span>,MAX_HELLO);
+
+	cdev<span class="hljs-constructor">_del(&amp;<span class="hljs-params">cdev2_hello</span>)</span>;
+	unregister<span class="hljs-constructor">_chrdev_region(MKDEV(<span class="hljs-params">major</span>,2)</span>,<span class="hljs-number">1</span>);
+&#125;
+
+<span class="hljs-keyword">module</span><span class="hljs-constructor">_init(<span class="hljs-params">hello_init</span>)</span>;
+<span class="hljs-keyword">module</span><span class="hljs-constructor">_exit(<span class="hljs-params">hello_exit</span>)</span>;
+<span class="hljs-constructor">MODULE_LICENSE(<span class="hljs-string">"GPL"</span>)</span>;</code></pre>
+
+
+<blockquote>
+<p>以上是字符设备驱动的框架以及测试代码，仅仅是说明了字符设备驱动的一种新的注册方式，距离一个真正的字符设备驱动还有一定的距离<del>~</del></p>
+</blockquote>
+<hr>
+
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/04/11/DMA%E9%A9%B1%E5%8A%A8/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">DMA驱动</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2019/04/03/%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/">
+                        <span class="hidden-mobile">数组与指针的关系</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script defer src="https://cdn.staticfile.org/valine/1.4.14/Valine.min.js" ></script>
+
+  <script type="text/javascript">
+    var oldLoadVa = window.onload;
+    window.onload = function () {
+      oldLoadVa && oldLoadVa();
+
+      new Valine({
+        el: "#vcomments",
+        app_id: "xOKV9J4UeQAtVkvnJC7Kq2Jn-gzGzoHsz",
+        app_key: "erIpQac4azoCmgfBB7Dl9maa",
+        placeholder: "说点什么吧",
+        path: window.location.pathname,
+        avatar: "retro",
+        meta: ["nick","mail","link"],
+        pageSize: "10",
+        lang: "zh-CN",
+        highlight: false,
+        recordIP: false,
+        serverURLs: "",
+      });
+    };
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
+
+
+              </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+  </main>
+
+  
+    <a id="scroll-top-button" href="#" role="button">
+      <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener">
+        <span>Fluid</span></a>
+    </div>
+    
+  <div>
+    
+      <!-- 不蒜子统计PV -->
+      
+      <span id="busuanzi_container_site_pv" style="display: none">
+      总访问量 <span id="busuanzi_value_site_pv"></span> 次
+    </span>
+    
+    
+      <!-- 不蒜子统计UV -->
+      
+      <span id="busuanzi_container_site_uv" style="display: none">
+      总访客数 <span id="busuanzi_value_site_uv"></span> 人
+    </span>
+    
+  </div>
+
+
+    
+  <!-- 备案信息 -->
+  <div>
+    <a href="http://beian.miit.gov.cn/" target="_blank" class="beian-icp"
+       rel="nofollow noopener">京ICP证123456号</a>
+    
+      <a
+        href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=12345678"
+        rel="nofollow noopener"
+        class="beian-police"
+        target="_blank"
+      >
+        <span class="beian-police-sep">&nbsp;|&nbsp;</span>
+        
+          <img src="/img/police_beian.png" srcset="/img/loading.gif" alt="police-icon" />
+        
+        <span>京公网安备12345678号</span>
+      </a>
+     
+  </div>
+
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="/js/debouncer.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
+
+
+  <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
+  <script  src="/js/clipboard-use.js" ></script>
+
+
+
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js" ></script>
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "字符设备驱动&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 70,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      searchFunc(path, 'local-search-input', 'local-search-result');
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
