@@ -321,7 +321,8 @@
 1  底层系统调用2  标准IO库3  格式化输入输出4  带缓冲的IO和不带缓冲的IO5  目录操作6  文件和目录的维护7  proc文件系统8  锁文件9  文件锁  
 
 想必在此之前，你已经听说过这么一句话，在linux中，一切（几乎一切）都是文件，设置硬件设备也被映射为文件，Linux中比较重要的设备文件有3个：
-1234&#x2F;dev&#x2F;console：系统</div>
+/dev/console：系统控制台
+/dev/tty：终</div>
       </a>
 
       <div class="index-btm post-metas">
@@ -353,7 +354,13 @@
   <div class="row mx-auto index-card">
     
     
-    <div class="col-12 col-md-12 mx-auto index-info">
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2019/05/18/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/" target="_self">
+          <img src="/img/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/1.png" srcset="/img/loading.gif" alt="Linux应用程序调试方法">
+        </a>
+      </div>
+    
+    <div class="col-12 col-md-8 mx-auto index-info">
       <a class="index-header" href="/2019/05/18/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">Linux应用程序调试方法</a>
 
       <a href="/2019/05/18/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/" class="index-excerpt">
@@ -362,9 +369,17 @@
           
         
         <div>一 使用strace命令跟踪系统调用使用方法
-打补丁1patch -p1 &lt; ..&#x2F;xxx.patch
-配置strace &amp;&amp; 编译12.&#x2F;configure --host&#x3D;arm-linux CC&#x3D;arm-linux-gccmake
-编译完成之后得到一个strace应用程序，拷贝到开发板上就可以使用了使用方法：1.&#x2F;stra</div>
+打补丁
+
+patch -p1 &lt; ../xxx.patch
+
+配置strace &amp;&amp; 编译
+
+./configure --host=arm-linux CC=arm-linux-gcc
+make
+
+编译完成之后得到一个strace应用程序，拷贝到开发板上就可以使用了使用方法：
+./strace -o log.txt ./first</div>
       </a>
 
       <div class="index-btm post-metas">
@@ -377,7 +392,7 @@
           <div class="post-meta mr-3">
             <i class="iconfont icon-category"></i>
             
-              <a href="/categories/Linux%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">Linux调试方法</a>
+              <a href="/categories/Linux%E8%B0%83%E8%AF%95/">Linux调试</a>
             
           </div>
         
@@ -385,7 +400,7 @@
           <div class="post-meta">
             <i class="iconfont icon-tags"></i>
             
-              <a href="/tags/Linux%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">Linux调试方法</a>
+              <a href="/tags/Linux%E8%B0%83%E8%AF%95/">Linux调试</a>
             
           </div>
         

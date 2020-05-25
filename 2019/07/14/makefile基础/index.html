@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    913 字
+                    898 字
                   </span>
                 
 
@@ -200,9 +200,7 @@
               <blockquote>
 <p>makefile是GUN执行make调用的程序，用来组织项目中的文件按照一定的规则被编译，其核心是规则</p>
 </blockquote>
-<h3 id="程序的编译过程"><a href="#程序的编译过程" class="headerlink" title="程序的编译过程"></a>程序的编译过程</h3><p>先来看看程序的编译过程</p>
-
-
+<h3 id="程序的编译过程"><a href="#程序的编译过程" class="headerlink" title="程序的编译过程"></a>程序的编译过程</h3><p>先来看看程序的编译过程<br><img src="/img/makefile%E5%9F%BA%E7%A1%80/1.png" srcset="/img/loading.gif" alt=""></p>
 <p>大体上分为四步：</p>
 <ul>
 <li>预处理 </li>
@@ -210,11 +208,10 @@
 <li>汇编，生成.o文件，是二进制文件</li>
 <li>链接，将多个.o文件链接在一起，生成可执行文件ELF文件</li>
 </ul>
-<p>file命令查看文件格式：</p>
-
-
+<p>file命令查看文件格式：<br><img src="/img/makefile%E5%9F%BA%E7%A1%80/6.png" srcset="/img/loading.gif" alt=""></p>
 <h3 id="makefile语法"><a href="#makefile语法" class="headerlink" title="makefile语法"></a>makefile语法</h3><p>Makefile的基本格式很简单：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">目标 : 依赖1 依赖2 ...</span><br><span class="line">[TAB]命令</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs css">目标 : 依赖1 依赖2 ...
+<span class="hljs-selector-attr">[TAB]</span>命令</code></pre>
 
 <p>执行命令的条件：</p>
 <ul>
@@ -248,53 +245,71 @@
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">src &#x3D; $(wildcard .&#x2F;*.c)</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">src = <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> ./*.c)</span></code></pre>
 
-<p>返回一个字符串，如下：</p>
-
-
-
+<p>返回一个字符串，如下：<br><img src="/img/makefile%E5%9F%BA%E7%A1%80/2.png" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li><strong>按格式替换</strong><blockquote>
 <p>替换当前目录下的.c为.o的形式,.c来源于上面的src变量,注意这里是一对一替换，因此是%而不是*</p>
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj &#x3D; $(patsubst .&#x2F;%.c, .&#x2F;%.o, $(src))</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">obj = <span class="hljs-variable">$(<span class="hljs-built_in">patsubst</span> ./%.c, ./%.o, <span class="hljs-variable">$(src)</span>)</span></code></pre>
 
 <p>返回也是一个字符串，注意这只是修改了字符串中每个文件的后缀生成一个新的字符串，并不生成文件，结果如下：</p>
-
-
-
+<p><img src="/img/makefile%E5%9F%BA%E7%A1%80/3.png" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li><strong>替换所有</strong><blockquote>
 <p>将obj里面的文件依次取出并放在f中,并改成f.d的形式,注意f是变量，要加上$(f),输出这个字符串</p>
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">oobj&#x3D;$(foreach f, $(obj), $(f).d)</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">oobj=<span class="hljs-variable">$(<span class="hljs-built_in">foreach</span> f, <span class="hljs-variable">$(obj)</span>, <span class="hljs-variable">$(f)</span>.d)</span></code></pre>
 
-<p>结果如下：</p>
-
-
-
+<p>结果如下：<br><img src="/img/makefile%E5%9F%BA%E7%A1%80/4.png" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li><strong>过滤文件</strong><blockquote>
 <p>将src里面的符合xx.c形式的文件取出来，注意这里是依次取出，因此是%</p>
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">obj&#x3D;$(filter %.c, $(src))</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">obj=<span class="hljs-variable">$(<span class="hljs-built_in">filter</span> %.c, <span class="hljs-variable">$(src)</span>)</span></code></pre>
 
-<p>输出结果：</p>
-
-
+<p>输出结果：<br><img src="/img/makefile%E5%9F%BA%E7%A1%80/5.png" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li><strong>反过滤函数</strong></li>
 </ul>
 <p>filter-out用法与filter相反，不再介绍</p>
 <h3 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h3><p>这个代码会生成两个目标，适用于编译多个可执行文件，上面的输出信息写在终极目标的命令中，因为终极目标不需要执行任何gcc指令<br>.PHONY : clean，声明一个伪目标，在文件夹下有文件名为clean的文件时，依然会执行makefile里面的clean指令，否则会执行这个clean文件，做个试验测试一下即可</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">CC &#x3D; gcc</span><br><span class="line">CFLAGS &#x3D; -Wall -g</span><br><span class="line"></span><br><span class="line"># 查找，获取的也是一个字符串</span><br><span class="line">src &#x3D; $(wildcard .&#x2F;*.c)</span><br><span class="line"># 替换指定格式的文件</span><br><span class="line">obj &#x3D; $(patsubst .&#x2F;%.c, .&#x2F;%.o, $(src))</span><br><span class="line"># 替换所有</span><br><span class="line">dbj&#x3D;$(foreach f, $(obj), $(f).d)</span><br><span class="line"># 过滤文件</span><br><span class="line">fbj&#x3D;$(filter %.c, $(src))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">target : client server</span><br><span class="line">	echo $(fbj)</span><br><span class="line">	</span><br><span class="line">client : client.o sckutil.o </span><br><span class="line">	$(CC) $(CFLAGS) -o $@ $^</span><br><span class="line">	</span><br><span class="line">server : server.o sckutil.o </span><br><span class="line">	$(CC) $(CFLAGS) -o $@ $^</span><br><span class="line"></span><br><span class="line">%.o:%.c </span><br><span class="line">	$(CC) -c -o $@ $&lt;</span><br><span class="line"></span><br><span class="line"># 伪目标</span><br><span class="line">.PHONY : clean</span><br><span class="line">clean:</span><br><span class="line">	rm -rf *.o client server</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs makefile">CC = gcc
+CFLAGS = -Wall -g
+
+<span class="hljs-comment"># 查找，获取的也是一个字符串</span>
+src = <span class="hljs-variable">$(<span class="hljs-built_in">wildcard</span> ./*.c)</span>
+<span class="hljs-comment"># 替换指定格式的文件</span>
+obj = <span class="hljs-variable">$(<span class="hljs-built_in">patsubst</span> ./%.c, ./%.o, <span class="hljs-variable">$(src)</span>)</span>
+<span class="hljs-comment"># 替换所有</span>
+dbj=<span class="hljs-variable">$(<span class="hljs-built_in">foreach</span> f, <span class="hljs-variable">$(obj)</span>, <span class="hljs-variable">$(f)</span>.d)</span>
+<span class="hljs-comment"># 过滤文件</span>
+fbj=<span class="hljs-variable">$(<span class="hljs-built_in">filter</span> %.c, <span class="hljs-variable">$(src)</span>)</span>
+
+
+target : client server
+	echo <span class="hljs-variable">$(fbj)</span>
+	
+client : client.o sckutil.o 
+	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$^</span>
+	
+server : server.o sckutil.o 
+	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$^</span>
+
+<span class="hljs-section">%.o:%.c </span>
+	<span class="hljs-variable">$(CC)</span> -c -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$&lt;</span>
+
+<span class="hljs-comment"># 伪目标</span>
+.PHONY : clean
+<span class="hljs-section">clean:</span>
+	rm -rf *.o client server</code></pre>
 
 <blockquote>
 <p>以上是学习makefile必备的基础知识，知识来源于积累，，，</p>

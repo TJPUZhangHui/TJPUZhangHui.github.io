@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    2.2k 字
+                    2.1k 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    32
+                    29
                      分钟
                   </span>
                 
@@ -198,72 +198,239 @@
             
             <article class="markdown-body">
               <h2 id="一-使用strace命令跟踪系统调用"><a href="#一-使用strace命令跟踪系统调用" class="headerlink" title="一 使用strace命令跟踪系统调用"></a>一 使用strace命令跟踪系统调用</h2><h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><ul>
-<li>打补丁<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">patch -p1 &lt; ..&#x2F;xxx.patch</span><br></pre></td></tr></table></figure></li>
-<li>配置strace &amp;&amp; 编译<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure --host&#x3D;arm-linux CC&#x3D;arm-linux-gcc</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
-编译完成之后得到一个strace应用程序，拷贝到开发板上就可以使用了<br>使用方法：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;strace -o log.txt .&#x2F;firstdrvtext on</span><br></pre></td></tr></table></figure>
-<code>log.txt</code>是调试信息输出的文件，<code>./firstdrvtext on</code>是应用程序使用方法</li>
+<li>打补丁</li>
 </ul>
-<h3 id="简单介绍strace的原理"><a href="#简单介绍strace的原理" class="headerlink" title="简单介绍strace的原理"></a>简单介绍strace的原理</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;strace(父进程) -o log.txt .&#x2F;firstdrvtext on(子进程)</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">patch -p1 &lt; ../xxx.patch</code></pre>
+<ul>
+<li>配置strace &amp;&amp; 编译</li>
+</ul>
+<pre><code class="hljs bash">./configure --host=arm-linux CC=arm-linux-gcc
+make</code></pre>
+
+<p>编译完成之后得到一个strace应用程序，拷贝到开发板上就可以使用了<br>使用方法：</p>
+<pre><code class="hljs bash">./strace -o log.txt ./firstdrvtext on</code></pre>
+
+<p><code>log.txt</code>是调试信息输出的文件，<code>./firstdrvtext on</code>是应用程序使用方法</p>
+<h3 id="简单介绍strace的原理"><a href="#简单介绍strace的原理" class="headerlink" title="简单介绍strace的原理"></a>简单介绍strace的原理</h3><pre><code class="hljs bash">./strace(父进程) -o log.txt ./firstdrvtext on(子进程)</code></pre>
 
 <p><strong>父进程启动一个子进程，子进程先判断是否被跟踪，如果是，则会发送给父进程一些信号，然后进入休眠，父进程根据信号值决定记录哪些数据，父进程处理完之后（如记录），子进程继续运行。</strong></p>
 <blockquote>
 <p>子进程里面的open,read,write(c库)函数会调用一条swi指令 swi val<br>open   —-  swi  #val1<br>read    —- swi  #val2<br>write   —- swi  #val3<br>这条指令会导致系统swi异常，进入内核态，调用sys_open,sys_read …   </p>
 </blockquote>
 <ul>
-<li>打开内核文件<code>arch/arm/kernel/entry-common.s</code>:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">tst	ip, #_TIF_SYSCALL_TRACE		@ are we tracing syscalls?</span><br><span class="line">bne	__sys_trace</span><br><span class="line">&#x2F;&#x2F; 测试标记为，看是否被跟踪，如果被跟踪，则调用	__sys_trace</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
-<li>__sys_trace：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;*</span><br><span class="line"> * This is the really slow path.  We&#39;re going to be doing</span><br><span class="line"> * context switches, and waiting for our parent to respond.</span><br><span class="line"> *&#x2F;</span><br><span class="line">__sys_trace:</span><br><span class="line">	mov	r2, scno</span><br><span class="line">	add	r1, sp, #S_OFF</span><br><span class="line">	mov	r0, #0				@ trace entry [IP &#x3D; 0]</span><br><span class="line">	bl	syscall_trace</span><br><span class="line"></span><br><span class="line">	adr	lr, __sys_trace_return		@ return address</span><br><span class="line">	mov	scno, r0			@ syscall number (possibly new)</span><br><span class="line">	add	r1, sp, #S_R0 + S_OFF		@ pointer to regs</span><br><span class="line">	cmp	scno, #NR_syscalls		@ check upper syscall limit</span><br><span class="line">	ldmccia	r1, &#123;r0 - r3&#125;			@ have to reload r0 - r3</span><br><span class="line">	ldrcc	pc, [tbl, scno, lsl #2]		@ call sys_* routine</span><br><span class="line">	b	2b</span><br></pre></td></tr></table></figure>
-<h3 id="strace的其他用法"><a href="#strace的其他用法" class="headerlink" title="strace的其他用法"></a>strace的其他用法</h3></li>
+<li>打开内核文件<code>arch/arm/kernel/entry-common.s</code>:</li>
 </ul>
-<h2 id="二-使用GDB调试应用程序"><a href="#二-使用GDB调试应用程序" class="headerlink" title="二 使用GDB调试应用程序"></a>二 使用GDB调试应用程序</h2><h3 id="编译与安装"><a href="#编译与安装" class="headerlink" title="编译与安装"></a>编译与安装</h3><ul>
-<li>配置 &amp;&amp; 编译 &amp;&amp; 安装<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;configure --target&#x3D;arm-linux --disable-werror</span><br></pre></td></tr></table></figure></li>
-<li>查看安装目录<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi makefile</span><br><span class="line">prefix &#x3D; &#x2F;usr&#x2F;local</span><br></pre></td></tr></table></figure></li>
-<li>安装目录修改当前目录下的tmp<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir tmp</span><br><span class="line">make install prefix&#x3D;$PWD&#x2F;tmp</span><br></pre></td></tr></table></figure></li>
-<li>配置 &amp;&amp; 编译gdbserver，并复制到网络文件系统<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd gdb&#x2F;gdbserver</span><br><span class="line">.&#x2F;configure --host&#x3D;arm-linux</span><br><span class="line">make</span><br><span class="line">cp gdbserver &#x2F;work&#x2F;fs.. &#x2F;bin&#x2F;gdbserver</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">...
+tst	ip, <span class="hljs-comment">#_TIF_SYSCALL_TRACE		@ are we tracing syscalls?</span>
+bne	__sys_trace
+// 测试标记为，看是否被跟踪，如果被跟踪，则调用	__sys_trace
+...</code></pre>
+
+<ul>
+<li>__sys_trace：</li>
+</ul>
+<pre><code class="hljs c"><span class="hljs-comment">/*</span>
+<span class="hljs-comment"> * This is the really slow path.  We're going to be doing</span>
+<span class="hljs-comment"> * context switches, and waiting for our parent to respond.</span>
+<span class="hljs-comment"> */</span>
+__sys_trace:
+	mov	r2, scno
+	add	r1, sp, #S_OFF
+	mov	r0, #<span class="hljs-number">0</span>				@ trace entry [IP = <span class="hljs-number">0</span>]
+	bl	syscall_trace
+
+	adr	lr, __sys_trace_return		@ <span class="hljs-keyword">return</span> address
+	mov	scno, r0			@ syscall number (possibly <span class="hljs-keyword">new</span>)
+	add	r1, sp, #S_R0 + S_OFF		@ pointer to regs
+	cmp	scno, #NR_syscalls		@ check upper syscall limit
+	ldmccia	r1, &#123;r0 - r3&#125;			@ have to reload r0 - r3
+	ldrcc	pc, [tbl, scno, lsl #<span class="hljs-number">2</span>]		@ call sys_* routine
+	b	<span class="hljs-number">2b</span></code></pre>
+<h3 id="strace的其他用法"><a href="#strace的其他用法" class="headerlink" title="strace的其他用法"></a>strace的其他用法</h3><h2 id="二-使用GDB调试应用程序"><a href="#二-使用GDB调试应用程序" class="headerlink" title="二 使用GDB调试应用程序"></a>二 使用GDB调试应用程序</h2><h3 id="编译与安装"><a href="#编译与安装" class="headerlink" title="编译与安装"></a>编译与安装</h3><ul>
+<li>配置 &amp;&amp; 编译 &amp;&amp; 安装</li>
+</ul>
+<pre><code class="hljs bash">./configure --target=arm-linux --<span class="hljs-built_in">disable</span>-werror</code></pre>
+<ul>
+<li>查看安装目录</li>
+</ul>
+<pre><code class="hljs bash">vi makefile
+prefix = /usr/<span class="hljs-built_in">local</span></code></pre>
+<ul>
+<li>安装目录修改当前目录下的tmp</li>
+</ul>
+<pre><code class="hljs bash">mkdir tmp
+make install prefix=<span class="hljs-variable">$PWD</span>/tmp</code></pre>
+<ul>
+<li>配置 &amp;&amp; 编译gdbserver，并复制到网络文件系统</li>
+</ul>
+<pre><code class="hljs bash"><span class="hljs-built_in">cd</span> gdb/gdbserver
+./configure --host=arm-linux
+make
+cp gdbserver /work/fs.. /bin/gdbserver</code></pre>
+
 <h3 id="GDB远程调试步骤"><a href="#GDB远程调试步骤" class="headerlink" title="GDB远程调试步骤"></a>GDB远程调试步骤</h3><blockquote>
 <p>编译要调试的应用程序，编译时要加上-g选项</p>
 </blockquote>
-</li>
-<li>在ARM板上<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">gdbserver 192.168.1.17:2345 .&#x2F;test_debug</span><br><span class="line">&#x2F;&#x2F;  ip是arm板的ip，端口随便写</span><br></pre></td></tr></table></figure></li>
-<li>在pc机上<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;bin&#x2F;arm-linux-gdb  .&#x2F;test_debug</span><br><span class="line">target remote 192.168.1.17:2345</span><br></pre></td></tr></table></figure></li>
-<li>常用的命令：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">l： 查看源码</span><br><span class="line">break main  &#x2F;  break test_debug:31： 打断点	 &#x2F;&#x2F;main函数打断点 &#x2F;  31行打断点</span><br><span class="line">c：继续执行</span><br><span class="line">step ：单步调试</span><br><span class="line">print *p：输出</span><br><span class="line">quit：退出</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-
-</li>
+<ul>
+<li>在ARM板上</li>
 </ul>
+<pre><code class="hljs bash">gdbserver 192.168.1.17:2345 ./test_debug
+//  ip是arm板的ip，端口随便写</code></pre>
+
+<ul>
+<li>在pc机上</li>
+</ul>
+<pre><code class="hljs bash">/bin/arm-linux-gdb  ./test_debug
+target remote 192.168.1.17:2345</code></pre>
+
+<ul>
+<li>常用命令：</li>
+</ul>
+<pre><code class="hljs bash">l： 查看源码
+<span class="hljs-built_in">break</span> main  /  <span class="hljs-built_in">break</span> test_debug:31： 打断点	 //main函数打断点 /  31行打断点
+c：继续执行
+step ：单步调试
+<span class="hljs-built_in">print</span> *p：输出
+quit：退出
+...</code></pre>
+
 <h3 id="GDB的另一种使用方法"><a href="#GDB的另一种使用方法" class="headerlink" title="GDB的另一种使用方法"></a>GDB的另一种使用方法</h3><blockquote>
 <p>让程序在开发板上直接运行，当它发送错误时，令它产生<strong>core dump</strong>文件<br>然后使用gdb根据core dump文件找到发生错误的地方。</p>
 </blockquote>
 <ul>
-<li><p>在开发板上输入</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ulimit -c unlimited</span><br></pre></td></tr></table></figure></li>
+<li>在开发板上输入</li>
+</ul>
+<pre><code class="hljs bash"><span class="hljs-built_in">ulimit</span> -c unlimited</code></pre>
+<ul>
 <li><p>执行应用程序 <code>./test_debug</code> 程序出错会在当前目录下生成名为<code>core</code>的文件</p>
 </li>
 <li><p>拷贝core文件到pc上，pc机上执行：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cp core &#x2F;work&#x2F;xxx&#x2F;core</span><br><span class="line">&#x2F;bin&#x2F;arm-linux-gdb  .&#x2F;test_debug  .&#x2F;core</span><br></pre></td></tr></table></figure>
-<p>若程序出错，就可以看到很多调试信息。</p>
 </li>
 </ul>
+<pre><code class="hljs bash">cp core /work/xxx/core
+/bin/arm-linux-gdb  ./test_debug  ./core</code></pre>
+<p>若程序出错，就可以看到很多调试信息。</p>
 <h2 id="三-配置内核，输出应用程序的段错误信息"><a href="#三-配置内核，输出应用程序的段错误信息" class="headerlink" title="三 配置内核，输出应用程序的段错误信息"></a>三 配置内核，输出应用程序的段错误信息</h2><h3 id="配置内核，输出错误信息"><a href="#配置内核，输出错误信息" class="headerlink" title="配置内核，输出错误信息"></a>配置内核，输出错误信息</h3><ul>
-<li>根据应用程序报错的信息在内核源码中搜索：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep &quot;Unable to handle kernel&quot; * -nR</span><br></pre></td></tr></table></figure></li>
-<li>找到并打开<code>arch/arm/mm/fault.c</code>,看到下面的函数：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* 处理应用程序错误函数 *&#x2F;</span><br><span class="line">static void</span><br><span class="line">__do_user_fault(struct task_struct *tsk, unsigned long addr,</span><br><span class="line">		unsigned int fsr, unsigned int sig, int code,</span><br><span class="line">		struct pt_regs *regs)</span><br><span class="line">&#123;</span><br><span class="line">	struct siginfo si;</span><br><span class="line">	unsigned long ret;</span><br><span class="line">	unsigned long val;</span><br><span class="line">	int i &#x3D;0;</span><br><span class="line"></span><br><span class="line">#ifdef CONFIG_DEBUG_USER			&#x2F;&#x2F; 1  配置内核</span><br><span class="line">	if (user_debug &amp; UDBG_SEGV) &#123;   &#x2F;&#x2F; 2 设置启动参数</span><br><span class="line">		printk(KERN_DEBUG &quot;%s: unhandled page fault (%d) at 0x%08lx, code 0x%03x\n&quot;,</span><br><span class="line">		       tsk-&gt;comm, sig, addr, fsr);</span><br><span class="line">		show_pte(tsk-&gt;mm, addr);</span><br><span class="line">		show_regs(regs);</span><br><span class="line">	&#x2F;*  开始打印栈信息   *&#x2F;		</span><br><span class="line">		printk(&quot;Stack: \n&quot;);</span><br><span class="line">		while(i&lt;1024)</span><br><span class="line">			&#123;	</span><br><span class="line">				if(copy_from_user(&amp;val,(const void __user *)(regs-&gt;ARM_sp+i*4),4)</span><br><span class="line">					break;</span><br><span class="line">				printk(&quot;%08x &quot;,val);</span><br><span class="line">				i++;</span><br><span class="line">				if(i % 8 &#x3D;&#x3D; 0)</span><br><span class="line">					printk(&quot;\n&quot;);</span><br><span class="line">			&#125;</span><br><span class="line">		printk(&quot;\nEnd of stack \n&quot;);</span><br><span class="line">	&#x2F;*  打印栈信息结束   *&#x2F;		</span><br><span class="line">	&#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">	tsk-&gt;thread.address &#x3D; addr;</span><br><span class="line">	tsk-&gt;thread.error_code &#x3D; fsr;</span><br><span class="line">	tsk-&gt;thread.trap_no &#x3D; 14;</span><br><span class="line">	si.si_signo &#x3D; sig;</span><br><span class="line">	si.si_errno &#x3D; 0;</span><br><span class="line">	si.si_code &#x3D; code;</span><br><span class="line">	si.si_addr &#x3D; (void __user *)addr;</span><br><span class="line">	force_sig_info(sig, &amp;si, tsk);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>配置内核 CONFIG_DEBUG_USER<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make menuconfig </span><br><span class="line">&#x2F;DEBUG_USER 	 &#x2F;&#x2F;  搜索，配置成y</span><br><span class="line">make uImage</span><br></pre></td></tr></table></figure></li>
-<li>uboot设置启动参数 user_debug<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set bootargs user_debug&#x3D;0xff ... ...</span><br></pre></td></tr></table></figure></li>
-<li>执行./test_debug，可以看到调试信息和寄存器的值</li>
-<li>反汇编app<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-objdump -D test_debug &gt; test_debug.dis</span><br></pre></td></tr></table></figure>
-在反汇编中找到pc值处的代码，根据寄存器的值找到程序出错的原因</li>
+<li>根据应用程序报错的信息在内核源码中搜索：</li>
 </ul>
+<pre><code class="hljs bash">grep <span class="hljs-string">"Unable to handle kernel"</span> * -nR</code></pre>
+<ul>
+<li>找到并打开<code>arch/arm/mm/fault.c</code>,看到下面的函数：</li>
+</ul>
+<pre><code class="hljs c"><span class="hljs-comment">/* 处理应用程序错误函数 */</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span>
+__do_user_fault(struct task_struct *tsk, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> addr,
+		<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> fsr, <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> sig, <span class="hljs-keyword">int</span> code,
+		struct pt_regs *regs)
+&#123;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">siginfo</span> <span class="hljs-title">si</span>;</span>
+	<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> ret;
+	<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> val;
+	<span class="hljs-keyword">int</span> i =<span class="hljs-number">0</span>;
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">ifdef</span> CONFIG_DEBUG_USER			<span class="hljs-comment">// 1  配置内核</span></span>
+	<span class="hljs-keyword">if</span> (user_debug &amp; UDBG_SEGV) &#123;   <span class="hljs-comment">// 2 设置启动参数</span>
+		printk(KERN_DEBUG <span class="hljs-string">"%s: unhandled page fault (%d) at 0x%08lx, code 0x%03x\n"</span>,
+		       tsk-&gt;comm, sig, addr, fsr);
+		show_pte(tsk-&gt;mm, addr);
+		show_regs(regs);
+	<span class="hljs-comment">/*  开始打印栈信息   */</span>		
+		printk(<span class="hljs-string">"Stack: \n"</span>);
+		<span class="hljs-keyword">while</span>(i&lt;<span class="hljs-number">1024</span>)
+			&#123;	
+				<span class="hljs-keyword">if</span>(copy_from_user(&amp;val,(<span class="hljs-keyword">const</span> <span class="hljs-keyword">void</span> __user *)(regs-&gt;ARM_sp+i*<span class="hljs-number">4</span>),<span class="hljs-number">4</span>)
+					<span class="hljs-keyword">break</span>;
+				printk(<span class="hljs-string">"%08x "</span>,val);
+				i++;
+				<span class="hljs-keyword">if</span>(i % <span class="hljs-number">8</span> == <span class="hljs-number">0</span>)
+					printk(<span class="hljs-string">"\n"</span>);
+			&#125;
+		printk(<span class="hljs-string">"\nEnd of stack \n"</span>);
+	<span class="hljs-comment">/*  打印栈信息结束   */</span>		
+	&#125;
+#endif
+
+	tsk-&gt;thread.address = addr;
+	tsk-&gt;thread.error_code = fsr;
+	tsk-&gt;thread.trap_no = <span class="hljs-number">14</span>;
+	si.si_signo = sig;
+	si.si_errno = <span class="hljs-number">0</span>;
+	si.si_code = code;
+	si.si_addr = (<span class="hljs-keyword">void</span> __user *)addr;
+	force_sig_info(sig, &amp;si, tsk);
+&#125;</code></pre>
+<ul>
+<li>配置内核 CONFIG_DEBUG_USER</li>
+</ul>
+<pre><code class="hljs bash">make menuconfig 
+/DEBUG_USER 	 //  搜索，配置成y
+make uImage</code></pre>
+
+<ul>
+<li>uboot设置启动参数 user_debug</li>
+</ul>
+<pre><code class="hljs bash"><span class="hljs-built_in">set</span> bootargs user_debug=0xff ... ...</code></pre>
+
+<ul>
+<li>执行./test_debug，可以看到调试信息和寄存器的值</li>
+<li>反汇编app</li>
+</ul>
+<pre><code class="hljs bash">arm-linux-objdump -D test_debug &gt; test_debug.dis</code></pre>
+<p>在反汇编中找到pc值处的代码，根据寄存器的值找到程序出错的原因</p>
 <h3 id="修改内核，打印栈信息"><a href="#修改内核，打印栈信息" class="headerlink" title="修改内核，打印栈信息"></a>修改内核，打印栈信息</h3><p><code>struct pt_regs</code> 包含发生错误的瞬间所有寄存器的值：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">struct pt_regs &#123;</span><br><span class="line">	long uregs[18];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">#define ARM_cpsr	uregs[16]</span><br><span class="line">#define ARM_pc		uregs[15]</span><br><span class="line">#define ARM_lr		uregs[14]</span><br><span class="line">#define ARM_sp		uregs[13]</span><br><span class="line">#define ARM_ip		uregs[12]</span><br><span class="line">#define ARM_fp		uregs[11]</span><br><span class="line">#define ARM_r10		uregs[10]</span><br><span class="line">#define ARM_r9		uregs[9]</span><br><span class="line">#define ARM_r8		uregs[8]</span><br><span class="line">#define ARM_r7		uregs[7]</span><br><span class="line">#define ARM_r6		uregs[6]</span><br><span class="line">#define ARM_r5		uregs[5]</span><br><span class="line">#define ARM_r4		uregs[4]</span><br><span class="line">#define ARM_r3		uregs[3]</span><br><span class="line">#define ARM_r2		uregs[2]</span><br><span class="line">#define ARM_r1		uregs[1]</span><br><span class="line">#define ARM_r0		uregs[0]</span><br><span class="line">#define ARM_ORIG_r0	uregs[17]</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pt_regs</span> &#123;</span>
+	<span class="hljs-keyword">long</span> uregs[<span class="hljs-number">18</span>];
+&#125;;
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_cpsr	uregs[16]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_pc		uregs[15]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_lr		uregs[14]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_sp		uregs[13]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_ip		uregs[12]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_fp		uregs[11]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r10		uregs[10]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r9		uregs[9]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r8		uregs[8]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r7		uregs[7]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r6		uregs[6]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r5		uregs[5]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r4		uregs[4]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r3		uregs[3]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r2		uregs[2]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r1		uregs[1]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_r0		uregs[0]</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> ARM_ORIG_r0	uregs[17]</span></code></pre>
 
 <p>在<code>arch/arm/mm/__do_user_fault</code>中加入下面的代码：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">unsigned long ret;</span><br><span class="line">unsigned long val;</span><br><span class="line">int i &#x3D;0;</span><br><span class="line">printk(&quot;Stack: \n&quot;);</span><br><span class="line">while(i&lt;1024)</span><br><span class="line">	&#123;	</span><br><span class="line">		&#x2F;* 从堆栈指针sp处开始打印栈信息 *&#x2F;</span><br><span class="line">		if(copy_from_user(&amp;val,(const void __user *)(regs-&gt;ARM_sp+i*4),4)  </span><br><span class="line">		break; </span><br><span class="line">		printk(&quot;%08x &quot;,val);</span><br><span class="line">		i++;</span><br><span class="line">		if(i % 8 &#x3D;&#x3D; 0)</span><br><span class="line">			printk(&quot;\n&quot;);</span><br><span class="line">	&#125;</span><br><span class="line">printk(&quot;\nEnd of stack \n&quot;);</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> ret;
+<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> val;
+<span class="hljs-keyword">int</span> i =<span class="hljs-number">0</span>;
+printk(<span class="hljs-string">"Stack: \n"</span>);
+<span class="hljs-keyword">while</span>(i&lt;<span class="hljs-number">1024</span>)
+	&#123;	
+		<span class="hljs-comment">/* 从堆栈指针sp处开始打印栈信息 */</span>
+		<span class="hljs-keyword">if</span>(copy_from_user(&amp;val,(<span class="hljs-keyword">const</span> <span class="hljs-keyword">void</span> __user *)(regs-&gt;ARM_sp+i*<span class="hljs-number">4</span>),<span class="hljs-number">4</span>)  
+		<span class="hljs-keyword">break</span>; 
+		printk(<span class="hljs-string">"%08x "</span>,val);
+		i++;
+		<span class="hljs-keyword">if</span>(i % <span class="hljs-number">8</span> == <span class="hljs-number">0</span>)
+			printk(<span class="hljs-string">"\n"</span>);
+	&#125;
+printk(<span class="hljs-string">"\nEnd of stack \n"</span>);</code></pre>
 <ul>
-<li>重新编译内核,复制到网络文件系统，并用新内核启动<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">make uImage </span><br><span class="line">cp arch&#x2F;arm&#x2F;uImage  &#x2F;work&#x2F;nfs_root&#x2F;fs_mini_mdev&#x2F;uImage</span><br><span class="line">reboot</span><br><span class="line">nfs 32000000 192.168.1.123:&#x2F;work&#x2F;...&#x2F;uImage_new</span><br></pre></td></tr></table></figure></li>
+<li>重新编译内核,复制到网络文件系统，并用新内核启动</li>
 </ul>
+<pre><code class="hljs bash">make uImage 
+cp arch/arm/uImage  /work/nfs_root/fs_mini_mdev/uImage
+reboot
+nfs 32000000 192.168.1.123:/work/.../uImage_new</code></pre>
 <p><strong>main函数被动态库调用，怎么知道动态库的地址？</strong></p>
 <ul>
 <li>方法1</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ps						 &#x2F;&#x2F;		查看进程ID</span><br><span class="line">cat &#x2F;proc&#x2F;xxx(进程ID)</span><br><span class="line">cat maps     			 &#x2F;&#x2F;	    查看应用程序里面各段地址</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">ps						 //		查看进程ID
+cat /proc/xxx(进程ID)
+cat maps     			 //	    查看应用程序里面各段地址</code></pre>
 
 <ul>
 <li>方法2，使用gdb调试,先启动gdb,使用命令<code>info file</code>查看程序里面的各个段</li>
@@ -271,7 +438,7 @@
 <blockquote>
 <p>动态链接不容易看程序调用信息，把应用程序编译成静态链接的方式：</p>
 </blockquote>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-gcc -o test test.c -static</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">arm-linux-gcc -o <span class="hljs-built_in">test</span> test.c -static</code></pre>
 
 <h2 id="四-自制系统调用"><a href="#四-自制系统调用" class="headerlink" title="四 自制系统调用"></a>四 自制系统调用</h2><blockquote>
 <p>ps:这种方法很少用，也比较繁琐，适合长时间打印调试信息</p>
@@ -286,26 +453,65 @@
 </blockquote>
 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#define __NR_OABI_SYSCALL_BASE	0x900000</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;#if defined(__thumb__) || defined(__ARM_EABI__)</span><br><span class="line">&#x2F;&#x2F;#define __NR_SYSCALL_BASE	0</span><br><span class="line">&#x2F;&#x2F;#else</span><br><span class="line">#define __NR_SYSCALL_BASE	__NR_OABI_SYSCALL_BASE</span><br><span class="line">&#x2F;&#x2F;#endif</span><br><span class="line"></span><br><span class="line">void hello(char *buf ,int count )</span><br><span class="line">&#123;</span><br><span class="line">	&#x2F;* swi *&#x2F;</span><br><span class="line">	 asm (&quot;mov r0, %0\n&quot;	&#x2F;* save the argment in r0 *&#x2F;</span><br><span class="line">          &quot;mov r1, %1\n&quot;	&#x2F;* save the argment in r0 *&#x2F;</span><br><span class="line">          &quot;swi %2\n&quot;		&#x2F;* do the system call *&#x2F;</span><br><span class="line">          : </span><br><span class="line">          : &quot;r&quot;(buf),&quot;r&quot;(count), &quot;i&quot; (__NR_SYSCALL_BASE + 352)</span><br><span class="line">          : &quot;r0&quot;,&quot;r1&quot;);		&#x2F;* 过程中会改变的寄存器 *&#x2F;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void main(int argc , char ** argv)</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot; in app, call hello  \n&quot;);</span><br><span class="line">	&#x2F;* 执行hello函数触发一个swi指令异常 *&#x2F;</span><br><span class="line">	hello(&quot;tjpuzh.top&quot;,10);</span><br><span class="line">	</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;errno.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __NR_OABI_SYSCALL_BASE	0x900000</span>
+
+<span class="hljs-comment">//#if defined(__thumb__) || defined(__ARM_EABI__)</span>
+<span class="hljs-comment">//#define __NR_SYSCALL_BASE	0</span>
+<span class="hljs-comment">//#else</span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">define</span> __NR_SYSCALL_BASE	__NR_OABI_SYSCALL_BASE</span>
+<span class="hljs-comment">//#endif</span>
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">hello</span><span class="hljs-params">(<span class="hljs-keyword">char</span> *buf ,<span class="hljs-keyword">int</span> count )</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-comment">/* swi */</span>
+	 <span class="hljs-keyword">asm</span> (<span class="hljs-string">"mov r0, %0\n"</span>	<span class="hljs-comment">/* save the argment in r0 */</span>
+          <span class="hljs-string">"mov r1, %1\n"</span>	<span class="hljs-comment">/* save the argment in r0 */</span>
+          <span class="hljs-string">"swi %2\n"</span>		<span class="hljs-comment">/* do the system call */</span>
+          : 
+          : <span class="hljs-string">"r"</span>(buf),<span class="hljs-string">"r"</span>(count), <span class="hljs-string">"i"</span> (__NR_SYSCALL_BASE + <span class="hljs-number">352</span>)
+          : <span class="hljs-string">"r0"</span>,<span class="hljs-string">"r1"</span>);		<span class="hljs-comment">/* 过程中会改变的寄存器 */</span>
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">int</span> argc , <span class="hljs-keyword">char</span> ** argv)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">" in app, call hello  \n"</span>);
+	<span class="hljs-comment">/* 执行hello函数触发一个swi指令异常 */</span>
+	hello(<span class="hljs-string">"tjpuzh.top"</span>,<span class="hljs-number">10</span>);
+	
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
 
 <ul>
 <li><strong>修改内核，添加系统调用函数的声明和实现</strong> </li>
 <li>声明： </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">include\linux\syscalls.h中加入</span><br><span class="line">asmlinkage ssize_t sys_hello(const char __user *buf,int count);</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">include\linux\syscalls.h中加入
+<span class="hljs-function">asmlinkage <span class="hljs-keyword">ssize_t</span> <span class="hljs-title">sys_hello</span><span class="hljs-params">(<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> __user *buf,<span class="hljs-keyword">int</span> count)</span></span>;</code></pre>
 <ul>
-<li><p>实现：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">在\fs\read_write.c中实现sys_hello</span><br><span class="line">asmlinkage ssize_t sys_hello(const char __user * buf,int count)</span><br><span class="line">&#123;</span><br><span class="line">	... ... </span><br><span class="line">	&#x2F;&#x2F; 此处实现想要实现的功能，如open,read,write...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加 </p>
-</li>
+<li>实现：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在 arch\arm\kernel\calls.S中，最后加入一项CALL(sys_hello)</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">在\fs\read_write.c中实现sys_hello
+<span class="hljs-function">asmlinkage <span class="hljs-keyword">ssize_t</span> <span class="hljs-title">sys_hello</span><span class="hljs-params">(<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> __user * buf,<span class="hljs-keyword">int</span> count)</span></span>
+<span class="hljs-function"></span>&#123;
+	... ... 
+	<span class="hljs-comment">// 此处实现想要实现的功能，如open,read,write...</span>
+&#125;</code></pre>
+
+<ul>
+<li>添加 </li>
+</ul>
+<pre><code class="hljs bash">在 arch\arm\kernel\calls.S中，最后加入一项CALL(sys_hello)</code></pre>
 
 <ul>
 <li>测试</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">make uImage</span><br><span class="line">cp arch&#x2F;arm&#x2F;uImage &#x2F;work&#x2F;nfs_root&#x2F;fs_mini_mdev&#x2F;uImage</span><br><span class="line">reboot</span><br><span class="line">nfs 32000000 192.168.3.123:&#x2F;work&#x2F;nfs_root&#x2F;fs_mini_mdev&#x2F;uImage_hello</span><br><span class="line">bootm 32000000</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">make uImage
+cp arch/arm/uImage /work/nfs_root/fs_mini_mdev/uImage
+reboot
+nfs 32000000 192.168.3.123:/work/nfs_root/fs_mini_mdev/uImage_hello
+bootm 32000000</code></pre>
 
 <h3 id="使用自制系统调用来打输出调试信息"><a href="#使用自制系统调用来打输出调试信息" class="headerlink" title="使用自制系统调用来打输出调试信息"></a>使用自制系统调用来打输出调试信息</h3><p> <strong>整体流程</strong></p>
 <ul>
@@ -320,30 +526,50 @@
 <li>替换            </li>
 </ul>
 <ol>
-<li><p>输出反汇编文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-objdump -D debug_with_system_call &gt; debug_with_system_call.dis</span><br></pre></td></tr></table></figure></li>
-<li><p>根据适合打断点的指令，找到合适机器码    </p>
-
+<li>输出反汇编文件</li>
+</ol>
+<pre><code class="hljs bash">arm-linux-objdump -D debug_with_system_call &gt; debug_with_system_call.dis</code></pre>
+<ol start="2">
+<li><p>根据适合打断点的指令，找到合适机器码<br><img src="/img/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/1.png" srcset="/img/loading.gif" alt=""></p>
 </li>
 <li><p>反汇编自制系统调用的测试程序，可以看到swi指令的机器码</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">arm-linux-objdump -D test_system_call &gt; test_system_call.dis</span><br></pre></td></tr></table></figure>
-    </li>
-<li><p>修改应用程序的机器码为swi指令的机器码    </p>
-    
-
-
 </li>
 </ol>
-<p>保存为  </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">debug_with_system_call_swi</span><br></pre></td></tr></table></figure>
-<p>加上执行权限：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod +x debug_with_system_call_swi</span><br></pre></td></tr></table></figure>
-<ul>
-<li>修改自制的sys_hello函数<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;asm&#x2F;processor.h&gt;</span><br><span class="line">asmlinkage ssize_t sys_hello(const char __user * buf,int count)</span><br><span class="line">&#123;</span><br><span class="line">	int val;</span><br><span class="line">	struct pt_regs *regs;</span><br><span class="line">	&#x2F;* 1 输出一些打印调试信息 *&#x2F;</span><br><span class="line">	&#x2F;* 应用程序的反汇编里：00010788 &lt;cnt&gt; *&#x2F;</span><br><span class="line">	copy_from_user(&amp;val,(const void __user *)0x00010788,4);</span><br><span class="line">	printk(&quot;sys_hello:val &#x3D; %d\n&quot;,val);</span><br><span class="line">	&#x2F;* 2 执行被替换的指令: add r3, r3, #2	; 0x2 *&#x2F;</span><br><span class="line">	&#x2F;&#x2F; 搜索pt_regs，在它的结果里再搜索current</span><br><span class="line">	regs &#x3D; task_pt_regs(current);</span><br><span class="line">	regs-&gt;ARM_r3 +&#x3D; 2;</span><br><span class="line">	&#x2F;* 3 反回 *&#x2F;</span><br><span class="line">	return;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>运行<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">.&#x2F;debug_with_system_call_swi</span><br></pre></td></tr></table></figure>
-<h2 id="五-编写输入模拟器"><a href="#五-编写输入模拟器" class="headerlink" title="五 编写输入模拟器"></a>五 编写输入模拟器</h2></li>
-</ul>
+<pre><code class="hljs bash">arm-linux-objdump -D test_system_call &gt; test_system_call.dis</code></pre>
 
+<p><img src="/img/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/3.png" srcset="/img/loading.gif" alt="">   </p>
+<ol start="4">
+<li>修改应用程序的机器码为swi指令的机器码   </li>
+</ol>
+<p><img src="/img/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/2.png" srcset="/img/loading.gif" alt="">    </p>
+<p><img src="/img/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/4.png" srcset="/img/loading.gif" alt="">  </p>
+<p>保存为  </p>
+<pre><code class="hljs bash">debug_with_system_call_swi</code></pre>
+<p>加上执行权限：</p>
+<pre><code class="hljs bash">sudo chmod +x debug_with_system_call_swi</code></pre>
+<ul>
+<li>修改自制的sys_hello函数</li>
+</ul>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;asm/processor.h&gt;</span></span>
+<span class="hljs-function">asmlinkage <span class="hljs-keyword">ssize_t</span> <span class="hljs-title">sys_hello</span><span class="hljs-params">(<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> __user * buf,<span class="hljs-keyword">int</span> count)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> val;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">pt_regs</span> *<span class="hljs-title">regs</span>;</span>
+	<span class="hljs-comment">/* 1 输出一些打印调试信息 */</span>
+	<span class="hljs-comment">/* 应用程序的反汇编里：00010788 &lt;cnt&gt; */</span>
+	copy_from_user(&amp;val,(<span class="hljs-keyword">const</span> <span class="hljs-keyword">void</span> __user *)<span class="hljs-number">0x00010788</span>,<span class="hljs-number">4</span>);
+	printk(<span class="hljs-string">"sys_hello:val = %d\n"</span>,val);
+	<span class="hljs-comment">/* 2 执行被替换的指令: add r3, r3, #2	; 0x2 */</span>
+	<span class="hljs-comment">// 搜索pt_regs，在它的结果里再搜索current</span>
+	regs = task_pt_regs(current);
+	regs-&gt;ARM_r3 += <span class="hljs-number">2</span>;
+	<span class="hljs-comment">/* 3 反回 */</span>
+	<span class="hljs-keyword">return</span>;
+&#125;</code></pre>
+<ul>
+<li>运行</li>
+</ul>
+<pre><code class="hljs bash">./debug_with_system_call_swi</code></pre>
             </article>
             <hr>
             <div>
@@ -352,7 +578,7 @@
                   <div class="post-meta mr-3">
                     <i class="iconfont icon-category"></i>
                     
-                      <a class="hover-with-bg" href="/categories/Linux%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">Linux调试方法</a>
+                      <a class="hover-with-bg" href="/categories/Linux%E8%B0%83%E8%AF%95/">Linux调试</a>
                     
                   </div>
                 
@@ -360,7 +586,7 @@
                   <div class="post-meta">
                     <i class="iconfont icon-tags"></i>
                     
-                      <a class="hover-with-bg" href="/tags/Linux%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/">Linux调试方法</a>
+                      <a class="hover-with-bg" href="/tags/Linux%E8%B0%83%E8%AF%95/">Linux调试</a>
                     
                   </div>
                 

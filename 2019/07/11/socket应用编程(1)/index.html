@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    593 字
+                    542 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    8
+                    7
                      分钟
                   </span>
                 
@@ -200,24 +200,62 @@
               <blockquote>
 <p>本文介绍tcp/ip协议的基本知识，属于入门可能还不算的知识点，但是应该是必须掌握的。</p>
 </blockquote>
-
-
+<p><img src="/img/socket%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B(1)/1.svg" srcset="/img/loading.gif" alt=""></p>
 <p>最基础的知识点大概是这样，有几个部分补充一下。</p>
 <h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>tcp/ip协议栈模型：</p>
-
-
+<p><img src="/img/socket%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B(1)/2.png" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li>对等通信的概念是指服务器和客户端之间的通信只能是对等的协议层之间的通信，也就是说应用层与应用层通信，IP层与IP层通信，IP层是无法与应用层通信的</li>
 <li>TCP/IP嵌入内核是因为网卡驱动收发大量数据的时候，切换到用户态会非常耗时，直接把TCP/IP放在内核中会减少数据传输的时间</li>
 </ul>
-<h3 id="TCP-IP客户端服务器基本编程模型"><a href="#TCP-IP客户端服务器基本编程模型" class="headerlink" title="TCP/IP客户端服务器基本编程模型"></a>TCP/IP客户端服务器基本编程模型</h3>
-
+<h3 id="TCP-IP客户端服务器基本编程模型"><a href="#TCP-IP客户端服务器基本编程模型" class="headerlink" title="TCP/IP客户端服务器基本编程模型"></a>TCP/IP客户端服务器基本编程模型</h3><p><img src="/img/socket%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B(1)/3.png" srcset="/img/loading.gif" alt=""></p>
 <ul>
 <li>长连接是指服务器客户端发送数据后不立马断开，而是一直保持连接状态</li>
 <li>短连接是指服务器客户端发送数据后立马断开</li>
 <li>具体采用哪种连接方式视情况而定</li>
 </ul>
-<h3 id="测试字节序与IP地址转换测试程序"><a href="#测试字节序与IP地址转换测试程序" class="headerlink" title="测试字节序与IP地址转换测试程序"></a>测试字节序与IP地址转换测试程序</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;arpa&#x2F;inet.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;sys&#x2F;socket.h&gt;</span><br><span class="line">#include &lt;netinet&#x2F;in.h&gt;</span><br><span class="line">#include &lt;arpa&#x2F;inet.h&gt;</span><br><span class="line"></span><br><span class="line">void main()</span><br><span class="line">&#123;</span><br><span class="line">	&#x2F;* 测试字节序 *&#x2F;</span><br><span class="line">	unsigned int a&#x3D; 0x12345678;</span><br><span class="line">	unsigned int b;</span><br><span class="line">	unsigned char *p &#x3D; &amp;a;</span><br><span class="line">	printf(&quot;0x%2x 0x%2x 0x%2x 0x%2x \n&quot;,p[0],p[1],p[2],p[3]);</span><br><span class="line">	(p[0]&#x3D;&#x3D;0x78)? printf(&quot;本系统是小字节序\n&quot;) : printf(&quot;本系统是大字节序\n&quot;);</span><br><span class="line">	</span><br><span class="line">	printf(&quot;字节序转换为网络字节序 ...\n&quot;);</span><br><span class="line">	b &#x3D; htonl(a);</span><br><span class="line">	p &#x3D; &amp;b;</span><br><span class="line">	printf(&quot;0x%2x 0x%2x 0x%2x 0x%2x \n&quot;,p[0],p[1],p[2],p[3]);</span><br><span class="line">	(p[0]&#x3D;&#x3D;0x78)? printf(&quot;网络字节序是小字节序\n&quot;) : printf(&quot;网络字节序是大字节序\n&quot;);</span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line">	&#x2F;* IP字符串 与 iPv4:32bit  与  in_addr 的转换 *&#x2F;</span><br><span class="line">	struct in_addr T_addr;</span><br><span class="line">	const char *ip &#x3D; &quot;192.168.3.123&quot;;</span><br><span class="line">	in_addr_t addr;</span><br><span class="line">	char *ip2;</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 字符串转in_addr结构 *&#x2F;</span><br><span class="line">	inet_aton(ip,&amp;T_addr);</span><br><span class="line">	printf(&quot;ipv4 %u \n&quot;,T_addr.s_addr);</span><br><span class="line">	</span><br><span class="line">	&#x2F;* 字符串转32bit *&#x2F;</span><br><span class="line">	addr &#x3D; inet_addr(ip);</span><br><span class="line">	printf(&quot;ipv4 %u \n&quot;,addr);</span><br><span class="line">	</span><br><span class="line">	&#x2F;* in_addr结构转字符串 *&#x2F;</span><br><span class="line">	ip2 &#x3D; inet_ntoa(T_addr);</span><br><span class="line">	&#x2F;&#x2F; printf(&quot;0x%x  0x%x \n&quot;,(unsigned int)ip2,(unsigned int)(&amp;T_addr));</span><br><span class="line">	printf(&quot;%s \n&quot;,ip2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="测试字节序与IP地址转换测试程序"><a href="#测试字节序与IP地址转换测试程序" class="headerlink" title="测试字节序与IP地址转换测试程序"></a>测试字节序与IP地址转换测试程序</h3><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;arpa/inet.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/socket.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;netinet/in.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;arpa/inet.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-comment">/* 测试字节序 */</span>
+	<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> a= <span class="hljs-number">0x12345678</span>;
+	<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">int</span> b;
+	<span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">char</span> *p = &amp;a;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"0x%2x 0x%2x 0x%2x 0x%2x \n"</span>,p[<span class="hljs-number">0</span>],p[<span class="hljs-number">1</span>],p[<span class="hljs-number">2</span>],p[<span class="hljs-number">3</span>]);
+	(p[<span class="hljs-number">0</span>]==<span class="hljs-number">0x78</span>)? <span class="hljs-built_in">printf</span>(<span class="hljs-string">"本系统是小字节序\n"</span>) : <span class="hljs-built_in">printf</span>(<span class="hljs-string">"本系统是大字节序\n"</span>);
+	
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"字节序转换为网络字节序 ...\n"</span>);
+	b = htonl(a);
+	p = &amp;b;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"0x%2x 0x%2x 0x%2x 0x%2x \n"</span>,p[<span class="hljs-number">0</span>],p[<span class="hljs-number">1</span>],p[<span class="hljs-number">2</span>],p[<span class="hljs-number">3</span>]);
+	(p[<span class="hljs-number">0</span>]==<span class="hljs-number">0x78</span>)? <span class="hljs-built_in">printf</span>(<span class="hljs-string">"网络字节序是小字节序\n"</span>) : <span class="hljs-built_in">printf</span>(<span class="hljs-string">"网络字节序是大字节序\n"</span>);
+	
+	
+	<span class="hljs-comment">/* IP字符串 与 iPv4:32bit  与  in_addr 的转换 */</span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">in_addr</span> <span class="hljs-title">T_addr</span>;</span>
+	<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> *ip = <span class="hljs-string">"192.168.3.123"</span>;
+	<span class="hljs-keyword">in_addr_t</span> addr;
+	<span class="hljs-keyword">char</span> *ip2;
+	
+	<span class="hljs-comment">/* 字符串转in_addr结构 */</span>
+	inet_aton(ip,&amp;T_addr);
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"ipv4 %u \n"</span>,T_addr.s_addr);
+	
+	<span class="hljs-comment">/* 字符串转32bit */</span>
+	addr = inet_addr(ip);
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"ipv4 %u \n"</span>,addr);
+	
+	<span class="hljs-comment">/* in_addr结构转字符串 */</span>
+	ip2 = inet_ntoa(T_addr);
+	<span class="hljs-comment">// printf("0x%x  0x%x \n",(unsigned int)ip2,(unsigned int)(&amp;T_addr));</span>
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"%s \n"</span>,ip2);
+&#125;</code></pre>
 
 <ul>
 <li>测试结果：x86架构是小字节序，网络字节序是大字节序。。。。</li>

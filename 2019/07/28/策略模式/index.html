@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    631 字
+                    622 字
                   </span>
                 
 
@@ -206,24 +206,111 @@
 <li>ConcreteStrategy A/B/C : 具体的不同的算法</li>
 <li>Context : 算法使用的上下文</li>
 </ul>
-
-
+<p><img src="/img/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/1.jpg" srcset="/img/loading.gif" alt=""></p>
 <h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>例子程序使用策略模式实现了一个加减乘除的计算功能。</p>
 <p><strong>算法抽象接口</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class Calculate</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	virtual ~Calculate();</span><br><span class="line">	virtual float calculate(float a , float b) &#x3D; 0;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Calculate</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	<span class="hljs-keyword">virtual</span> ~Calculate();
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">float</span> <span class="hljs-title">calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a , <span class="hljs-keyword">float</span> b)</span> </span>= <span class="hljs-number">0</span>;
+&#125;;</code></pre>
 
 <p><strong>不同的算法子类</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">class Add : public Calculate</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	Add();</span><br><span class="line">	~Add();</span><br><span class="line"></span><br><span class="line">	float calculate(float a, float b);</span><br><span class="line">&#125;;</span><br><span class="line">float Add::calculate(float a, float b)</span><br><span class="line">&#123;</span><br><span class="line">	return (a + b);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Sub : public Calculate</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	Sub();</span><br><span class="line">	~Sub();</span><br><span class="line"></span><br><span class="line">	float calculate(float a, float b);</span><br><span class="line">&#125;;</span><br><span class="line">float Sub::calculate(float a, float b)</span><br><span class="line">&#123;</span><br><span class="line">	return (a - b);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Mul : public Calculate</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	Mul();</span><br><span class="line">	~Mul();</span><br><span class="line"></span><br><span class="line">	float calculate(float a, float b);</span><br><span class="line">&#125;;</span><br><span class="line">float Mul::calculate(float a, float b)</span><br><span class="line">&#123;</span><br><span class="line">	return (a * b);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class Div : public Calculate</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	Div();</span><br><span class="line">	~Div();</span><br><span class="line"></span><br><span class="line">	float calculate(float a, float b);</span><br><span class="line">&#125;;</span><br><span class="line">float Div::calculate(float a, float b)</span><br><span class="line">&#123;</span><br><span class="line">	return (a &#x2F; b);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Add</span> :</span> <span class="hljs-keyword">public</span> Calculate
+&#123;
+<span class="hljs-keyword">public</span>:
+	Add();
+	~Add();
+
+	<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">Add::calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> (a + b);
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Sub</span> :</span> <span class="hljs-keyword">public</span> Calculate
+&#123;
+<span class="hljs-keyword">public</span>:
+	Sub();
+	~Sub();
+
+	<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">Sub::calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> (a - b);
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Mul</span> :</span> <span class="hljs-keyword">public</span> Calculate
+&#123;
+<span class="hljs-keyword">public</span>:
+	Mul();
+	~Mul();
+
+	<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">Mul::calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> (a * b);
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Div</span> :</span> <span class="hljs-keyword">public</span> Calculate
+&#123;
+<span class="hljs-keyword">public</span>:
+	Div();
+	~Div();
+
+	<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">Div::calculate</span><span class="hljs-params">(<span class="hljs-keyword">float</span> a, <span class="hljs-keyword">float</span> b)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> (a / b);
+&#125;</code></pre>
 
 <p><strong>使用算法的上下文</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">class CalOrder</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	CalOrder(Calculate *Cal, int a, int b);</span><br><span class="line">	~CalOrder();</span><br><span class="line"></span><br><span class="line">private:</span><br><span class="line">	Calculate *p_Cal;</span><br><span class="line">	int data1;</span><br><span class="line">	int data2;</span><br><span class="line"></span><br><span class="line">public:</span><br><span class="line">	float calculate();</span><br><span class="line">	</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">CalOrder::CalOrder (Calculate *Cal, int a, int b)</span><br><span class="line">&#123;</span><br><span class="line">	this-&gt;p_Cal &#x3D; Cal;</span><br><span class="line">	this-&gt;data1 &#x3D; a;</span><br><span class="line">	this-&gt;data2 &#x3D; b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CalOrder::~CalOrder()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">float CalOrder::calculate()</span><br><span class="line">&#123;</span><br><span class="line">	return this-&gt;p_Cal-&gt;calculate(this-&gt;data1, this-&gt;data2);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">CalOrder</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	CalOrder(Calculate *Cal, <span class="hljs-keyword">int</span> a, <span class="hljs-keyword">int</span> b);
+	~CalOrder();
+
+<span class="hljs-keyword">private</span>:
+	Calculate *p_Cal;
+	<span class="hljs-keyword">int</span> data1;
+	<span class="hljs-keyword">int</span> data2;
+
+<span class="hljs-keyword">public</span>:
+	<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">calculate</span><span class="hljs-params">()</span></span>;
+	
+&#125;;
+
+CalOrder::CalOrder (Calculate *Cal, <span class="hljs-keyword">int</span> a, <span class="hljs-keyword">int</span> b)
+&#123;
+	<span class="hljs-keyword">this</span>-&gt;p_Cal = Cal;
+	<span class="hljs-keyword">this</span>-&gt;data1 = a;
+	<span class="hljs-keyword">this</span>-&gt;data2 = b;
+&#125;
+
+CalOrder::~CalOrder()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">float</span> <span class="hljs-title">CalOrder::calculate</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>-&gt;p_Cal-&gt;calculate(<span class="hljs-keyword">this</span>-&gt;data1, <span class="hljs-keyword">this</span>-&gt;data2);
+&#125;</code></pre>
 
 <p><strong>main函数测试</strong><br>定义了一个具体的算法，和使用算法的上下文。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	Calculate *cal &#x3D; new Add;</span><br><span class="line">	CalOrder *caloder &#x3D; new CalOrder(cal, 1, 2);</span><br><span class="line">	std::cout &lt;&lt; &quot;ADD : &quot; &lt;&lt; caloder-&gt;calculate() &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	Calculate *cal = <span class="hljs-keyword">new</span> Add;
+	CalOrder *caloder = <span class="hljs-keyword">new</span> CalOrder(cal, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>);
+	<span class="hljs-built_in">std</span>::<span class="hljs-built_in">cout</span> &lt;&lt; <span class="hljs-string">"ADD : "</span> &lt;&lt; caloder-&gt;calculate() &lt;&lt; <span class="hljs-built_in">std</span>::<span class="hljs-built_in">endl</span>;
+&#125;</code></pre>
 
-<p>结果：</p>
-
-
+<p>结果：<br><img src="/img/%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8F/2.png" srcset="/img/loading.gif" alt=""></p>
 <blockquote>
 <p>策略模式属于<strong>组件协作</strong>模式的一种，基本思想是通过框架和应用程序的<strong>晚期绑定</strong>（手段：虚函数），实现框架和应用之间的松耦合。</p>
 </blockquote>

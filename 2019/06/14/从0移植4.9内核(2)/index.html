@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    2.3k 字
+                    2.1k 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    34
+                    31
                      分钟
                   </span>
                 
@@ -204,10 +204,26 @@
 <p>根文件系统和文件系统的区别：<br>文件系统是对一个存储设备上的数据进行组织的机制，这种机制有利于用户和操作系统交互<br>根文件系统是一种文件系统,不仅具有普通文件系统存储数据文件的功能,还是内核启动mount<br>的第一个文件系统</p>
 </blockquote>
 <h3 id="Linux进程启动分析"><a href="#Linux进程启动分析" class="headerlink" title="Linux进程启动分析"></a>Linux进程启动分析</h3><ul>
-<li>内核源码分析：init/main.c<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">static int noinline init_post(void)</span><br><span class="line">	&#x2F;* 创建标准输入,标准输出,标准错误 *&#x2F;</span><br><span class="line">	if (sys_open((const char __user *) &quot;&#x2F;dev&#x2F;console&quot;, O_RDWR, 0) &lt; 0)</span><br><span class="line">		printk(KERN_WARNING &quot;Warning: unable to open an initial console.\n&quot;);</span><br><span class="line">	(void) sys_dup(0);</span><br><span class="line">	(void) sys_dup(0);</span><br><span class="line">	</span><br><span class="line">	&#x2F;* execute_command 在 boot命令行参数中设置为 init&#x3D;&#x2F;linuxrc *&#x2F;	</span><br><span class="line">	if (execute_command) </span><br><span class="line">	&#x2F;* 启动第一个程序,是死循环，不会退出 *&#x2F;</span><br><span class="line">	run_init_process(execute_command);</span><br><span class="line">	&#125;</span><br><span class="line">	&#x2F;* 第一个应用程序一般是execute_command 或者是&quot;&#x2F;sbin&#x2F;init&quot;,一般不会调用到后面的 *&#x2F;</span><br><span class="line">	run_init_process(&quot;&#x2F;sbin&#x2F;init&quot;);</span><br><span class="line">	run_init_process(&quot;&#x2F;etc&#x2F;init&quot;);</span><br><span class="line">	run_init_process(&quot;&#x2F;bin&#x2F;init&quot;);</span><br><span class="line">	run_init_process(&quot;&#x2F;bin&#x2F;sh&quot;);</span><br></pre></td></tr></table></figure>
-
-</li>
+<li>内核源码分析：init/main.c</li>
 </ul>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> noinline <span class="hljs-title">init_post</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function">	<span class="hljs-comment">/* 创建标准输入,标准输出,标准错误 */</span></span>
+<span class="hljs-function">	<span class="hljs-title">if</span> <span class="hljs-params">(sys_open((<span class="hljs-keyword">const</span> <span class="hljs-keyword">char</span> __user *) <span class="hljs-string">"/dev/console"</span>, O_RDWR, <span class="hljs-number">0</span>) &lt; <span class="hljs-number">0</span>)</span></span>
+<span class="hljs-function">		<span class="hljs-title">printk</span><span class="hljs-params">(KERN_WARNING <span class="hljs-string">"Warning: unable to open an initial console.\n"</span>)</span></span>;
+	(<span class="hljs-keyword">void</span>) sys_dup(<span class="hljs-number">0</span>);
+	(<span class="hljs-keyword">void</span>) sys_dup(<span class="hljs-number">0</span>);
+	
+	<span class="hljs-comment">/* execute_command 在 boot命令行参数中设置为 init=/linuxrc */</span>	
+	<span class="hljs-keyword">if</span> (execute_command) 
+	<span class="hljs-comment">/* 启动第一个程序,是死循环，不会退出 */</span>
+	run_init_process(execute_command);
+	&#125;
+	<span class="hljs-comment">/* 第一个应用程序一般是execute_command 或者是"/sbin/init",一般不会调用到后面的 */</span>
+	run_init_process(<span class="hljs-string">"/sbin/init"</span>);
+	run_init_process(<span class="hljs-string">"/etc/init"</span>);
+	run_init_process(<span class="hljs-string">"/bin/init"</span>);
+	run_init_process(<span class="hljs-string">"/bin/sh"</span>);</code></pre>
+
 <p><strong>init程序的执行过程 ：（配置文件/etc/inittab）</strong></p>
 <blockquote>
 <p>1 读取配置文件<br>2 解析配置文件<br>    2.1 配置文件指定应用程序<br>    2.2 指定何时执行<br>3 执行用户程序</p>
@@ -216,80 +232,248 @@
 <ul>
 <li>/etc/inittab 格式 —根据busybox的文档inittab</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;id&gt;:&lt;runlevels&gt;:&lt;action&gt;:&lt;process&gt;	</span><br><span class="line">1 id &#x3D;&gt; &#x2F;dev&#x2F;id   用作终端：stdin,stdout... 可以省略</span><br><span class="line">2 runlevels ： 忽略</span><br><span class="line">3 action ： 执行时机，  </span><br><span class="line">			sysinit,</span><br><span class="line">			respawn,</span><br><span class="line">			askfirst,</span><br><span class="line">			wait,</span><br><span class="line">			once,</span><br><span class="line">			restart,</span><br><span class="line">			ctrlaltdel,</span><br><span class="line">			shutdown</span><br><span class="line">4 process ： 应用程序或脚本</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c">&lt;id&gt;:&lt;runlevels&gt;:&lt;action&gt;:&lt;<span class="hljs-built_in">process</span>&gt;	
+<span class="hljs-number">1</span> id =&gt; /dev/id   用作终端：<span class="hljs-built_in">stdin</span>,<span class="hljs-built_in">stdout</span>... 可以省略
+<span class="hljs-number">2</span> runlevels ： 忽略
+<span class="hljs-number">3</span> action ： 执行时机，  
+			sysinit,
+			respawn,
+			askfirst,
+			wait,
+			once,
+			restart,
+			ctrlaltdel,
+			<span class="hljs-built_in">shutdown</span>
+<span class="hljs-number">4</span> <span class="hljs-built_in">process</span> ： 应用程序或脚本</code></pre>
 
 <p><strong>由此可以推出：init程序需要准备东西(即最小根文件系统)</strong></p>
 <blockquote>
-<p>1 /dev/console  /dev/null<br>2 /etc/inittab 文件<br>3 配置文件里指定的应用程序<br>4 C库(glibc)<br>5 init程序本身，来源于busybox</p>
+<p>1 /dev/console  /dev/null</p>
+</blockquote>
+<blockquote>
+<p>2 /etc/inittab 文件 </p>
+</blockquote>
+<blockquote>
+<p>3 配置文件里指定的应用程序</p>
+</blockquote>
+<blockquote>
+<p>4 C库(glibc)</p>
+</blockquote>
+<blockquote>
+<p>5 init程序本身，来源于busybox</p>
 </blockquote>
 <h3 id="制作最小根文件系统"><a href="#制作最小根文件系统" class="headerlink" title="制作最小根文件系统"></a>制作最小根文件系统</h3><h4 id="配置，编译busybox"><a href="#配置，编译busybox" class="headerlink" title="配置，编译busybox"></a>配置，编译busybox</h4><p>下载链接 ： <a href="https://busybox.net/downloads/" target="_blank" rel="noopener">https://busybox.net/downloads/</a><br>下载版本：1.20.0</p>
 <p>配置安装方法：查看INSTALL文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">make menuconfig     # This creates a file called &quot;.config&quot;</span><br><span class="line">make                # This creates the &quot;busybox&quot; executable</span><br><span class="line">make install        # or make CONFIG_PREFIX&#x3D;&#x2F;path&#x2F;from&#x2F;root install</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">make menuconfig     <span class="hljs-comment"># This creates a file called ".config"</span>
+make                <span class="hljs-comment"># This creates the "busybox" executable</span>
+make install        <span class="hljs-comment"># or make CONFIG_PREFIX=/path/from/root install</span></code></pre>
 
 <p>解压</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar xjf busybox-1.20.0.tar.bz2</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">tar xjf busybox-1.20.0.tar.bz2</code></pre>
 
 <p>配置</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd busybox-1.20.0.tar.bz2</span><br><span class="line">make menuconfig 完成后保存，因为需要生成.config配置文件</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash"><span class="hljs-built_in">cd</span> busybox-1.20.0.tar.bz2
+make menuconfig 完成后保存，因为需要生成.config配置文件</code></pre>
 
 <p>设置交叉编译工具链：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">vi Makefile</span><br><span class="line">CROSS_COMPILE ?&#x3D;arm-linux-</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">vi Makefile
+CROSS_COMPILE ?=arm-linux-</code></pre>
 
 <p>编译</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">make</code></pre>
 
 <p>安装</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">创建安装的文件夹，-p表示递归创建</span><br><span class="line">sudo mkdir &#x2F;work&#x2F;nfs_root&#x2F;first_fs -p</span><br><span class="line"></span><br><span class="line">安装,安装有错误要修改文件夹的权限</span><br><span class="line">make CONFIG_PREFIX&#x3D;&#x2F;work&#x2F;nfs_root&#x2F;first_fs install</span><br><span class="line"></span><br><span class="line">查看文件夹，已经创建了相应的目录了:</span><br><span class="line">zhanghui@ubuntu:&#x2F;work&#x2F;nfs_root&#x2F;first_fs$ ls</span><br><span class="line">bin  linuxrc  sbin  usr</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">创建安装的文件夹，-p表示递归创建
+sudo mkdir /work/nfs_root/first_fs -p
+
+安装,安装有错误要修改文件夹的权限
+make CONFIG_PREFIX=/work/nfs_root/first_fs install
+
+查看文件夹，已经创建了相应的目录了:
+zhanghui@ubuntu:/work/nfs_root/first_fs$ ls
+bin  linuxrc  sbin  usr</code></pre>
 
 <h4 id="构建最小根文件系统：（按照init进程分析的结果）"><a href="#构建最小根文件系统：（按照init进程分析的结果）" class="headerlink" title="构建最小根文件系统：（按照init进程分析的结果）####"></a>构建最小根文件系统：（按照init进程分析的结果）####</h4><p><strong>1 创建/dev/console  /dev/null设备节点</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mkdir dev</span><br><span class="line">&#x2F;&#x2F; 查看虚拟机的 &#x2F;dev&#x2F;console &#x2F;dev&#x2F;null 节点信息：</span><br><span class="line">zhanghui@ubuntu:&#x2F;work&#x2F;nfs_root&#x2F;first_fs&#x2F;dev$ ls &#x2F;dev&#x2F;console &#x2F;dev&#x2F;null -l</span><br><span class="line">crw------- 1 root root 5, 1 Jun 12 00:26 &#x2F;dev&#x2F;console</span><br><span class="line">crw-rw-rw- 1 root root 1, 3 Jun 12 00:24 &#x2F;dev&#x2F;null</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F;创建设备节点，字符设备&#x2F;主&#x2F;次设备号</span><br><span class="line">sudo mknod console c 5 1 </span><br><span class="line">sudo mknod null c 1 3</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">mkdir dev
+// 查看虚拟机的 /dev/console /dev/null 节点信息：
+zhanghui@ubuntu:/work/nfs_root/first_fs/dev$ ls /dev/console /dev/null -l
+crw------- 1 root root 5, 1 Jun 12 00:26 /dev/console
+crw-rw-rw- 1 root root 1, 3 Jun 12 00:24 /dev/null
+
+//创建设备节点，字符设备/主/次设备号
+sudo mknod console c 5 1 
+sudo mknod null c 1 3</code></pre>
 
 <p><strong>2 创建/etc/inittab</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir etc</span><br><span class="line">vi inittab</span><br><span class="line">	console::askfirst:-&#x2F;bin&#x2F;sh</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">mkdir etc
+vi inittab
+	console::askfirst:-/bin/sh</code></pre>
 
 <p><strong>3 安装C库</strong>    </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">C库的位置在：</span><br><span class="line">zhanghui@ubuntu:&#x2F;work&#x2F;sys&#x2F;opt&#x2F;FriendlyARM&#x2F;toolschain&#x2F;4.4.3&#x2F;lib$ ls</span><br><span class="line"></span><br><span class="line">gcc            libcloog.so.0.0.0  libgmpxx.la        libmpc.la        libmpfr.so        libmp.so.3       libppl_c.so.2.1.0  libpwl.la</span><br><span class="line">ldscripts      libgmp.la          libgmpxx.so        libmpc.so        libmpfr.so.1      libmp.so.3.1.14  libppl.la          libpwl.so</span><br><span class="line">libcloog.la    libgmp.so          libgmpxx.so.4      libmpc.so.2      libmpfr.so.1.2.2  libppl_c.la      libppl.so          libpwl.so.4</span><br><span class="line">libcloog.so    libgmp.so.3        libgmpxx.so.4.1.0  libmpc.so.2.0.0  libmp.la          libppl_c.so      libppl.so.7        libpwl.so.4.0.0</span><br><span class="line">libcloog.so.0  libgmp.so.3.5.0    libiberty.a        libmpfr.la       libmp.so          libppl_c.so.2    libppl.so.7.1.0</span><br><span class="line"></span><br><span class="line">创建lib目录：</span><br><span class="line">mkdir &#x2F;work&#x2F;nfs_root&#x2F;first_fs&#x2F;lib</span><br><span class="line"></span><br><span class="line">拷贝C库到lib目录：</span><br><span class="line">cp *.so* &#x2F;work&#x2F;nfs_root&#x2F;first_fs&#x2F;lib -d</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">C库的位置在：
+zhanghui@ubuntu:/work/sys/opt/FriendlyARM/toolschain/4.4.3/lib$ ls
+
+gcc            libcloog.so.0.0.0  libgmpxx.la        libmpc.la        libmpfr.so        libmp.so.3       libppl_c.so.2.1.0  libpwl.la
+ldscripts      libgmp.la          libgmpxx.so        libmpc.so        libmpfr.so.1      libmp.so.3.1.14  libppl.la          libpwl.so
+libcloog.la    libgmp.so          libgmpxx.so.4      libmpc.so.2      libmpfr.so.1.2.2  libppl_c.la      libppl.so          libpwl.so.4
+libcloog.so    libgmp.so.3        libgmpxx.so.4.1.0  libmpc.so.2.0.0  libmp.la          libppl_c.so      libppl.so.7        libpwl.so.4.0.0
+libcloog.so.0  libgmp.so.3.5.0    libiberty.a        libmpfr.la       libmp.so          libppl_c.so.2    libppl.so.7.1.0
+
+创建lib目录：
+mkdir /work/nfs_root/first_fs/lib
+
+拷贝C库到lib目录：
+cp *.so* /work/nfs_root/first_fs/lib -d</code></pre>
 
 
 <p><strong>4 指定应用程序</strong><br> — 没有应用程序</p>
 <p><strong>5 完善最小根文件系统</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">创建proc文件系统  </span><br><span class="line">mkdir proc</span><br><span class="line"></span><br><span class="line">在&#x2F;etc&#x2F;inittab中加上：</span><br><span class="line">	::sysinit:&#x2F;etc&#x2F;init.d&#x2F;rcS</span><br><span class="line">再创建init.d&#x2F;rcS脚本文件</span><br><span class="line">	mkdir init.d</span><br><span class="line">	vi rcS   </span><br><span class="line">	sudo chmod +x rcS</span><br><span class="line">		&#x2F;&#x2F; 自动挂载proc文件系统</span><br><span class="line">		mount -t  proc none &#x2F;proc </span><br><span class="line">	</span><br><span class="line">另外一种方法：</span><br><span class="line">vi rcS</span><br><span class="line">	#mount -t  proc none &#x2F;proc </span><br><span class="line">	mount -a  </span><br><span class="line">mount -a 依赖于&#x2F;etc&#x2F;fstab</span><br><span class="line">创建fstab, vi fstab  添加</span><br><span class="line">	 proc     &#x2F;proc     proc   defaults  0      0</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">创建proc文件系统  
+mkdir proc
+
+在/etc/inittab中加上：
+	::sysinit:/etc/init.d/rcS
+再创建init.d/rcS脚本文件
+	mkdir init.d
+	vi rcS   
+	sudo chmod +x rcS
+		// 自动挂载proc文件系统
+		mount -t  proc none /proc 
+	
+另外一种方法：
+vi rcS
+	<span class="hljs-comment">#mount -t  proc none /proc </span>
+	mount -a  
+mount -a 依赖于/etc/fstab
+创建fstab, vi fstab  添加
+	 proc     /proc     proc   defaults  0      0</code></pre>
 
 <ul>
 <li>fstab的格式： 执行mount -a 后将挂接proc tmpfs 文件系统</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># device mount-pount type  options   dump  fsck order </span><br><span class="line">  proc     &#x2F;proc     proc   defaults  0      0	</span><br><span class="line">  tmpfs    &#x2F;tmp      tmpfs  defaults  0      0</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash"><span class="hljs-comment"># device mount-pount type  options   dump  fsck order </span>
+  proc     /proc     proc   defaults  0      0	
+  tmpfs    /tmp      tmpfs  defaults  0      0</code></pre>
 
 
 <p><strong>6 增加udev机制(自动创建设备节点)</strong></p>
 <p>— busybox里面的简化版本 mdev</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">mkdir sys</span><br><span class="line">vi etc&#x2F;fstab</span><br><span class="line">	添加：</span><br><span class="line">	sysfs    &#x2F;sys   sysfs  defaults  0  0</span><br><span class="line">	tmpfs    &#x2F;dev   tmpfs  defaults  0  0</span><br><span class="line">vi etc&#x2F;init.d&#x2F;rcS</span><br><span class="line">	添加：</span><br><span class="line">	mkdir &#x2F;dev&#x2F;pts</span><br><span class="line">	mount -t devpts devpts &#x2F;dev&#x2F;pts</span><br><span class="line">	echo &#x2F;sbin&#x2F;mdev &gt; &#x2F;proc&#x2F;sys&#x2F;kernel&#x2F;hotplug</span><br><span class="line">	mdev -s</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">mkdir sys
+vi etc/fstab
+	添加：
+	sysfs    /sys   sysfs  defaults  0  0
+	tmpfs    /dev   tmpfs  defaults  0  0
+vi etc/init.d/rcS
+	添加：
+	mkdir /dev/pts
+	mount -t devpts devpts /dev/pts
+	<span class="hljs-built_in">echo</span> /sbin/mdev &gt; /proc/sys/kernel/hotplug
+	mdev -s</code></pre>
 
 
 <h2 id="制作根文件系统映像文件"><a href="#制作根文件系统映像文件" class="headerlink" title="制作根文件系统映像文件"></a>制作根文件系统映像文件</h2><h3 id="制作yaffs2文件系统"><a href="#制作yaffs2文件系统" class="headerlink" title="制作yaffs2文件系统"></a>制作yaffs2文件系统</h3><ul>
 <li>制作工具 </li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">yaffs_source_util_larger_small_page_nand.tar.bz2 （韦东山）</span><br><span class="line">tar xjf yaffs_source_util_larger_small_page_nand.tar.bz2</span><br><span class="line">cd &#x2F;work&#x2F;sys&#x2F;Development_util_ok&#x2F;yaffs2&#x2F;utils(里面含有makefile)</span><br><span class="line">make</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">yaffs_source_util_larger_small_page_nand.tar.bz2 （韦东山）
+tar xjf yaffs_source_util_larger_small_page_nand.tar.bz2
+<span class="hljs-built_in">cd</span> /work/sys/Development_util_ok/yaffs2/utils(里面含有makefile)
+make</code></pre>
 
 <ul>
 <li>编译结果：</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">zhanghui@ubuntu:&#x2F;work&#x2F;sys&#x2F;Development_util_ok&#x2F;yaffs2&#x2F;utils$ ls -l</span><br><span class="line">	total 144</span><br><span class="line">	-rw------- 1 zhanghui zhanghui  1770 Jul  7  2008 Makefile</span><br><span class="line">	-rwxrwxr-x 1 zhanghui zhanghui 22768 Jun 12 01:22 mkyaffs2image</span><br><span class="line">	-rw------- 1 zhanghui zhanghui 19669 Jul  7  2008 mkyaffs2image.c</span><br><span class="line">	-rw-rw-r-- 1 zhanghui zhanghui 12408 Jun 12 01:22 mkyaffs2image.o</span><br><span class="line">	-rwxrwxr-x 1 zhanghui zhanghui 18496 Jun 12 01:22 mkyaffsimage</span><br><span class="line">	-rw------- 1 zhanghui zhanghui 16206 Feb 28  2008 mkyaffsimage.c</span><br><span class="line">	-rw-rw-r-- 1 zhanghui zhanghui 11160 Jun 12 01:22 mkyaffsimage.o</span><br><span class="line">	... ...</span><br><span class="line"></span><br><span class="line">我们使用 mkyaffs2image 这个工具</span><br><span class="line">拷贝到系统目录：</span><br><span class="line">	sudo cp mkyaffs2image &#x2F;usr&#x2F;local&#x2F;bin&#x2F;</span><br><span class="line">	sudo chmod +x &#x2F;usr&#x2F;local&#x2F;bin&#x2F;mkyaffs2image</span><br><span class="line">	</span><br><span class="line">切换到最小根文件系统目录的上一级：</span><br><span class="line">	cd &#x2F;work&#x2F;nfs_root&#x2F;</span><br><span class="line"></span><br><span class="line">创建映像：</span><br><span class="line">					&#x2F;* 目录    名称  *&#x2F;</span><br><span class="line">	 mkyaffs2image first_fs first_fs.yaffs2</span><br><span class="line">	 </span><br><span class="line">创建成功：</span><br><span class="line">	zhanghui@ubuntu:&#x2F;work&#x2F;nfs_root$ ls</span><br><span class="line">	first_fs  first_fs.yaffs2</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">zhanghui@ubuntu:/work/sys/Development_util_ok/yaffs2/utils$ ls -l
+	total 144
+	-rw------- 1 zhanghui zhanghui  1770 Jul  7  2008 Makefile
+	-rwxrwxr-x 1 zhanghui zhanghui 22768 Jun 12 01:22 mkyaffs2image
+	-rw------- 1 zhanghui zhanghui 19669 Jul  7  2008 mkyaffs2image.c
+	-rw-rw-r-- 1 zhanghui zhanghui 12408 Jun 12 01:22 mkyaffs2image.o
+	-rwxrwxr-x 1 zhanghui zhanghui 18496 Jun 12 01:22 mkyaffsimage
+	-rw------- 1 zhanghui zhanghui 16206 Feb 28  2008 mkyaffsimage.c
+	-rw-rw-r-- 1 zhanghui zhanghui 11160 Jun 12 01:22 mkyaffsimage.o
+	... ...
+
+我们使用 mkyaffs2image 这个工具
+拷贝到系统目录：
+	sudo cp mkyaffs2image /usr/<span class="hljs-built_in">local</span>/bin/
+	sudo chmod +x /usr/<span class="hljs-built_in">local</span>/bin/mkyaffs2image
+	
+切换到最小根文件系统目录的上一级：
+	<span class="hljs-built_in">cd</span> /work/nfs_root/
+
+创建映像：
+					/* 目录    名称  */
+	 mkyaffs2image first_fs first_fs.yaffs2
+	 
+创建成功：
+	zhanghui@ubuntu:/work/nfs_root$ ls
+	first_fs  first_fs.yaffs2</code></pre>
 
 <h3 id="制作jffs2文件系统"><a href="#制作jffs2文件系统" class="headerlink" title="制作jffs2文件系统"></a>制作jffs2文件系统</h3><ul>
 <li>u-boot 命令行参数设置</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">set bootargs noinitrd console&#x3D;ttySAC0,115200 root&#x3D;&#x2F;dev&#x2F;mtdblock3 </span><br><span class="line">rootfstype&#x3D;jffs2 init&#x3D;&#x2F;linuxrc</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash"><span class="hljs-built_in">set</span> bootargs noinitrd console=ttySAC0,115200 root=/dev/mtdblock3 
+rootfstype=jffs2 init=/linuxrc</code></pre>
 
 <ul>
 <li>制作jffs2文件系统</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">工具：</span><br><span class="line">	mtd-utils-05.07.23.tar.bz2</span><br><span class="line">	zlib-1.2.3.tar.gz</span><br><span class="line"></span><br><span class="line">解压</span><br><span class="line">	tar xzf zlib-1.2.3.tar.gz</span><br><span class="line"></span><br><span class="line">配置</span><br><span class="line">	.&#x2F;configure --shared --prefix&#x3D;&#x2F;usr</span><br><span class="line"></span><br><span class="line">编译 安装</span><br><span class="line">	make</span><br><span class="line">	sudo make install</span><br><span class="line"></span><br><span class="line">解压</span><br><span class="line">	tar xjf mtd-utils-05.07.23.tar.bz2</span><br><span class="line">	cd mtd-utils-05.07.23&#x2F;util&#x2F;</span><br><span class="line">	make</span><br><span class="line">	sudo make install </span><br><span class="line"></span><br><span class="line">制作：</span><br><span class="line">	cd &#x2F;work&#x2F;nfs_root&#x2F;</span><br><span class="line">	mkfs.jffs2 -n -s 2048 -e 128KiB -d first_fs -o  first_fs.jffs2</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">工具：
+	mtd-utils-05.07.23.tar.bz2
+	zlib-1.2.3.tar.gz
+
+解压
+	tar xzf zlib-1.2.3.tar.gz
+
+配置
+	./configure --shared --prefix=/usr
+
+编译 安装
+	make
+	sudo make install
+
+解压
+	tar xjf mtd-utils-05.07.23.tar.bz2
+	<span class="hljs-built_in">cd</span> mtd-utils-05.07.23/util/
+	make
+	sudo make install 
+
+制作：
+	<span class="hljs-built_in">cd</span> /work/nfs_root/
+	mkfs.jffs2 -n -s 2048 -e 128KiB -d first_fs -o  first_fs.jffs2</code></pre>
 
 
-<h2 id="搭建NFS文件系统"><a href="#搭建NFS文件系统" class="headerlink" title="搭建NFS文件系统"></a>搭建NFS文件系统</h2><h3 id="虚拟机"><a href="#虚拟机" class="headerlink" title="虚拟机"></a>虚拟机</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">1 安装nfs文件系统</span><br><span class="line">	sudo apt-get install nfs-kernel-server</span><br><span class="line">	sudo vi &#x2F;etc&#x2F;exports 添加：</span><br><span class="line">		&#x2F;work&#x2F;nfs_root&#x2F;first_fs  192.168.3*(rw,sync,no_subtree_check)</span><br><span class="line"></span><br><span class="line">	sudo service portmap restart</span><br><span class="line">	sudo service nfs-kernel-server restart</span><br><span class="line"></span><br><span class="line">2 虚拟机允许：</span><br><span class="line">	sudo vi &#x2F;etc&#x2F;exports</span><br><span class="line">		添加网络文件系统目录</span><br><span class="line">		</span><br><span class="line">3 本地挂载</span><br><span class="line">	sudo mount -t nfs -o nolock 192.168.3.61:&#x2F;work&#x2F;nfs_root&#x2F;first_fs &#x2F;mnt</span><br></pre></td></tr></table></figure>
+<h2 id="搭建NFS文件系统"><a href="#搭建NFS文件系统" class="headerlink" title="搭建NFS文件系统"></a>搭建NFS文件系统</h2><h3 id="虚拟机"><a href="#虚拟机" class="headerlink" title="虚拟机"></a>虚拟机</h3><pre><code class="hljs bash">1 安装nfs文件系统
+	sudo apt-get install nfs-kernel-server
+	sudo vi /etc/exports 添加：
+		/work/nfs_root/first_fs  192.168.3*(rw,sync,no_subtree_check)
 
-<h3 id="单板"><a href="#单板" class="headerlink" title="单板"></a>单板</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">1 手动挂载：</span><br><span class="line">	mount -t nfs -o nolock 192.168.1.19:&#x2F;work&#x2F;nfs_root&#x2F;first_fs &#x2F;mnt</span><br><span class="line"></span><br><span class="line">2 直接从NFS启动：设置启动参数</span><br><span class="line">	1 服务器IP</span><br><span class="line">	2 设置自己的IP</span><br><span class="line">	</span><br><span class="line">	命令行格式：</span><br><span class="line">		参考内核文档 ：Documentation&#x2F;filesystems&#x2F;nfs&#x2F;nfsroot.txt</span><br><span class="line">	</span><br><span class="line">	root&#x3D;&#x2F;dev&#x2F;nfs</span><br><span class="line">	nfsroot&#x3D;[&lt;server-ip&gt;:]&lt;root-dir&gt;[,&lt;nfs-options&gt;] </span><br><span class="line">	ip&#x3D;&lt;client-ip&gt;:&lt;server-ip&gt;:&lt;gw-ip&gt;:&lt;netmask&gt;::eth0:off</span><br><span class="line"></span><br><span class="line">	gw-ip ：网关，随便写</span><br><span class="line">	netmask ： 子网掩码  255.255.255.0</span><br></pre></td></tr></table></figure>
+	sudo service portmap restart
+	sudo service nfs-kernel-server restart
+
+2 虚拟机允许：
+	sudo vi /etc/exports
+		添加网络文件系统目录
+		
+3 本地挂载
+	sudo mount -t nfs -o nolock 192.168.3.61:/work/nfs_root/first_fs /mnt</code></pre>
+
+<h3 id="单板"><a href="#单板" class="headerlink" title="单板"></a>单板</h3><pre><code class="hljs bash">1 手动挂载：
+	mount -t nfs -o nolock 192.168.1.19:/work/nfs_root/first_fs /mnt
+
+2 直接从NFS启动：设置启动参数
+	1 服务器IP
+	2 设置自己的IP
+	
+	命令行格式：
+		参考内核文档 ：Documentation/filesystems/nfs/nfsroot.txt
+	
+	root=/dev/nfs
+	nfsroot=[&lt;server-ip&gt;:]&lt;root-dir&gt;[,&lt;nfs-options&gt;] 
+	ip=&lt;client-ip&gt;:&lt;server-ip&gt;:&lt;gw-ip&gt;:&lt;netmask&gt;::eth0:off
+
+	gw-ip ：网关，随便写
+	netmask ： 子网掩码  255.255.255.0</code></pre>
 
 <h2 id="下载文件系统并测试"><a href="#下载文件系统并测试" class="headerlink" title="下载文件系统并测试"></a>下载文件系统并测试</h2><blockquote>
 <p>至此,应该做的准备工作已经全部做完，现在验证内核是否能成功启动（实际移植顺序应该是边移植边验证）</p>
@@ -298,13 +482,38 @@
 <ul>
 <li>过程中遇到的一些错误及其处理</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">1 注意最小文件系统的lib库需要复制</span><br><span class="line">&#x2F;opt&#x2F;FriendlyARM&#x2F;toolschain&#x2F;4.4.3&#x2F;arm-none-linux-gnueabi&#x2F;lib</span><br><span class="line">里面的库文件</span><br><span class="line">arm-none-linux-gnueabi 是新的工具链</span><br><span class="line"></span><br><span class="line">2 配置内核增加EABI接口：</span><br><span class="line">make menuconfig</span><br><span class="line">Kernel Features ---&gt;</span><br><span class="line">        [*] Use the ARM EABI to compile the kernel</span><br><span class="line">        [*] Allow old ABI binaries to run with this kernel (EXPERIMENTAL)</span><br><span class="line">		</span><br><span class="line">EABI简介：ABI 指的是应用程序二进制接口，类比及API，ABI是二进制级别的兼容。</span><br><span class="line">		  E指的是Embedded，嵌入的</span><br><span class="line">好处：</span><br><span class="line">	支持软件浮点和硬件实现浮点功能混用</span><br><span class="line">	系统调用的效率更高</span><br><span class="line">	后今后的工具更兼容</span><br><span class="line">	软件浮点的情况下，EABI的软件浮点的效率要比OABI高很多</span><br><span class="line"></span><br><span class="line">3 无法创建节点错误：</span><br><span class="line">	can&#39;t open &#x2F;dev&#x2F;ttySAC0: No such file or directory</span><br><span class="line">解决方法：</span><br><span class="line">	make menuconfig 搜索 DEVTMPFS 把相关自动创建节点的配置项设置为Y即可</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">1 注意最小文件系统的lib库需要复制
+/opt/FriendlyARM/toolschain/4.4.3/arm-none-linux-gnueabi/lib
+里面的库文件
+arm-none-linux-gnueabi 是新的工具链
+
+2 配置内核增加EABI接口：
+make menuconfig
+Kernel Features ---&gt;
+        [*] Use the ARM EABI to compile the kernel
+        [*] Allow old ABI binaries to run with this kernel (EXPERIMENTAL)
+		
+EABI简介：ABI 指的是应用程序二进制接口，类比及API，ABI是二进制级别的兼容。
+		  E指的是Embedded，嵌入的
+好处：
+	支持软件浮点和硬件实现浮点功能混用
+	系统调用的效率更高
+	后今后的工具更兼容
+	软件浮点的情况下，EABI的软件浮点的效率要比OABI高很多
+
+3 无法创建节点错误：
+	can<span class="hljs-string">'t open /dev/ttySAC0: No such file or directory</span>
+<span class="hljs-string">解决方法：</span>
+<span class="hljs-string">	make menuconfig 搜索 DEVTMPFS 把相关自动创建节点的配置项设置为Y即可</span></code></pre>
 
 
 <ul>
 <li>到现在为止，内核已经成功启动！</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#x2F; # ls</span><br><span class="line">	bin      etc      linuxrc  sbin     tmp</span><br><span class="line">	dev      lib      proc     sys      usr</span><br><span class="line">&#x2F; #</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">/ <span class="hljs-comment"># ls</span>
+	bin      etc      linuxrc  sbin     tmp
+	dev      lib      proc     sys      usr
+/ <span class="hljs-comment">#</span></code></pre>
 
 <ul>
 <li>接下来，</li>

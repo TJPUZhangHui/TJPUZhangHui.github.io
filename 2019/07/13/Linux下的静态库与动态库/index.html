@@ -201,29 +201,25 @@
 <p>Linux下的库文件分为动态库和静态库，都是二进制文件，动态库的后缀为.so，静态库的后缀为.a</p>
 </blockquote>
 <h2 id="静态库"><a href="#静态库" class="headerlink" title="静态库"></a>静态库</h2><p><strong>静态库的命名规则：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lib + 静态库的名字 + .a</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">lib + 静态库的名字 + .a</code></pre>
 
 <p><strong>制作步骤：</strong></p>
 <p>1) 生成对应的.o文件 ： </p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -c xxx.c</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">gcc -c xxx.c</code></pre>
 
 <p>2) 将生成的.o文件打包：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ar rcs xxx.a xxx.o</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">ar rcs xxx.a xxx.o</code></pre>
 
 <p><strong>发布静态库</strong><br>发布静态库就是要发布.a文件和对应的头文件，头文件提供了库文件的接口</p>
-<p><strong>示例：</strong><br>我的文件夹下有一个sckutil.c的套接字库文件，现在将它打包，并使用它编译一下TCP客户端client.c</p>
-
-
-<p>看一下生成文件的大小：</p>
-
-
+<p><strong>示例：</strong><br>我的文件夹下有一个sckutil.c的套接字库文件，现在将它打包，并使用它编译一下TCP客户端client.c<br><img src="/img/Linux%E4%B8%8B%E7%9A%84%E9%9D%99%E6%80%81%E5%BA%93%E4%B8%8E%E5%8A%A8%E6%80%81%E5%BA%93/1.png" srcset="/img/loading.gif" alt=""></p>
+<p>看一下生成文件的大小：<br><img src="/img/Linux%E4%B8%8B%E7%9A%84%E9%9D%99%E6%80%81%E5%BA%93%E4%B8%8E%E5%8A%A8%E6%80%81%E5%BA%93/2.png" srcset="/img/loading.gif" alt=""></p>
 <p><strong>优缺点：</strong></p>
 <ul>
 <li>库里面的程序直接拷贝到应用程序中，发布应用程序时无需再发布库文件，但是会导致应用程序过大。如果一个系统多个应用程序都链接到相同的库文件，会导致一份代码多个拷贝的情况，浪费系统资源</li>
 <li>无需动态链接，程序运行速度相对较快</li>
 </ul>
 <h2 id="动态库"><a href="#动态库" class="headerlink" title="动态库"></a>动态库</h2><p><strong>静态库的命名规则：</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lib + 动态库的名字 + .so</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">lib + 动态库的名字 + .so</code></pre>
 
 <p><strong>动态库的三种名称：</strong></p>
 <ul>
@@ -233,14 +229,13 @@
 </ul>
 <p><strong>制作步骤：</strong></p>
 <p>1) 生成位置无关的.o文件 ，加-fPIC选项</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -fPIC -c xxx.c</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">gcc -fPIC -c xxx.c</code></pre>
 
 <p>2) 将生成的.o文件打包： -shared选项</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared -o libxxx.so xxx.o</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs bash">gcc -shared -o libxxx.so xxx.o</code></pre>
 
 <p><strong>示例：</strong></p>
-
-
+<p><img src="/img/Linux%E4%B8%8B%E7%9A%84%E9%9D%99%E6%80%81%E5%BA%93%E4%B8%8E%E5%8A%A8%E6%80%81%E5%BA%93/3.png" srcset="/img/loading.gif" alt=""></p>
 <p>可以看到，使用动态库之后文件的大小已经大大减少。</p>
 
             </article>
@@ -282,8 +277,8 @@
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2019/07/12/ipc%E5%B0%8F%E5%B7%A5%E5%85%B7/">
-                        <span class="hidden-mobile">ipc小工具</span>
+                      <a href="/2019/07/12/IPC%E5%B0%8F%E5%B7%A5%E5%85%B7/">
+                        <span class="hidden-mobile">IPC小工具</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

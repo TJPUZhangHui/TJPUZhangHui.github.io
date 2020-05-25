@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    826 字
+                    804 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    10
+                    9
                      分钟
                   </span>
                 
@@ -200,11 +200,9 @@
               <blockquote>
 <p>本文介绍的内容是在socket应用编程(1)的基础上进行一些错误的分析，返回值的判断以及对基本的API进行封装，目的是增强服务器的鲁棒性，可以应对复杂的网络环境，理解TCP/IP的11种状态以及使用代码复现某些状态是非常关键的，可以帮助你在发送错误的时候发现问题出在了什么地方。<br>本文除了介绍socket应用编程进阶的一些知识点之外，还将介绍TCP/IP协议的11种状态<br>netstat -na | grep xxx可以查看某个端口的连接状态，xxx表示端口</p>
 </blockquote>
-
-
+<p><img src="/img/socket%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B(2)/1.svg" srcset="/img/loading.gif" alt=""></p>
 <p>图片来自于xmind导出的svg格式,右键打开图片，查看大图。。。</p>
-<h3 id="TCP-IP协议的11种状态"><a href="#TCP-IP协议的11种状态" class="headerlink" title="TCP/IP协议的11种状态"></a>TCP/IP协议的11种状态</h3>
-
+<h3 id="TCP-IP协议的11种状态"><a href="#TCP-IP协议的11种状态" class="headerlink" title="TCP/IP协议的11种状态"></a>TCP/IP协议的11种状态</h3><p><img src="/img/socket%E5%BA%94%E7%94%A8%E7%BC%96%E7%A8%8B(2)/2.png" srcset="/img/loading.gif" alt=""></p>
 <p>TCP/IP的这11种状态的某些中间状态是TCP/IP协议栈自动推着连接往前走的，不需要上层参与，但是对于一些没有输入箭头的状态，如图中的FIN_WAIT_1等状态需要上层应用调用close才能使连接往下进行</p>
 <p><strong>三次握手</strong></p>
 <ul>
@@ -222,7 +220,39 @@
 <blockquote>
 <p>socket编程对于返回值的判断十分关键，这可以精准的定位到问题所在。</p>
 </blockquote>
-<h3 id="select函数用法"><a href="#select函数用法" class="headerlink" title="select函数用法"></a>select函数用法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;time.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line"></span><br><span class="line">int main(void)</span><br><span class="line">&#123;</span><br><span class="line">	fd_set rfds;</span><br><span class="line">	struct timeval tv;</span><br><span class="line">	int retval;</span><br><span class="line"></span><br><span class="line">	&#x2F;* Watch stdin (fd 0) to see when it has input. *&#x2F;</span><br><span class="line">	FD_ZERO(&amp;rfds);</span><br><span class="line">	FD_SET(0, &amp;rfds);</span><br><span class="line"></span><br><span class="line">	&#x2F;* Wait up to five seconds. *&#x2F;</span><br><span class="line">	tv.tv_sec &#x3D; 5;</span><br><span class="line">	tv.tv_usec &#x3D; 0;</span><br><span class="line"></span><br><span class="line">	retval &#x3D; select(1, &amp;rfds, NULL, NULL, &amp;tv);</span><br><span class="line">	&#x2F;* Don&#39;t rely on the value of tv now! *&#x2F;</span><br><span class="line"></span><br><span class="line">	if (retval &#x3D;&#x3D; -1)</span><br><span class="line">		perror(&quot;select()&quot;);</span><br><span class="line">	else if (retval)</span><br><span class="line">		printf(&quot;Data is available now.\n&quot;);</span><br><span class="line">	&#x2F;* FD_ISSET(0, &amp;rfds) will be true. *&#x2F;</span><br><span class="line">	else</span><br><span class="line">		printf(&quot;No data within five seconds.\n&quot;);</span><br><span class="line"></span><br><span class="line">	exit(EXIT_SUCCESS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="select函数用法"><a href="#select函数用法" class="headerlink" title="select函数用法"></a>select函数用法</h3><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/time.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+	fd_set rfds;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">timeval</span> <span class="hljs-title">tv</span>;</span>
+	<span class="hljs-keyword">int</span> retval;
+
+	<span class="hljs-comment">/* Watch stdin (fd 0) to see when it has input. */</span>
+	FD_ZERO(&amp;rfds);
+	FD_SET(<span class="hljs-number">0</span>, &amp;rfds);
+
+	<span class="hljs-comment">/* Wait up to five seconds. */</span>
+	tv.tv_sec = <span class="hljs-number">5</span>;
+	tv.tv_usec = <span class="hljs-number">0</span>;
+
+	retval = select(<span class="hljs-number">1</span>, &amp;rfds, <span class="hljs-literal">NULL</span>, <span class="hljs-literal">NULL</span>, &amp;tv);
+	<span class="hljs-comment">/* Don't rely on the value of tv now! */</span>
+
+	<span class="hljs-keyword">if</span> (retval == <span class="hljs-number">-1</span>)
+		perror(<span class="hljs-string">"select()"</span>);
+	<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (retval)
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"Data is available now.\n"</span>);
+	<span class="hljs-comment">/* FD_ISSET(0, &amp;rfds) will be true. */</span>
+	<span class="hljs-keyword">else</span>
+		<span class="hljs-built_in">printf</span>(<span class="hljs-string">"No data within five seconds.\n"</span>);
+
+	<span class="hljs-built_in">exit</span>(EXIT_SUCCESS);
+&#125;</code></pre>
 
 <ul>
 <li>通过select管理标准输入，5s内无输入则返回,代码来自man手册示例程序。</li>

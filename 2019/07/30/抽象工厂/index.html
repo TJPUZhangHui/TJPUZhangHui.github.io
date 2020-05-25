@@ -208,41 +208,182 @@
 <li>AbstractProduct ： 抽象产品，多个抽象产品组成产品族</li>
 <li>Product： 具体产品</li>
 </ul>
-
-
-
+<p><img src="/img/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/1.svg" srcset="/img/loading.gif" alt=""></p>
 <h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>本文举一个数据库操作的例子，数据库操作需要分为先获取指令，再连接两个步骤，而数据库又有不同的类型，如Sql和Oracle,可以把获取指令和连接看成两个抽象的产品，每个数据库对应这两个步骤有不同的操作，看着具体的产品，使用抽象工厂方法设计。</p>
 <blockquote>
 <p>这种连个维度的变化联想到了桥模式,但是这里不适合使用桥模式，原因在于获取指令和连接两个步骤对于不同的数据库来说不是随机组合的，而是绑定的，即如果获取指令使用的是Sql数据库，那么连接也必须是Sql数据库。</p>
 </blockquote>
 <p><strong>抽象产品</strong></p>
 <p>抽象产品是指获取指令和连接两个类，都是接口</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">class IDBCommand</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	IDBCommand();</span><br><span class="line">	~IDBCommand();</span><br><span class="line">	</span><br><span class="line">	virtual void getCommond() &#x3D; 0;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">class IDBConnection</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	IDBConnection();</span><br><span class="line">	~IDBConnection();</span><br><span class="line"></span><br><span class="line">	virtual void getConnection() &#x3D; 0;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">IDBCommand</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	IDBCommand();
+	~IDBCommand();
+	
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">getCommond</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;
+&#125;;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">IDBConnection</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	IDBConnection();
+	~IDBConnection();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">getConnection</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;
+&#125;;</code></pre>
 
 <p><strong>具体的产品</strong></p>
 <p>具体的产品分别继承自抽象产品，每个操作下面分别对应两个数据库，因此具体的产品有4种</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">class OracleCommand : public  IDBCommand</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	OracleCommand();</span><br><span class="line">	virtual ~OracleCommand();</span><br><span class="line"></span><br><span class="line">	virtual void getCommond();</span><br><span class="line">&#125;;</span><br><span class="line">void OracleCommand::getCommond()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;get oracle commond... \n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class OracleConnection : public IDBConnection</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	OracleConnection();</span><br><span class="line">	virtual ~OracleConnection();</span><br><span class="line"></span><br><span class="line">	virtual void getConnection();</span><br><span class="line">&#125;;</span><br><span class="line">void OracleConnection::getConnection()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;get oracle Connection... \n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class SqlCommand : public IDBCommand</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	SqlCommand();</span><br><span class="line">	~SqlCommand();</span><br><span class="line"></span><br><span class="line">	virtual void getCommond();</span><br><span class="line">&#125;;</span><br><span class="line">void SqlCommand::getCommond()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;get Sql commond... \n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class SqlConnection : public IDBConnection</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	SqlConnection();</span><br><span class="line">	~SqlConnection();</span><br><span class="line"></span><br><span class="line">	virtual void getConnection();</span><br><span class="line">&#125;;</span><br><span class="line">void SqlConnection::getConnection()</span><br><span class="line">&#123;</span><br><span class="line">	printf(&quot;get Sql Connection... \n&quot;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OracleCommand</span> :</span> <span class="hljs-keyword">public</span>  IDBCommand
+&#123;
+<span class="hljs-keyword">public</span>:
+	OracleCommand();
+	<span class="hljs-keyword">virtual</span> ~OracleCommand();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">getCommond</span><span class="hljs-params">()</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">OracleCommand::getCommond</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"get oracle commond... \n"</span>);
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OracleConnection</span> :</span> <span class="hljs-keyword">public</span> IDBConnection
+&#123;
+<span class="hljs-keyword">public</span>:
+	OracleConnection();
+	<span class="hljs-keyword">virtual</span> ~OracleConnection();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">getConnection</span><span class="hljs-params">()</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">OracleConnection::getConnection</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"get oracle Connection... \n"</span>);
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SqlCommand</span> :</span> <span class="hljs-keyword">public</span> IDBCommand
+&#123;
+<span class="hljs-keyword">public</span>:
+	SqlCommand();
+	~SqlCommand();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">getCommond</span><span class="hljs-params">()</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">SqlCommand::getCommond</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"get Sql commond... \n"</span>);
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SqlConnection</span> :</span> <span class="hljs-keyword">public</span> IDBConnection
+&#123;
+<span class="hljs-keyword">public</span>:
+	SqlConnection();
+	~SqlConnection();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-keyword">void</span> <span class="hljs-title">getConnection</span><span class="hljs-params">()</span></span>;
+&#125;;
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">SqlConnection::getConnection</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"get Sql Connection... \n"</span>);
+&#125;</code></pre>
 
 <p><strong>抽象工厂</strong></p>
 <p>抽象工厂负责产生两个产品，即获取指令和连接<br>具体产生什么产品，放在具体的工厂中</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">class IDBFactory</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	IDBFactory();</span><br><span class="line">	~IDBFactory();</span><br><span class="line"></span><br><span class="line">	virtual IDBCommand *getIDBCommand()    &#x3D; 0;</span><br><span class="line">	virtual IDBConnection *getIDBConnection() &#x3D; 0;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">IDBFactory</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	IDBFactory();
+	~IDBFactory();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> IDBCommand *<span class="hljs-title">getIDBCommand</span><span class="hljs-params">()</span>    </span>= <span class="hljs-number">0</span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> IDBConnection *<span class="hljs-title">getIDBConnection</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;
+&#125;;</code></pre>
 
 <p><strong>具体的工厂</strong></p>
 <p>负责产生Sql对应的产品和Oracle对应的产品</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">class SqlDBFactory : public IDBFactory</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	SqlDBFactory();</span><br><span class="line">	~SqlDBFactory();</span><br><span class="line"></span><br><span class="line">	virtual IDBCommand *getIDBCommand();</span><br><span class="line">	virtual IDBConnection *getIDBConnection();</span><br><span class="line">&#125;;</span><br><span class="line">IDBCommand * SqlDBFactory::getIDBCommand()</span><br><span class="line">&#123;</span><br><span class="line">	return new SqlCommand;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">IDBConnection * SqlDBFactory::getIDBConnection()</span><br><span class="line">&#123;</span><br><span class="line">	return new SqlConnection;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">class OracleDBFactory : public IDBFactory</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	OracleDBFactory();</span><br><span class="line">	~OracleDBFactory();</span><br><span class="line"></span><br><span class="line">	virtual IDBCommand *getIDBCommand();</span><br><span class="line">	virtual IDBConnection *getIDBConnection();</span><br><span class="line">&#125;;</span><br><span class="line">IDBCommand * OracleDBFactory::getIDBCommand()</span><br><span class="line">&#123;</span><br><span class="line">	return new OracleCommand;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">IDBConnection * OracleDBFactory::getIDBConnection()</span><br><span class="line">&#123;</span><br><span class="line">	return new OracleConnection;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">SqlDBFactory</span> :</span> <span class="hljs-keyword">public</span> IDBFactory
+&#123;
+<span class="hljs-keyword">public</span>:
+	SqlDBFactory();
+	~SqlDBFactory();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> IDBCommand *<span class="hljs-title">getIDBCommand</span><span class="hljs-params">()</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> IDBConnection *<span class="hljs-title">getIDBConnection</span><span class="hljs-params">()</span></span>;
+&#125;;
+<span class="hljs-function">IDBCommand * <span class="hljs-title">SqlDBFactory::getIDBCommand</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> SqlCommand;
+&#125;
+
+<span class="hljs-function">IDBConnection * <span class="hljs-title">SqlDBFactory::getIDBConnection</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> SqlConnection;
+&#125;
+
+<span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">OracleDBFactory</span> :</span> <span class="hljs-keyword">public</span> IDBFactory
+&#123;
+<span class="hljs-keyword">public</span>:
+	OracleDBFactory();
+	~OracleDBFactory();
+
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> IDBCommand *<span class="hljs-title">getIDBCommand</span><span class="hljs-params">()</span></span>;
+	<span class="hljs-function"><span class="hljs-keyword">virtual</span> IDBConnection *<span class="hljs-title">getIDBConnection</span><span class="hljs-params">()</span></span>;
+&#125;;
+<span class="hljs-function">IDBCommand * <span class="hljs-title">OracleDBFactory::getIDBCommand</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> OracleCommand;
+&#125;
+
+<span class="hljs-function">IDBConnection * <span class="hljs-title">OracleDBFactory::getIDBConnection</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> OracleConnection;
+&#125;</code></pre>
 
 <p><strong>MainForm类</strong></p>
 <p>这个类模拟使用数据库的类,这个类首先传入具体的工厂产生两个具体的产品，然后分别调用里面的函数。</p>
 <p>MainForm作为上层应用应该是<strong>稳定的</strong>。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">class MainForm</span><br><span class="line">&#123;</span><br><span class="line">public:</span><br><span class="line">	MainForm(IDBFactory *dbfactory);</span><br><span class="line">	~MainForm();</span><br><span class="line"></span><br><span class="line">	IDBFactory *dbfactory;</span><br><span class="line"></span><br><span class="line">	void getdata();</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">MainForm::MainForm(IDBFactory *dbfactory)</span><br><span class="line">&#123;</span><br><span class="line">	this-&gt;dbfactory &#x3D; dbfactory;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">MainForm::~MainForm()</span><br><span class="line">&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void MainForm::getdata()</span><br><span class="line">&#123;</span><br><span class="line">	IDBCommand *dbcommand 		&#x3D;	dbfactory-&gt;getIDBCommand();</span><br><span class="line">	IDBConnection *dbconnection &#x3D; 	dbfactory-&gt;getIDBConnection();</span><br><span class="line">	</span><br><span class="line">	dbcommand-&gt;getCommond();</span><br><span class="line">	dbconnection-&gt;getConnection();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MainForm</span></span>
+<span class="hljs-class">&#123;</span>
+<span class="hljs-keyword">public</span>:
+	MainForm(IDBFactory *dbfactory);
+	~MainForm();
+
+	IDBFactory *dbfactory;
+
+	<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">getdata</span><span class="hljs-params">()</span></span>;
+&#125;;
+
+MainForm::MainForm(IDBFactory *dbfactory)
+&#123;
+	<span class="hljs-keyword">this</span>-&gt;dbfactory = dbfactory;
+&#125;
+
+MainForm::~MainForm()
+&#123;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">MainForm::getdata</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	IDBCommand *dbcommand 		=	dbfactory-&gt;getIDBCommand();
+	IDBConnection *dbconnection = 	dbfactory-&gt;getIDBConnection();
+	
+	dbcommand-&gt;getCommond();
+	dbconnection-&gt;getConnection();
+&#125;</code></pre>
 
 <p><strong>main函数测试</strong></p>
 <p>先使用多态的方法创建一个工厂，再把这个工厂传入MainForm中。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">int main()</span><br><span class="line">&#123;</span><br><span class="line">	IDBFactory *dbfactory   &#x3D; new SqlDBFactory;</span><br><span class="line">	MainForm   *mainform    &#x3D; new MainForm(dbfactory);</span><br><span class="line">	mainform-&gt;getdata();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	IDBFactory *dbfactory   = <span class="hljs-keyword">new</span> SqlDBFactory;
+	MainForm   *mainform    = <span class="hljs-keyword">new</span> MainForm(dbfactory);
+	mainform-&gt;getdata();
+&#125;</code></pre>
 
 <ul>
 <li>测试结果</li>
 </ul>
+<p><img src="/img/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82/2.png" srcset="/img/loading.gif" alt=""></p>
 
             </article>
             <hr>

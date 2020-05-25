@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    1k 字
+                    875 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    16
+                    14
                      分钟
                   </span>
                 
@@ -200,9 +200,7 @@
               <blockquote>
 <p>IPC，Inter-Process Communication，进程间通信<br>ipcs : 查看当前系统的IPC机制使用情况</p>
 </blockquote>
-
-
-
+<p><img src="/img/IPC%E6%9C%BA%E5%88%B6/1.svg" srcset="/img/loading.gif" alt=""></p>
 <p>IPC进程间通信机制的料不多，信号量是一个比较难得点，但是要根据实际项目的场景进行分析，纸上谈兵是没有意义的。</p>
 <h3 id="通过种子文件获取KEY-L的值"><a href="#通过种子文件获取KEY-L的值" class="headerlink" title="通过种子文件获取KEY_L的值"></a>通过种子文件获取KEY_L的值</h3><p>如果各个进程都需要获取相同的IPC对象的ID，因此需要相同的KEY_L，也就是IPC秘钥，可以通过ftok函数来获取相同的key，使用方法很简单</p>
 <ul>
@@ -212,9 +210,212 @@
 <h3 id="信号量的小工具分享"><a href="#信号量的小工具分享" class="headerlink" title="信号量的小工具分享"></a>信号量的小工具分享</h3><ul>
 <li>分享一个信号量小工具，包括了信号量的所有操作</li>
 </ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br></pre></td><td class="code"><pre><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;ipc.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;sem.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;stdio.h&gt;</span><br><span class="line">#include &lt;errno.h&gt;</span><br><span class="line">#include &lt;stdlib.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;string.h&gt;</span><br><span class="line"></span><br><span class="line">#include &lt;sys&#x2F;types.h&gt;</span><br><span class="line">#include &lt;sys&#x2F;wait.h&gt;</span><br><span class="line">#include &lt;unistd.h&gt;</span><br><span class="line">#include &lt;fcntl.h&gt;</span><br><span class="line"></span><br><span class="line">union semun &#123;</span><br><span class="line">	int              val;    &#x2F;&#x2F; Value for SETVAL </span><br><span class="line">	struct semid_ds *buf;    &#x2F;&#x2F; Buffer for IPC_STAT, IPC_SET </span><br><span class="line">	unsigned short  *array;  &#x2F;&#x2F; Array for GETALL, SETALL</span><br><span class="line">	struct seminfo  *__buf;  &#x2F;&#x2F; Buffer for IPC_INFO</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&#x2F;* 创建信号量 *&#x2F;</span><br><span class="line">int sem_creat(key_t key)</span><br><span class="line">&#123;</span><br><span class="line">	int semid;</span><br><span class="line">	semid &#x3D; semget(key, 1, 0666 | IPC_CREAT | IPC_EXCL);</span><br><span class="line">	if (semid &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;semget error&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125;</span><br><span class="line">	return semid;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 删除信号量 *&#x2F;</span><br><span class="line">int sem_delete(int semid)</span><br><span class="line">&#123;</span><br><span class="line">	semctl(semid, 0, IPC_RMID, NULL);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 打开信号量 *&#x2F;</span><br><span class="line">int sem_open(key_t key)</span><br><span class="line">&#123;</span><br><span class="line">	int semid;</span><br><span class="line">	semid &#x3D; semget(key, 1, 0666);</span><br><span class="line">	if (semid &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;semget error&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125;</span><br><span class="line">	return semid;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 设置信号量的值 *&#x2F;</span><br><span class="line">int sem_setval(int semid, int val)</span><br><span class="line">&#123;</span><br><span class="line">	int ret;</span><br><span class="line">	union semun su;</span><br><span class="line">	&#x2F;* 表示资源的个数 *&#x2F;</span><br><span class="line">	su.val &#x3D; val;</span><br><span class="line">	ret &#x3D; semctl(semid, 0, SETVAL, su);</span><br><span class="line">	if (ret &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;semctl error&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125;</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 获取信号量的值 *&#x2F;</span><br><span class="line">int sem_getval(int semid)</span><br><span class="line">&#123;</span><br><span class="line">	int val &#x3D; 0;</span><br><span class="line">	val &#x3D; semctl(semid, 0, GETVAL, NULL);</span><br><span class="line">	if (val &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;semctl error&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125;</span><br><span class="line">	printf(&quot;val : %d \n&quot;, val);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 信号量p操作 *&#x2F;</span><br><span class="line">int sem_p(int semid)</span><br><span class="line">&#123;</span><br><span class="line">	struct sembuf sp &#x3D; &#123;0, -1, 0&#125;;</span><br><span class="line">	semop(semid, &amp;sp, 1);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 信号量v操作 *&#x2F;</span><br><span class="line">int sem_v(int semid)</span><br><span class="line">&#123;</span><br><span class="line">	struct sembuf sv &#x3D; &#123;0, 1, 0&#125;;</span><br><span class="line">	semop(semid, &amp;sv, 1);</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line">&#x2F;* 获取信号量权限 *&#x2F;</span><br><span class="line">int sem_getmode(int semid)</span><br><span class="line">&#123;</span><br><span class="line">	int ret;</span><br><span class="line">	int val;</span><br><span class="line">	</span><br><span class="line">	struct semid_ds buf;</span><br><span class="line">	ret &#x3D; semctl(semid, 0, IPC_STAT, &amp;buf);</span><br><span class="line">	if (ret &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;semctl error&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125;</span><br><span class="line">	val &#x3D; buf.sem_perm.mode;</span><br><span class="line">	printf(&quot;mode : 0%o \n&quot;,val);</span><br><span class="line">	return val;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">&#x2F;* 设置信号量权限 *&#x2F;</span><br><span class="line">int sem_setmode(int semid, int mode)</span><br><span class="line">&#123;</span><br><span class="line">	int ret;</span><br><span class="line">	</span><br><span class="line">	struct semid_ds buf;</span><br><span class="line">	buf.sem_perm.mode &#x3D; mode;</span><br><span class="line">	ret &#x3D; semctl(semid, 0, IPC_SET, &amp;buf);</span><br><span class="line">	if (ret &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		perror(&quot;semctl error&quot;);</span><br><span class="line">		return -1;</span><br><span class="line">	&#125;</span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void usage()</span><br><span class="line">&#123;</span><br><span class="line">	fprintf(stderr,&quot;semtool -c 创建信号量\n&quot;);</span><br><span class="line">	fprintf(stderr,&quot;semtool -d 删除信号量\n&quot;);</span><br><span class="line">	fprintf(stderr,&quot;semtool -p 信号量p操作\n&quot;);</span><br><span class="line">	fprintf(stderr,&quot;semtool -v 信号量v操作\n&quot;);</span><br><span class="line">	fprintf(stderr,&quot;semtool -s&lt;val&gt; 信号量设置初始值\n&quot;);</span><br><span class="line">	fprintf(stderr,&quot;semtool -g 获取信号量的值\n&quot;);</span><br><span class="line">	fprintf(stderr,&quot;semtool -f 打开权限\n&quot;);</span><br><span class="line">	fprintf(stderr,&quot;semtool -m&lt;mode&gt; 设置权限\n&quot;);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int main(int argc, char *argv[])</span><br><span class="line">&#123;</span><br><span class="line">	int opt;</span><br><span class="line">	opt &#x3D; getopt(argc, argv, &quot;cdpvs:gfm:&quot;);</span><br><span class="line">	if (opt &#x3D;&#x3D; -1)</span><br><span class="line">	&#123;</span><br><span class="line">		usage();</span><br><span class="line">		exit(EXIT_FAILURE);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	key_t key;</span><br><span class="line">	key &#x3D; ftok(&quot;.&quot;,&#39;s&#39;);</span><br><span class="line">	int semid;</span><br><span class="line">	</span><br><span class="line">	switch (opt)</span><br><span class="line">	&#123;</span><br><span class="line">		case &#39;c&#39;:</span><br><span class="line">			semid &#x3D; sem_creat(key);</span><br><span class="line">			break;</span><br><span class="line">		case &#39;d&#39;:</span><br><span class="line">			semid &#x3D; sem_open(key);</span><br><span class="line">			sem_delete(semid);</span><br><span class="line">			break;</span><br><span class="line">		case &#39;p&#39;:</span><br><span class="line">			semid &#x3D; sem_open(key);</span><br><span class="line">			sem_p(semid);</span><br><span class="line">			sem_getval(semid);</span><br><span class="line">			break;</span><br><span class="line">		case &#39;v&#39;:</span><br><span class="line">			semid &#x3D; sem_open(key);</span><br><span class="line">			sem_v(semid);</span><br><span class="line">			sem_getval(semid);</span><br><span class="line">			break;</span><br><span class="line">		case &#39;s&#39;:</span><br><span class="line">			semid &#x3D; sem_open(key);</span><br><span class="line">			sem_setval(semid, atoi(optarg));</span><br><span class="line">			sem_getval(semid);</span><br><span class="line">			break;</span><br><span class="line">		case &#39;g&#39;:</span><br><span class="line">			semid &#x3D; sem_open(key);</span><br><span class="line">			sem_getval(semid);</span><br><span class="line">			break;</span><br><span class="line">		case &#39;f&#39;:</span><br><span class="line">			semid &#x3D; sem_open(key);</span><br><span class="line">			sem_getmode(semid);</span><br><span class="line">			break;</span><br><span class="line">		case &#39;m&#39;:</span><br><span class="line">			semid &#x3D; sem_open(key);</span><br><span class="line">			sem_setmode(semid, atoi(optarg));</span><br><span class="line">			break;</span><br><span class="line">		case &#39;?&#39;:</span><br><span class="line">			usage();</span><br><span class="line">			break;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>可以使用这个小工具进行信号量的创建，使用，删除，pv操作，运行结果：</p>
+<pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/ipc.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/sem.h&gt;</span></span>
 
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdio.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;errno.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;stdlib.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;string.h&gt;</span></span>
+
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/types.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;sys/wait.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;unistd.h&gt;</span></span>
+<span class="hljs-meta">#<span class="hljs-meta-keyword">include</span> <span class="hljs-meta-string">&lt;fcntl.h&gt;</span></span>
+
+<span class="hljs-keyword">union</span> semun &#123;
+	<span class="hljs-keyword">int</span>              val;    <span class="hljs-comment">// Value for SETVAL </span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">semid_ds</span> *<span class="hljs-title">buf</span>;</span>    <span class="hljs-comment">// Buffer for IPC_STAT, IPC_SET </span>
+	<span class="hljs-keyword">unsigned</span> short  *<span class="hljs-built_in">array</span>;  <span class="hljs-comment">// Array for GETALL, SETALL</span>
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">seminfo</span>  *__<span class="hljs-title">buf</span>;</span>  <span class="hljs-comment">// Buffer for IPC_INFO</span>
+&#125;;
+
+<span class="hljs-comment">/* 创建信号量 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_creat</span><span class="hljs-params">(<span class="hljs-keyword">key_t</span> key)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> semid;
+	semid = semget(key, <span class="hljs-number">1</span>, <span class="hljs-number">0666</span> | IPC_CREAT | IPC_EXCL);
+	<span class="hljs-keyword">if</span> (semid == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"semget error"</span>);
+		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+	&#125;
+	<span class="hljs-keyword">return</span> semid;
+&#125;
+
+<span class="hljs-comment">/* 删除信号量 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_delete</span><span class="hljs-params">(<span class="hljs-keyword">int</span> semid)</span></span>
+<span class="hljs-function"></span>&#123;
+	semctl(semid, <span class="hljs-number">0</span>, IPC_RMID, <span class="hljs-literal">NULL</span>);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-comment">/* 打开信号量 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_open</span><span class="hljs-params">(<span class="hljs-keyword">key_t</span> key)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> semid;
+	semid = semget(key, <span class="hljs-number">1</span>, <span class="hljs-number">0666</span>);
+	<span class="hljs-keyword">if</span> (semid == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"semget error"</span>);
+		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+	&#125;
+	<span class="hljs-keyword">return</span> semid;
+&#125;
+
+<span class="hljs-comment">/* 设置信号量的值 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_setval</span><span class="hljs-params">(<span class="hljs-keyword">int</span> semid, <span class="hljs-keyword">int</span> val)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> ret;
+	<span class="hljs-keyword">union</span> semun su;
+	<span class="hljs-comment">/* 表示资源的个数 */</span>
+	su.val = val;
+	ret = semctl(semid, <span class="hljs-number">0</span>, SETVAL, su);
+	<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"semctl error"</span>);
+		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+	&#125;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-comment">/* 获取信号量的值 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_getval</span><span class="hljs-params">(<span class="hljs-keyword">int</span> semid)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> val = <span class="hljs-number">0</span>;
+	val = semctl(semid, <span class="hljs-number">0</span>, GETVAL, <span class="hljs-literal">NULL</span>);
+	<span class="hljs-keyword">if</span> (val == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"semctl error"</span>);
+		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+	&#125;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"val : %d \n"</span>, val);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-comment">/* 信号量p操作 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_p</span><span class="hljs-params">(<span class="hljs-keyword">int</span> semid)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sembuf</span> <span class="hljs-title">sp</span> = &#123;</span><span class="hljs-number">0</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">0</span>&#125;;
+	semop(semid, &amp;sp, <span class="hljs-number">1</span>);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-comment">/* 信号量v操作 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_v</span><span class="hljs-params">(<span class="hljs-keyword">int</span> semid)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sembuf</span> <span class="hljs-title">sv</span> = &#123;</span><span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;;
+	semop(semid, &amp;sv, <span class="hljs-number">1</span>);
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+<span class="hljs-comment">/* 获取信号量权限 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_getmode</span><span class="hljs-params">(<span class="hljs-keyword">int</span> semid)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> ret;
+	<span class="hljs-keyword">int</span> val;
+	
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">semid_ds</span> <span class="hljs-title">buf</span>;</span>
+	ret = semctl(semid, <span class="hljs-number">0</span>, IPC_STAT, &amp;buf);
+	<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"semctl error"</span>);
+		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+	&#125;
+	val = buf.sem_perm.mode;
+	<span class="hljs-built_in">printf</span>(<span class="hljs-string">"mode : 0%o \n"</span>,val);
+	<span class="hljs-keyword">return</span> val;
+&#125;
+
+<span class="hljs-comment">/* 设置信号量权限 */</span>
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">sem_setmode</span><span class="hljs-params">(<span class="hljs-keyword">int</span> semid, <span class="hljs-keyword">int</span> mode)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> ret;
+	
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">semid_ds</span> <span class="hljs-title">buf</span>;</span>
+	buf.sem_perm.mode = mode;
+	ret = semctl(semid, <span class="hljs-number">0</span>, IPC_SET, &amp;buf);
+	<span class="hljs-keyword">if</span> (ret == <span class="hljs-number">-1</span>)
+	&#123;
+		perror(<span class="hljs-string">"semctl error"</span>);
+		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;
+	&#125;
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">void</span> <span class="hljs-title">usage</span><span class="hljs-params">()</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -c 创建信号量\n"</span>);
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -d 删除信号量\n"</span>);
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -p 信号量p操作\n"</span>);
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -v 信号量v操作\n"</span>);
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -s&lt;val&gt; 信号量设置初始值\n"</span>);
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -g 获取信号量的值\n"</span>);
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -f 打开权限\n"</span>);
+	<span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stderr</span>,<span class="hljs-string">"semtool -m&lt;mode&gt; 设置权限\n"</span>);
+&#125;
+
+<span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-keyword">int</span> argc, <span class="hljs-keyword">char</span> *argv[])</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> opt;
+	opt = getopt(argc, argv, <span class="hljs-string">"cdpvs:gfm:"</span>);
+	<span class="hljs-keyword">if</span> (opt == <span class="hljs-number">-1</span>)
+	&#123;
+		usage();
+		<span class="hljs-built_in">exit</span>(EXIT_FAILURE);
+	&#125;
+	
+	<span class="hljs-keyword">key_t</span> key;
+	key = ftok(<span class="hljs-string">"."</span>,<span class="hljs-string">'s'</span>);
+	<span class="hljs-keyword">int</span> semid;
+	
+	<span class="hljs-keyword">switch</span> (opt)
+	&#123;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'c'</span>:
+			semid = sem_creat(key);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'d'</span>:
+			semid = sem_open(key);
+			sem_delete(semid);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'p'</span>:
+			semid = sem_open(key);
+			sem_p(semid);
+			sem_getval(semid);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'v'</span>:
+			semid = sem_open(key);
+			sem_v(semid);
+			sem_getval(semid);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'s'</span>:
+			semid = sem_open(key);
+			sem_setval(semid, atoi(optarg));
+			sem_getval(semid);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'g'</span>:
+			semid = sem_open(key);
+			sem_getval(semid);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'f'</span>:
+			semid = sem_open(key);
+			sem_getmode(semid);
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'m'</span>:
+			semid = sem_open(key);
+			sem_setmode(semid, atoi(optarg));
+			<span class="hljs-keyword">break</span>;
+		<span class="hljs-keyword">case</span> <span class="hljs-string">'?'</span>:
+			usage();
+			<span class="hljs-keyword">break</span>;
+	&#125;
+
+	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+&#125;</code></pre>
+<p>可以使用这个小工具进行信号量的创建，使用，删除，pv操作，运行结果：</p>
+<p><img src="/img/IPC%E6%9C%BA%E5%88%B6/2.png" srcset="/img/loading.gif" alt=""></p>
 
             </article>
             <hr>
@@ -245,9 +446,9 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2019/07/12/ipc%E5%B0%8F%E5%B7%A5%E5%85%B7/">
+                      <a href="/2019/07/12/IPC%E5%B0%8F%E5%B7%A5%E5%85%B7/">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">ipc小工具</span>
+                        <span class="hidden-mobile">IPC小工具</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
