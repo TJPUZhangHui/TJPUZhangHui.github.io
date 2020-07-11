@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    631 字
+                    628 字
                   </span>
                 
 
@@ -197,14 +197,14 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h2 id="SPI-Protocol"><a href="#SPI-Protocol" class="headerlink" title="SPI Protocol"></a>SPI Protocol</h2><p>![spi protocol](E:\Professional\blog\hexo\public\img\SPI\spi protocol.png)</p>
+              <h2 id="SPI-Protocol"><a href="#SPI-Protocol" class="headerlink" title="SPI Protocol"></a>SPI Protocol</h2><p>![](/img/SPI/spi protocol.png)</p>
 <p>SPI的本质上是一种<strong>循环总线结构</strong>，SSPSR是SPI内部的移位寄存器，在发起SPI读/写时，SPI Master和SPI Slave中移位寄存器的值会进行交换。SSPSR的长度一般为8bit，也可以设置为16或者32bit。</p>
 <p>SPI控制器内部会自带两个FIFO，一般为32bytes，用来缓存需要发送和接收的数据。</p>
 <p>在SPI传输之前，TXFIFO会自动将需要传输的值放入sspsr中，并将指针自动指向TXFIFO的下一个位置，直到FIFO为空，整个数据传输的流程：TXFIFO -&gt; SSPSR -&gt; SSPSR -&gt; RXFIFO。</p>
 <p>我们在操作SPI时，如何往FIFO中写数据呢？一般SPI控制器会提供TX_REG和RX_REG寄存器，将需要发送的数据不断的写入这个寄存器中，SPI硬件会将寄存器中的数据自动填充进TXFIFO，每写入一次(4bytes)，指针会自动指向FIFO的下一个位置，注意在PIO模式下，不要将写入的数据超过FIFO的深度，否则会把之前的数据顶出去。</p>
 <p>DMA模式与上述过程相同，只是往TX_REG寄存器中写值的过程不需要CPU参与而已。</p>
 <p>在接收数据时，不断的读取RX_REG寄存器中的值，读取一次指针会自动指向RXFIFO的下一个位置，直到读取失败，则完成对整个RXFIFO的读取。</p>
-<p>DMA模式与上述过程相同，只是RX_REG寄存器中的值会自动的写入内存中。</p>
+<p>DMA模式与上述过程相同，只是RX_REG寄存器中的值写入内存中不需要CPU的参与而已。</p>
 <p>综上所述，SPI总线并没有发送或者接收之分，启动SPI传输时，sspsr就开始在不断的交换数据，也就是Master 的TXFIFO和Slave的RXFIFO在不断的交换数据（反之亦然），如果你需要发送数据，就往TX_REG中写入你想发送的数据，如果你想接收数据，就从RX_REG中读取你想要的数据。</p>
 <p>一般来说，当我们一次传输的数据量小于FIFO的深度时，使用PIO模式来传输，因为这样只需要写入一次FIFO，在传输过程中无需再往FIFO中写数据，避免数据错误，当一次传输的数据量大于FIFO深度时，则启动DMA传输，SPI硬件在发送一段数据后会自动等待DMA数据的写入时间以保持同步，一次传输的最大数据量也不是无限的，要根据具体的SPI Master和Slave手册来决定。</p>
 
