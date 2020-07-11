@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="ZhangHui">
   <meta name="keywords" content="">
-  <title>归档 - 章辉的博客</title>
+  <title>章辉的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
@@ -46,7 +46,7 @@
 
 
 <body>
-  <header style="height: 60vh;">
+  <header style="height: 100vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
@@ -147,6 +147,10 @@
           </div>
 
           
+            <div class="scroll-down-bar">
+              <i class="iconfont icon-arrowdown"></i>
+            </div>
+          
         </div>
       </div>
     </div>
@@ -156,33 +160,152 @@
     
       <div class="container nopadding-md">
         <div class="py-5" id="board"
-          >
+          style=margin-top:0>
           
           <div class="container">
             <div class="row">
               <div class="col-12 col-md-10 m-auto">
                 
 
-<div class="list-group">
-  <p class="h4">共计 42 篇文章</p>
-  <hr>
-  
+
+  <div class="row mx-auto index-card">
     
-      
-      <p class="h5">2019</p>
     
-    <a href="/2019/05/18/Linux%E6%96%87%E4%BB%B6%E6%93%8D%E4%BD%9C/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Linux文件操作</span>
-      <span style="float: right;">05-18</span>
-    </a>
-  
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2019/04/03/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/">字符设备驱动</a>
+
+      <a href="/2019/04/03/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="index-excerpt">
+        
+        
+          
+        
+        <div>字符设备驱动之前的框架- 确定主设备号
+- file_operation结构体
+- register_chrdecv
+- 入口
+- 出口
+
+缺点：只有255个字符设备驱动
+
+之前：以主设备号为下标，在chardev里面找到之前注册的file_operations现在：以主设备号和次设备号来找到file_operation结构体
+
+现在的框架register_chardev拆分为以下几个部分：
+__</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-04-03
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
     
-    <a href="/2019/05/18/Linux%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Linux应用程序调试方法</span>
-      <span style="float: right;">05-18</span>
-    </a>
+    
+    <div class="col-12 col-md-12 mx-auto index-info">
+      <a class="index-header" href="/2019/04/03/%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/">数组与指针的关系</a>
+
+      <a href="/2019/04/03/%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/" class="index-excerpt">
+        
+        
+          
+        
+        <div>数组与指针的关系概念说明
+数组
+
+一维数组 
+
+int array
+
+
+二维数组 
+
+int array_2 [][10]
+注：低维度的数据元素个数必须显式定义，高维度可以省略
+
+
+指针数组（数组元素为指针的数组） 
+
+char *p[]
+
+
+指针
+
+一级指针：
+
+*p
+
+
+二级指针：
+
+**p
+
+
+数组指针（指向数组的指针）：
+
+int (*p)[10] 
+// 这里是指向二维数组的指针形式，1</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-04-03
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/C/">C</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/C/">C</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/4/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
+    </span>
+  </nav>
   
-</div>
+  <script>
+    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
+      ele.href += '#board';
+    }
+  </script>
 
 
 
@@ -313,7 +436,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "归档&nbsp;",
+        "Welcome to my blog&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
