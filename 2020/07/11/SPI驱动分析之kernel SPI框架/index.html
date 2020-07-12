@@ -302,7 +302,8 @@ __device_attach_driver
 <p>在spi driver的probe函数中，一般会注册一个spi字符设备，并实现spi设备的read/write/ioctrl等函数，以便于User调用，操作SPI设备，在spi driver中不能直接调用spi master里面的某些函数来进行spi设备的操作，而是使用spi.h中提供的接口来操作spi,如<strong>spi_setup,spi_read,spi_write</strong>。</p>
 <p>需要注意的是，</p>
 <p>从dts中创建的platform/spi  device 并不含有任何的硬件信息，只含有：<br>    1 platform device的dev.device_node，含有device_node信息<br>    2 platform device的resource数组，对应占用的相关资源信息（reg，interrupts属性），有中断、内存、IO资源，驱动程序可以通过pdev-&gt;dev.of_node来获取其他信息，如硬件信息 </p>
-<h3 id="三-SPI设备的枚举过程"><a href="#三-SPI设备的枚举过程" class="headerlink" title="三 SPI设备的枚举过程"></a>三 SPI设备的枚举过程</h3><p>内核首先会对dts文件进行识别，构造不同的device_node结构体，内核会自动将spi controller节点识别为平台设备，构造platform_device结构体，向平台总线注册这个结构体，同时搜索匹配的平台驱动，并执行驱动的probe函数，在驱动程序中，会实现spi的收发，设置等底层函数，并识别该spi设备节点下的子节点，构造spi_device结构体，并将spi_master赋值到spi_device中，并向spi核心层注册spi_device,同时搜索匹配的spi_driver，如果匹配，则调用spi_driver的probe函数，在该函数中，会注册字符设备驱动，实现该spi设备的枚举，并提供字符设备的open/read/write/ioctrl等函数。</p>
+<h3 id="三-SPI设备的枚举过程"><a href="#三-SPI设备的枚举过程" class="headerlink" title="三 SPI设备的枚举过程"></a>三 SPI设备的枚举过程</h3><p>内核首先会对dts文件进行识别，构造不同的device_node结构体，内核会自动将spi controller节点识别为平台设备，构造platform_device结构体，向平台总线注册这个结构体。</p>
+<p>在注册spi master驱动时，会搜索平台总线中匹配的设备，如果有匹配的设备，则执行驱动的probe函数，在驱动程序中，会实现spi的收发，设置等底层函数，构造，设置spi_master结构体，并识别该spi设备节点下的子节点，构造spi_device结构体，并将spi_master赋值到spi_device中，并向spi核心层注册spi_device,同时搜索匹配的spi_driver，如果匹配，则调用spi_driver的probe函数，在该函数中，会注册字符设备驱动，实现该spi设备的枚举，并提供字符设备的open/read/write/ioctrl等函数。</p>
 
             </article>
             <hr>
