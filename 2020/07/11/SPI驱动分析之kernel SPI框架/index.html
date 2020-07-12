@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    4 字
+                    1.1k 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    1
+                    14
                      分钟
                   </span>
                 
@@ -197,7 +197,113 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h2 id="kernel-SPI-框架"><a href="#kernel-SPI-框架" class="headerlink" title="kernel SPI 框架"></a>kernel SPI 框架</h2>
+              <h2 id="kernel-SPI-框架"><a href="#kernel-SPI-框架" class="headerlink" title="kernel SPI 框架"></a>kernel SPI 框架</h2><p><img src="/img/SPI/2.png" srcset="/img/loading.gif" alt=""></p>
+<p>SPI驱动从整体上遵循<strong>spi bus - drv -dev</strong>模型，核心层为<strong>spi.c</strong>,这与平台总线设备驱动模型及其相似，都遵循内核的<strong>bus_type</strong>框架，只是在构造spi device时会稍微有些复杂。</p>
+<p>根据上面描述的spi总线模型，spi驱动核心的结构体有<strong>spi_device</strong> 和 <strong>spi_driver</strong>,其中,<strong>spi_device</strong>结构体中会含有spi控制器的信息，也就是<strong>spi_master</strong>结构体。</p>
+<h3 id="一-从spi-master驱动到spi-device的构建"><a href="#一-从spi-master驱动到spi-device的构建" class="headerlink" title="一 从spi master驱动到spi device的构建"></a>一 从spi master驱动到spi device的构建</h3><p>在处理挂载在spi总线上的设备驱动之前，需要完成对spi总线的驱动，即spi Masterspi总线驱动符合<strong>platform</strong> <strong>bus-dev-drv</strong>模型，其中，dev部分为设备树中spi设备节点，drv部分注册为一个platform drv,内核在扫描设备树时，会将spi节点自动识别为一个平台设备，构造device_node结构体，最终构造platform_device结构体，并将该结构体注册进<strong>platform bus</strong> 中，如果<strong>platform bus</strong>中有相同的<strong>compatible</strong>属性的platform driver,则调用驱动程序的probe函数，相关代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-comment">// platform driver中相关结构体 （spi master driver）</span>
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">of_device_id</span> <span class="hljs-title">rockchip_spi_dt_match</span>[] = &#123;</span>
+	&#123; .compatible = <span class="hljs-string">"rockchip,rk3399-spi"</span>,   &#125;,
+	... ... 
+	&#123; &#125;,
+&#125;;
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">platform_driver</span> <span class="hljs-title">rockchip_spi_driver</span> = &#123;</span>
+	.driver = &#123;
+		.name	= DRIVER_NAME,
+		.pm = &amp;rockchip_spi_pm,
+		.of_match_table = of_match_ptr(rockchip_spi_dt_match),
+	&#125;,
+	.probe = rockchip_spi_probe,
+	.<span class="hljs-built_in">remove</span> = rockchip_spi_remove,
+&#125;;
+
+module_platform_driver(rockchip_spi_driver);
+
+<span class="hljs-comment">// dts中的spi节点</span>
+	spi0: spi@ff1c0000 &#123;
+		compatible = <span class="hljs-string">"rockchip,rk3399-spi"</span>, <span class="hljs-string">"rockchip,rk3066-spi"</span>;
+		reg = &lt;<span class="hljs-number">0x0</span> <span class="hljs-number">0xff1c0000</span> <span class="hljs-number">0x0</span> <span class="hljs-number">0x1000</span>&gt;;
+		clocks = &lt;&amp;cru SCLK_SPI0&gt;, &lt;&amp;cru PCLK_SPI0&gt;;
+		clock-names = <span class="hljs-string">"spiclk"</span>, <span class="hljs-string">"apb_pclk"</span>;
+		<span class="hljs-built_in">interrupts</span> = &lt;GIC_SPI <span class="hljs-number">68</span> IRQ_TYPE_LEVEL_HIGH <span class="hljs-number">0</span>&gt;;
+		pinctrl-names = <span class="hljs-string">"default"</span>;
+		pinctrl<span class="hljs-number">-0</span> = &lt;&amp;spi0_clk &amp;spi0_tx &amp;spi0_rx &amp;spi0_cs0&gt;;
+		<span class="hljs-meta">#address-cells = <span class="hljs-meta-string">&lt;1&gt;;</span></span>
+		<span class="hljs-meta">#size-cells = <span class="hljs-meta-string">&lt;0&gt;;</span></span>
+		status = <span class="hljs-string">"disabled"</span>;
+	&#125;;
+<span class="hljs-comment">// 匹配过程</span>
+platform_match
+	of_driver_match_device
+		of_match_device
+			of_match_node
+				__of_device_is_compatible
+					of_compat_cmp</code></pre>
+
+<p>spi master 驱动需要完成两个任务，一<strong>是完成spi master结构体中定义的所有函数，即spi 总线驱动的相关设置和收发的底层函数，二是完成对spi子设备节点的解析，构造spi_device结构体</strong>，并向spi bus注册这个结构体。</p>
+<p><strong>挂载在spi或iic等平台总线下的设备，会被识别成哪种设备在spi/iic controller驱动的probe函数中决定。</strong></p>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">rockchip_spi_probe</span><span class="hljs-params">(struct platform_device *pdev)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-comment">/* 分配spi_master */</span>
+	master = spi_alloc_master(&amp;pdev-&gt;dev, <span class="hljs-keyword">sizeof</span>(struct rockchip_spi));
+	... ...<span class="hljs-comment">/* 设置 spi_master */</span> 
+	<span class="hljs-comment">/* 注册spi_master */</span>
+	ret = devm_spi_register_master(&amp;pdev-&gt;dev, master);
+&#125;</code></pre>
+
+<p>构造spi_device是在devm_spi_register_master里面实现的</p>
+<p>在spi_device构建完成之后，会寻找spi bus中的driver，同样还是根据compatible属性，如果找到同名的compatible属性，则调用spi driver中的probe函数。</p>
+<pre><code class="hljs c">rockchip_spi_probe
+    spi_register_master
+        spi_match_master_to_boardinfo
+            spi_new_device
+                spi_alloc_device
+                spi_add_device
+                    spi_setup
+                    device_add
+                        bus_add_device   <span class="hljs-comment">/* add device */</span>
+                        bus_probe_device   <span class="hljs-comment">/* probe device */</span>
+                            device_initial_probe
+                                __device_attach
+                                    bus_for_each_drv(dev-&gt;bus, <span class="hljs-literal">NULL</span>, &amp;data, __device_attach_driver);
+										
+__device_attach_driver	
+	driver_probe_device
+		really_probe
+			<span class="hljs-keyword">if</span> (dev-&gt;bus-&gt;probe) ret = dev-&gt;bus-&gt;probe(dev);</code></pre>
+
+
+
+<h3 id="二-spi-driver驱动注册到字符设备注册"><a href="#二-spi-driver驱动注册到字符设备注册" class="headerlink" title="二 spi_driver驱动注册到字符设备注册"></a>二 spi_driver驱动注册到字符设备注册</h3><p>spi_driver:</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> <span class="hljs-keyword">const</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">of_device_id</span> <span class="hljs-title">rockchip_spi_test_dt_match</span>[] = &#123;</span>
+	&#123; .compatible = <span class="hljs-string">"rockchip,spi_test_bus0_cs0"</span>, &#125;,
+	... ...
+	&#123;&#125;,
+&#125;;
+<span class="hljs-keyword">static</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">spi_driver</span> <span class="hljs-title">spi_rockchip_test_driver</span> = &#123;</span>
+	.driver = &#123;
+		.name	= <span class="hljs-string">"spi_test"</span>,
+		.owner = THIS_MODULE,
+		.of_match_table = of_match_ptr(rockchip_spi_test_dt_match),
+	&#125;,
+	.probe = rockchip_spi_test_probe,
+	.<span class="hljs-built_in">remove</span> = rockchip_spi_test_remove,
+&#125;;
+
+<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> __init <span class="hljs-title">spi_rockchip_test_init</span><span class="hljs-params">(<span class="hljs-keyword">void</span>)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-keyword">int</span> ret = <span class="hljs-number">0</span>;
+
+	misc_register(&amp;spi_test_misc);
+	ret = spi_register_driver(&amp;spi_rockchip_test_driver);
+	<span class="hljs-keyword">return</span> ret;
+&#125;</code></pre>
+
+<p>在spi driver的probe函数中，一般会注册一个spi字符设备，并实现spi设备的read/write/ioctrl等函数，以便于User调用，操作SPI设备，在spi driver中不能直接调用spi master里面的某些函数来进行spi设备的操作，而是使用spi.h中提供的接口来操作spi,如<strong>spi_setup,spi_read,spi_write</strong>。</p>
+<p>需要注意的是，</p>
+<p>从dts中创建的platform/spi  device 并不含有任何的硬件信息，只含有：<br>    1 platform device的dev.device_node，含有device_node信息<br>    2 platform device的resource数组，对应占用的相关资源信息（reg，interrupts属性），有中断、内存、IO资源，驱动程序可以通过pdev-&gt;dev.of_node来获取其他信息，如硬件信息 </p>
+<h3 id="三-SPI设备的枚举过程"><a href="#三-SPI设备的枚举过程" class="headerlink" title="三 SPI设备的枚举过程"></a>三 SPI设备的枚举过程</h3><p>内核首先会对dts文件进行识别，构造不同的device_node结构体，内核会自动将spi controller节点识别为平台设备，构造platform_device结构体，向平台总线注册这个结构体，同时搜索匹配的平台驱动，并执行驱动的probe函数，在驱动程序中，会实现spi的收发，设置等底层函数，并识别该spi设备节点下的子节点，构造spi_device结构体，并将spi_master赋值到spi_device中，并向spi核心层注册spi_device,同时搜索匹配的spi_driver，如果匹配，则调用spi_driver的probe函数，在该函数中，会注册字符设备驱动，实现该spi设备的枚举，并提供字符设备的open/read/write/ioctrl等函数。</p>
+
             </article>
             <hr>
             <div>
