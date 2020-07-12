@@ -251,21 +251,22 @@ platform_match
 	ret = devm_spi_register_master(&amp;pdev-&gt;dev, master);
 &#125;</code></pre>
 
-<p>构造spi_device是在devm_spi_register_master里面实现的</p>
+<p>根据设备树信息构造spi_device是在devm_spi_register_master里面实现的</p>
 <p>在spi_device构建完成之后，会寻找spi bus中的driver，同样还是根据compatible属性，如果找到同名的compatible属性，则调用spi driver中的probe函数。</p>
 <pre><code class="hljs c">rockchip_spi_probe
-    spi_register_master
-        spi_match_master_to_boardinfo
-            spi_new_device
-                spi_alloc_device
-                spi_add_device
-                    spi_setup
-                    device_add
-                        bus_add_device   <span class="hljs-comment">/* add device */</span>
-                        bus_probe_device   <span class="hljs-comment">/* probe device */</span>
-                            device_initial_probe
-                                __device_attach
-                                    bus_for_each_drv(dev-&gt;bus, <span class="hljs-literal">NULL</span>, &amp;data, __device_attach_driver);
+		devm_spi_register_master
+			spi_register_master
+				of_register_spi_devices
+					of_register_spi_device
+						spi_alloc_device
+                        spi_add_device
+                            spi_setup
+                            device_add
+                                bus_add_device   <span class="hljs-comment">/* add device */</span>
+                                bus_probe_device   <span class="hljs-comment">/* probe device */</span>
+                                    device_initial_probe
+                                        __device_attach
+                                            bus_for_each_drv(dev-&gt;bus, <span class="hljs-literal">NULL</span>, &amp;data, __device_attach_driver);
 										
 __device_attach_driver	
 	driver_probe_device
