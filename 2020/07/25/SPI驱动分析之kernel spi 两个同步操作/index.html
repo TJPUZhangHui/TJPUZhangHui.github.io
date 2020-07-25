@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="ZhangHui">
   <meta name="keywords" content="">
-  <title>章辉的博客</title>
+  <title>SPI驱动分析之kernel spi 两个同步操作 - 章辉的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
@@ -46,7 +46,7 @@
 
 
 <body>
-  <header style="height: 100vh;">
+  <header style="height: 70vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
@@ -144,12 +144,40 @@
             </span>
 
             
+              
+                <div class="mt-3 post-meta">
+                  <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+                  <time datetime="2020-07-25 23:53">
+                    2020年7月25日 晚上
+                  </time>
+                </div>
+              
+
+              <div class="mt-1">
+                
+                  
+                  <span class="post-meta mr-2">
+                    <i class="iconfont icon-chart"></i>
+                    8 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta mr-2">
+                      <i class="iconfont icon-clock-fill"></i>
+                    
+                    
+                    1
+                     分钟
+                  </span>
+                
+
+                
+              </div>
+            
           </div>
 
-          
-            <div class="scroll-down-bar">
-              <i class="iconfont icon-arrowdown"></i>
-            </div>
           
         </div>
       </div>
@@ -158,316 +186,122 @@
 
   <main>
     
-      <div class="container nopadding-md">
-        <div class="py-5" id="board"
-          style=margin-top:0>
-          
-          <div class="container">
-            <div class="row">
-              <div class="col-12 col-md-10 m-auto">
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <article class="markdown-body">
+              <h2 id="Kernel-spi-两个同步操作"><a href="#Kernel-spi-两个同步操作" class="headerlink" title="Kernel spi 两个同步操作"></a>Kernel spi 两个同步操作</h2>
+            </article>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
                 
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" target="_blank" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！</p>
+              
+              
+                <div class="post-prevnext row">
+                  <div class="post-prev col-6">
+                    
+                    
+                      <a href="/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20SPI%20data%20flow/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SPI驱动分析之Kernel SPI Data flow architecture</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </div>
+                  <div class="post-next col-6">
+                    
+                    
+                      <a href="/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi_async/">
+                        <span class="hidden-mobile">SPI驱动分析之Kernel spi_sync</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </div>
+                </div>
+              
+            </div>
 
-
-  <div class="row mx-auto index-card">
-    
-    
-      <div class="col-12 col-md-4 m-auto index-img">
-        <a href="/2019/04/21/callback%E6%9C%BA%E5%88%B6/" target="_self">
-          <img src="/img/callback%E6%9C%BA%E5%88%B6/callback.png" srcset="/img/loading.gif" alt="call back机制">
-        </a>
-      </div>
-    
-    <div class="col-12 col-md-8 mx-auto index-info">
-      <a class="index-header" href="/2019/04/21/callback%E6%9C%BA%E5%88%B6/">call back机制</a>
-
-      <a href="/2019/04/21/callback%E6%9C%BA%E5%88%B6/" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-ps:最近在做ffmpeg+rtmp的视频直播，这算是里面用到的一个小技术点。实际上这个技术很常用很常用，重要的事情多说一遍。
-
-什么是call back？
-call back的定义
-callback,又叫回调函数，是指用函数指针的形式将函数作为另一个函数的参数，当这个指针所指向的函数被调用时，这个函数就叫回调函数。
-
-
-
-听起来是不是挺简单的，但是本文介绍的重点不在于如何定义一个函数指针，也不</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-04-21
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
             
-              <a href="/categories/C/">C</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">C</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
+              <!-- Comments -->
+              <div class="comments" id="comments">
+                
+                
+  <div id="vcomments"></div>
+  <script defer src="https://cdn.staticfile.org/valine/1.4.14/Valine.min.js" ></script>
 
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2019/04/16/%E7%83%AD%E6%8B%94%E6%8F%92%E9%A9%B1%E5%8A%A8/">热拔插驱动</a>
+  <script type="text/javascript">
+    var oldLoadVa = window.onload;
+    window.onload = function () {
+      oldLoadVa && oldLoadVa();
 
-      <a href="/2019/04/16/%E7%83%AD%E6%8B%94%E6%8F%92%E9%A9%B1%E5%8A%A8/" class="index-excerpt">
-        
-        
-          
-        
-        <div>热拔插驱动
-hotplug/uevent机制
-
-hotplug内核框架class_device_create
-	class_device_register
-		class_device_add
-			kobject_uevent
-				kobject_uevent_env(kobj, action, NULL)
-  					 // action_string  = “add”
-					act</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-04-16
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2019/04/11/DMA%E9%A9%B1%E5%8A%A8/">DMA驱动</a>
-
-      <a href="/2019/04/11/DMA%E9%A9%B1%E5%8A%A8/" class="index-excerpt">
-        
-        
-          
-        
-        <div>DMA驱动 DMA驱动 一 DMA简介DMA：Direct Memory Access 直接内存存取     
-根据2440的芯片手册，DMA分为四种工作模式：
-
-
-数据传输源地址在系统总线，数据传输目的地址在外部总线
-数据传输源地址在系统总线，数据传输目的地址在系统总线
-数据传输源地址在外部总线，数据传输目的地址在外部总线
-数据传输源地址在外部总线，数据传输目的地址在系统总线
-
-
-简而言之，DM</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-04-11
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2019/04/03/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/">字符设备驱动</a>
-
-      <a href="/2019/04/03/%E5%AD%97%E7%AC%A6%E8%AE%BE%E5%A4%87%E9%A9%B1%E5%8A%A8/" class="index-excerpt">
-        
-        
-          
-        
-        <div>字符设备驱动之前的框架- 确定主设备号
-- file_operation结构体
-- register_chrdecv
-- 入口
-- 出口
-
-缺点：只有255个字符设备驱动
-
-之前：以主设备号为下标，在chardev里面找到之前注册的file_operations现在：以主设备号和次设备号来找到file_operation结构体
-
-现在的框架register_chardev拆分为以下几个部分：
-__</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-04-03
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux%E9%A9%B1%E5%8A%A8/">Linux驱动</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2019/04/03/%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/">数组与指针的关系</a>
-
-      <a href="/2019/04/03/%E6%95%B0%E7%BB%84%E4%B8%8E%E6%8C%87%E9%92%88/" class="index-excerpt">
-        
-        
-          
-        
-        <div>数组与指针的关系概念说明
-数组
-
-一维数组 
-
-int array
-
-
-二维数组 
-
-int array_2 [][10]
-注：低维度的数据元素个数必须显式定义，高维度可以省略
-
-
-指针数组（数组元素为指针的数组） 
-
-char *p[]
-
-
-指针
-
-一级指针：
-
-*p
-
-
-二级指针：
-
-**p
-
-
-数组指针（指向数组的指针）：
-
-int (*p)[10] 
-// 这里是指向二维数组的指针形式，1</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-04-03
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/C/">C</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/C/">C</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-
-
-  <nav aria-label="navigation">
-    <span class="pagination" id="pagination">
-      <a class="extend prev" rel="prev" href="/page/4/"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span>
-    </span>
-  </nav>
-  
-  <script>
-    for (ele of document.getElementById("pagination").getElementsByTagName("a")) {
-      ele.href += '#board';
-    }
+      new Valine({
+        el: "#vcomments",
+        app_id: "xOKV9J4UeQAtVkvnJC7Kq2Jn-gzGzoHsz",
+        app_key: "erIpQac4azoCmgfBB7Dl9maa",
+        placeholder: "说点什么吧",
+        path: window.location.pathname,
+        avatar: "retro",
+        meta: ["nick","mail","link"],
+        pageSize: "10",
+        lang: "zh-CN",
+        highlight: false,
+        recordIP: false,
+        serverURLs: "",
+      });
+    };
   </script>
-
+  <noscript>Please enable JavaScript to view the <a href="https://valine.js.org" target="_blank" rel="nofollow noopener noopener">comments
+      powered by Valine.</a></noscript>
 
 
               </div>
-            </div>
+            
           </div>
         </div>
       </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
     
   </main>
 
@@ -569,6 +403,34 @@ int (*p)[10]
 
 
 
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.11.1/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var boardCtn = $('#board-ctn');
+      var boardTop = boardCtn.offset().top;
+
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        collapseDepth: 6,
+        scrollSmooth: true,
+        headingsOffset: -boardTop
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc').css('visibility', 'visible');
+      }
+    });
+  </script>
+
+
+
 
 
   <script defer src="https://cdn.staticfile.org/clipboard.js/2.0.6/clipboard.min.js" ></script>
@@ -590,7 +452,7 @@ int (*p)[10]
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "Welcome to my blog&nbsp;",
+        "SPI驱动分析之kernel spi 两个同步操作&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
@@ -633,6 +495,20 @@ int (*p)[10]
   </script>
 
 
+
+  <script  src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+  <script>
+    $('#post img:not(.no-zoom img, img[no-zoom]), img[zoom]').each(
+      function () {
+        var element = document.createElement('a');
+        $(element).attr('data-fancybox', 'images');
+        $(element).attr('href', $(this).attr('src'));
+        $(this).wrap(element);
+      }
+    );
+  </script>
 
 
 

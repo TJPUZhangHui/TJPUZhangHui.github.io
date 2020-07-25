@@ -172,6 +172,180 @@
     
     
       <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2019/07/14/makefile%E5%9F%BA%E7%A1%80/" target="_self">
+          <img src="/img/makefile%E5%9F%BA%E7%A1%80/1.png" srcset="/img/loading.gif" alt="makefile基础">
+        </a>
+      </div>
+    
+    <div class="col-12 col-md-8 mx-auto index-info">
+      <a class="index-header" href="/2019/07/14/makefile%E5%9F%BA%E7%A1%80/">makefile基础</a>
+
+      <a href="/2019/07/14/makefile%E5%9F%BA%E7%A1%80/" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+makefile是GUN执行make调用的程序，用来组织项目中的文件按照一定的规则被编译，其核心是规则
+
+程序的编译过程先来看看程序的编译过程
+大体上分为四步：
+
+预处理 
+编译，生成.s文件
+汇编，生成.o文件，是二进制文件
+链接，将多个.o文件链接在一起，生成可执行文件ELF文件
+
+file命令查看文件格式：
+makefile语法Makefile的基本格式很简单：
+目标 : 依赖1 依赖2 </div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-07-14
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Makefile/">Makefile</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Makefile/">Makefile</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2019/07/13/Linux%E4%B8%8B%E7%9A%84%E9%9D%99%E6%80%81%E5%BA%93%E4%B8%8E%E5%8A%A8%E6%80%81%E5%BA%93/" target="_self">
+          <img src="/img/Linux%E4%B8%8B%E7%9A%84%E9%9D%99%E6%80%81%E5%BA%93%E4%B8%8E%E5%8A%A8%E6%80%81%E5%BA%93/1.png" srcset="/img/loading.gif" alt="Linux下的静态库与动态库">
+        </a>
+      </div>
+    
+    <div class="col-12 col-md-8 mx-auto index-info">
+      <a class="index-header" href="/2019/07/13/Linux%E4%B8%8B%E7%9A%84%E9%9D%99%E6%80%81%E5%BA%93%E4%B8%8E%E5%8A%A8%E6%80%81%E5%BA%93/">Linux下的静态库与动态库</a>
+
+      <a href="/2019/07/13/Linux%E4%B8%8B%E7%9A%84%E9%9D%99%E6%80%81%E5%BA%93%E4%B8%8E%E5%8A%A8%E6%80%81%E5%BA%93/" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+Linux下的库文件分为动态库和静态库，都是二进制文件，动态库的后缀为.so，静态库的后缀为.a
+
+静态库静态库的命名规则：
+lib + 静态库的名字 + .a
+
+制作步骤：
+1) 生成对应的.o文件 ： 
+gcc -c xxx.c
+
+2) 将生成的.o文件打包：
+ar rcs xxx.a xxx.o
+
+发布静态库发布静态库就是要发布.a文件和对应的头文件，头文件提供了库文件的接口
+示例：我的文</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-07-13
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Unix%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B/">Unix环境编程</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Unix%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B/">Unix环境编程</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
+        <a href="/2019/07/12/IPC%E5%B0%8F%E5%B7%A5%E5%85%B7/" target="_self">
+          <img src="/img/IPC%E5%B0%8F%E5%B7%A5%E5%85%B7/1.png" srcset="/img/loading.gif" alt="IPC小工具">
+        </a>
+      </div>
+    
+    <div class="col-12 col-md-8 mx-auto index-info">
+      <a class="index-header" href="/2019/07/12/IPC%E5%B0%8F%E5%B7%A5%E5%85%B7/">IPC小工具</a>
+
+      <a href="/2019/07/12/IPC%E5%B0%8F%E5%B7%A5%E5%85%B7/" class="index-excerpt">
+        
+        
+          
+        
+        <div>
+分享一个ipc小工具，功能是清除某个用户下的ipc对象，这个对于我们开发时清理环境是很有用的
+
+#!/bin/bash
+
+echo "check params..."
+if [ $# != "2" ];then
+	echo  "usage: $0 user smg|shm|sem|all"
+	exit 1
+elif [ $2 != "shm" -a $2 != "sem" -a $2 != "s</div>
+      </a>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>&nbsp;2019-07-12
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/SHELL/">SHELL</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/SHELL/">SHELL</a>
+            
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+      <div class="col-12 col-md-4 m-auto index-img">
         <a href="/2019/07/12/IPC%E6%9C%BA%E5%88%B6/" target="_self">
           <img src="/img/IPC%E6%9C%BA%E5%88%B6/1.svg" srcset="/img/loading.gif" alt="IPC机制">
         </a>
@@ -526,162 +700,6 @@ wait返回后判断子进程退出状态这部分内容应该是man手册里面�
             <i class="iconfont icon-tags"></i>
             
               <a href="/tags/Unix%E7%8E%AF%E5%A2%83%E7%BC%96%E7%A8%8B/">Unix环境编程</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2019/06/24/%E9%80%9A%E7%94%A8Makefile/">通用Makefile</a>
-
-      <a href="/2019/06/24/%E9%80%9A%E7%94%A8Makefile/" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-本文介绍一种适用于管理大型项目的通用Makefile写法，不同的项目可直接套用，分为三个部分，子目录makefile，顶层目录makefile和顶层目录的makefile.build
-
-子目录Makefile写法
-子目录Makefile写法比较简单,如果有子目录的话加上dir/
-
-obj-y += xxx.o
-#进入子目录test
-obj-y += test/
-
-顶层目录Makefile写法顶层</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-06-24
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Makefile/">Makefile</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Makefile/">Makefile</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2019/06/14/%E4%BB%8E0%E7%A7%BB%E6%A4%8D4.9%E5%86%85%E6%A0%B8(1)/">从0移植4.9内核(1)</a>
-
-      <a href="/2019/06/14/%E4%BB%8E0%E7%A7%BB%E6%A4%8D4.9%E5%86%85%E6%A0%B8(1)/" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-简单说明：从搭建环境，安装虚拟机开始移植4.9内核到jz2440开发板，目的是复习Linux交叉编译环境和系统构建的过程
-
-环境搭建安装ubuntu虚拟机18.04
-下载地址
-
-https://www.ubuntu.com/download/desktop
-
-
-注意虚拟机的网卡需要设置为桥接模式
-
-下载linux内核4.9
-下载地址
-
-www.kernel.org
-
-
-解压过程分为两步
-
-xz </div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-06-14
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Linux%E7%B3%BB%E7%BB%9F%E6%9E%84%E5%BB%BA/">Linux系统构建</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux%E7%B3%BB%E7%BB%9F%E6%9E%84%E5%BB%BA/">Linux系统构建</a>
-            
-          </div>
-        
-      </div>
-    </div>
-  </div>
-
-  <div class="row mx-auto index-card">
-    
-    
-    <div class="col-12 col-md-12 mx-auto index-info">
-      <a class="index-header" href="/2019/06/14/%E4%BB%8E0%E7%A7%BB%E6%A4%8D4.9%E5%86%85%E6%A0%B8(2)/">从0移植4.9内核(2)</a>
-
-      <a href="/2019/06/14/%E4%BB%8E0%E7%A7%BB%E6%A4%8D4.9%E5%86%85%E6%A0%B8(2)/" class="index-excerpt">
-        
-        
-          
-        
-        <div>
-简单说明：从搭建环境，安装虚拟机开始移植4.9内核到jz2440开发板，目的是复习Linux交叉编译环境和系统构建的过程
-
-构建最小根文件系统
-根文件系统和文件系统的区别：文件系统是对一个存储设备上的数据进行组织的机制，这种机制有利于用户和操作系统交互根文件系统是一种文件系统,不仅具有普通文件系统存储数据文件的功能,还是内核启动mount的第一个文件系统
-
-Linux进程启动分析
-内核源码分析：</div>
-      </a>
-
-      <div class="index-btm post-metas">
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-date"></i>&nbsp;2019-06-14
-          </div>
-        
-        
-          <div class="post-meta mr-3">
-            <i class="iconfont icon-category"></i>
-            
-              <a href="/categories/Linux%E7%B3%BB%E7%BB%9F%E6%9E%84%E5%BB%BA/">Linux系统构建</a>
-            
-          </div>
-        
-        
-          <div class="post-meta">
-            <i class="iconfont icon-tags"></i>
-            
-              <a href="/tags/Linux%E7%B3%BB%E7%BB%9F%E6%9E%84%E5%BB%BA/">Linux系统构建</a>
             
           </div>
         

@@ -17,7 +17,7 @@
   <meta name="description" content="">
   <meta name="author" content="ZhangHui">
   <meta name="keywords" content="">
-  <title>SPI驱动分析之SPI Protocol - 章辉的博客</title>
+  <title>SPI驱动分析之Kernel SPI Data flow architecture - 章辉的博客</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
 <link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/4.0.0/github-markdown.min.css" />
@@ -147,8 +147,8 @@
               
                 <div class="mt-3 post-meta">
                   <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-                  <time datetime="2020-07-11 16:43">
-                    2020年7月11日 下午
+                  <time datetime="2020-07-25 23:53">
+                    2020年7月25日 晚上
                   </time>
                 </div>
               
@@ -158,7 +158,7 @@
                   
                   <span class="post-meta mr-2">
                     <i class="iconfont icon-chart"></i>
-                    623 字
+                    1.2k 字
                   </span>
                 
 
@@ -168,7 +168,7 @@
                       <i class="iconfont icon-clock-fill"></i>
                     
                     
-                    6
+                    17
                      分钟
                   </span>
                 
@@ -197,16 +197,162 @@
           <div class="post-content mx-auto" id="post">
             
             <article class="markdown-body">
-              <h2 id="SPI-Protocol"><a href="#SPI-Protocol" class="headerlink" title="SPI Protocol"></a>SPI Protocol</h2><p><img src="/img/SPI/1.png" srcset="/img/loading.gif" alt=""></p>
-<p>SPI的本质上是一种<strong>循环总线结构</strong>，SSPSR是SPI内部的移位寄存器，在发起SPI读/写时，SPI Master和SPI Slave中移位寄存器的值会进行交换。SSPSR的长度一般为8bit，也可以设置为16或者32bit。</p>
-<p>SPI控制器内部会自带两个FIFO，一般为32bytes，用来缓存需要发送和接收的数据。</p>
-<p>在SPI传输之前，TXFIFO会自动将需要传输的值放入sspsr中，并将指针自动指向TXFIFO的下一个位置，直到FIFO为空，整个数据传输的流程：TXFIFO -&gt; SSPSR -&gt; SSPSR -&gt; RXFIFO。</p>
-<p>我们在操作SPI时，如何往FIFO中写数据呢？一般SPI控制器会提供TX_REG和RX_REG寄存器，将需要发送的数据不断的写入这个寄存器中，SPI硬件会将寄存器中的数据自动填充进TXFIFO，每写入一次(4bytes)，指针会自动指向FIFO的下一个位置，注意在PIO模式下，不要将写入的数据超过FIFO的深度，否则会把之前的数据顶出去。</p>
-<p>DMA模式与上述过程相同，只是往TX_REG寄存器中写值的过程不需要CPU参与而已。</p>
-<p>在接收数据时，不断的读取RX_REG寄存器中的值，读取一次指针会自动指向RXFIFO的下一个位置，直到读取失败，则完成对整个RXFIFO的读取。</p>
-<p>DMA模式与上述过程相同，只是RX_REG寄存器中的值写入内存中不需要CPU的参与而已。</p>
-<p>综上所述，SPI总线并没有发送或者接收之分，启动SPI传输时，sspsr就开始在不断的交换数据，也就是Master 的TXFIFO和Slave的RXFIFO在不断的交换数据（反之亦然），如果你需要发送数据，就往TX_REG中写入你想发送的数据，如果你想接收数据，就从RX_REG中读取你想要的数据。</p>
-<p>一般来说，当我们一次传输的数据量小于FIFO的深度时，使用PIO模式来传输，因为这样只需要写入一次FIFO，在传输过程中无需再往FIFO中写数据，避免数据错误，当一次传输的数据量大于FIFO深度时，则启动DMA传输，SPI硬件在发送一段数据后会自动等待DMA数据的写入时间以保持同步，一次传输的最大数据量也不是无限的，要根据具体的SPI Master和Slave手册来决定。</p>
+              <h2 id="Kernel-SPI-Data-flow-architecture"><a href="#Kernel-SPI-Data-flow-architecture" class="headerlink" title="Kernel SPI Data flow architecture"></a>Kernel SPI Data flow architecture</h2><p>从HW Spec上来讲，一笔SPI传输的定义为<strong>往SPI Register里设置的传输长度</strong>，这个长度的数据全部发送完成，为一笔传输结束，硬件会触发SPI中断，或者取消片选CS等操作。</p>
+<p>从SW上来讲，Kernel为SPI传输构造了<strong>spi_transfer</strong>和<strong>spi_message</strong>，spi_transfer即对应HW的一笔传输（传输数据量如果过大，一笔spi_transfer有可能会对应多笔SPI硬件传输，取决于每家的SPI HW Spec），而spi_messge是一个或者多个spi_transfer的组合。</p>
+<p>在进行SPI输时，spi_messge是传输的<strong>基本单位</strong>，你可以在message的链表里添加一笔transfer，也可以添加多笔，取决于你driver对传输的需求。</p>
+<p>下面简单分析一下Kernel为SPI传输搭建的框架。</p>
+<p>SPI框架的初始化在<strong>spi_register_master</strong>中，相关代码如下：</p>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">int</span> <span class="hljs-title">spi_register_master</span><span class="hljs-params">(struct spi_master *master)</span></span>
+<span class="hljs-function"></span>&#123;
+	... ... 
+    <span class="hljs-keyword">if</span> (master-&gt;<span class="hljs-built_in">transfer</span>)          --- <span class="hljs-number">1</span>
+            dev_info(dev, <span class="hljs-string">"master is unqueued, this is deprecated\n"</span>);
+        <span class="hljs-keyword">else</span> &#123;
+            status = spi_master_initialize_queue(master);    --<span class="hljs-number">-2</span> 
+            <span class="hljs-keyword">if</span> (status) &#123;
+                device_del(&amp;master-&gt;dev);
+                <span class="hljs-keyword">goto</span> done;
+            &#125;
+        &#125;
+    ... ... 
+&#125;</code></pre>
+
+<p><strong>1</strong> 如果SPI Host实现了transfer接口，则内核将不再为SPI Host分配传输机制，transfer是SPI传输最顶层的接口，这是为了SPI Host自己定制传输而留的，如果没有实现这个接口，内核将为你实现一套传输机制。</p>
+<p>顺便说明一下，Kernel为SPI Host提供了三套传输接口，分别是</p>
+<pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">spi_master</span> &#123;</span>
+	<span class="hljs-keyword">int</span>			(*<span class="hljs-built_in">transfer</span>)(struct spi_device *spi,
+						struct spi_message *mesg);
+	 <span class="hljs-comment">/*</span>
+<span class="hljs-comment">	 * These hooks are for drivers that want to use the generic</span>
+<span class="hljs-comment">	 * master transfer queueing mechanism. If these are used, the</span>
+<span class="hljs-comment">	 * transfer() function above must NOT be specified by the driver.</span>
+<span class="hljs-comment">	 * Over time we expect SPI drivers to be phased over to this API.</span>
+<span class="hljs-comment">	 */</span>				
+	<span class="hljs-keyword">int</span> (*transfer_one_message)(struct spi_master *master,
+				    struct spi_message *mesg);
+    <span class="hljs-comment">/*</span>
+<span class="hljs-comment">	 * These hooks are for drivers that use a generic implementation</span>
+<span class="hljs-comment">	 * of transfer_one_message() provied by the core.</span>
+<span class="hljs-comment">	 */</span>
+	<span class="hljs-keyword">int</span> (*transfer_one)(struct spi_master *master, struct spi_device *spi,
+			    struct spi_transfer *<span class="hljs-built_in">transfer</span>);			    
+
+&#125;</code></pre>
+
+<p>Kernel的注释写的很清楚，这三套Hook func是逐步递进的，你至少需要实现transfer_one接口，上层接口都可以留给Kernel来实现，并且Kernel建议你这么做。</p>
+<p><strong>2</strong> 大多数厂商都只会提供transfer_one接口，在这个函数里会实现一个<strong>HW transfer</strong>的传输，而将上层接口和传输机制交给Kernel来实现，即会调用到<strong>spi_master_initialize_queue</strong>函数：</p>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">spi_master_initialize_queue</span><span class="hljs-params">(struct spi_master *master)</span></span>
+<span class="hljs-function"></span>&#123;
+    master-&gt;<span class="hljs-built_in">transfer</span> = spi_queued_transfer;      --- <span class="hljs-number">2.1</span> 
+    <span class="hljs-keyword">if</span> (!master-&gt;transfer_one_message)
+        master-&gt;transfer_one_message = spi_transfer_one_message;   --- <span class="hljs-number">2.2</span> 
+
+    <span class="hljs-comment">/* Initialize and start queue */</span>
+    ret = spi_init_queue(master);         --- <span class="hljs-number">2.3</span>
+    <span class="hljs-keyword">if</span> (ret) &#123;
+        dev_err(&amp;master-&gt;dev, <span class="hljs-string">"problem initializing queue\n"</span>);
+        <span class="hljs-keyword">goto</span> err_init_queue;
+    &#125;
+    master-&gt;queued = <span class="hljs-literal">true</span>;
+    ret = spi_start_queue(master);   --- <span class="hljs-number">2.4</span>
+    <span class="hljs-keyword">if</span> (ret) &#123;
+        dev_err(&amp;master-&gt;dev, <span class="hljs-string">"problem starting queue\n"</span>);
+        <span class="hljs-keyword">goto</span> err_start_queue;
+	&#125;
+
+&#125;</code></pre>
+
+<p><strong>2.1</strong> 首先内核为你实现了transfer函数，spi_queued_transfer</p>
+<pre><code class="hljs c"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> __spi_queued_transfer(struct spi_device *spi,
+				 struct spi_message *msg,
+				 <span class="hljs-keyword">bool</span> need_pump)
+&#123;
+    <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">spi_master</span> *<span class="hljs-title">master</span> = <span class="hljs-title">spi</span>-&gt;<span class="hljs-title">master</span>;</span>
+    <span class="hljs-keyword">unsigned</span> <span class="hljs-keyword">long</span> flags;
+
+    spin_lock_irqsave(&amp;master-&gt;queue_lock, flags);
+
+    <span class="hljs-keyword">if</span> (!master-&gt;<span class="hljs-built_in">running</span>) &#123;
+        spin_unlock_irqrestore(&amp;master-&gt;queue_lock, flags);
+        <span class="hljs-keyword">return</span> -ESHUTDOWN;
+    &#125;
+    msg-&gt;actual_length = <span class="hljs-number">0</span>;
+    msg-&gt;status = -EINPROGRESS;
+
+    list_add_tail(&amp;msg-&gt;<span class="hljs-built_in">queue</span>, &amp;master-&gt;<span class="hljs-built_in">queue</span>);
+    <span class="hljs-keyword">if</span> (!master-&gt;busy &amp;&amp; need_pump)
+        queue_kthread_work(&amp;master-&gt;kworker, &amp;master-&gt;pump_messages);
+
+    spin_unlock_irqrestore(&amp;master-&gt;queue_lock, flags);
+    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;
+
+&#125;</code></pre>
+
+<p>在该函数中，首先将<strong>message</strong>挂到工作队列中，并根据条件选择是否启动传输。</p>
+<p><strong>2.2</strong> 其次，如果你没有实现transfer_one_message，内核会为你实现spi_transfer_one_message</p>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">spi_transfer_one_message</span><span class="hljs-params">(struct spi_master *master,</span></span>
+<span class="hljs-function"><span class="hljs-params">				    struct spi_message *msg)</span></span>
+<span class="hljs-function"></span>&#123;
+	list_for_each_entry(xfer, &amp;msg-&gt;transfers, transfer_list) &#123;
+ 		<span class="hljs-keyword">if</span> (xfer-&gt;tx_buf || xfer-&gt;rx_buf) &#123;
+			ret = master-&gt;transfer_one(master, msg-&gt;spi, xfer);
+        &#125;
+    &#125;
+&#125;</code></pre>
+
+<p>首先抛开别的code不看，只看框架，其他细节会在以后谈到。在该函数中会调用底层提供的transfer_one，对于message里面的每一个transfer，调用该函数进行传输。</p>
+<p><strong>2.3</strong> 初始化工作队列，该work queue是专门用来进行SPI传输的</p>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">spi_init_queue</span><span class="hljs-params">(struct spi_master *master)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">sched_param</span> <span class="hljs-title">param</span> = &#123;</span> .sched_priority = MAX_RT_PRIO - <span class="hljs-number">1</span> &#125;;
+
+    master-&gt;<span class="hljs-built_in">running</span> = <span class="hljs-literal">false</span>;
+    master-&gt;busy = <span class="hljs-literal">false</span>;
+	<span class="hljs-comment">/* 初始化kthread_worker */</span>
+    init_kthread_worker(&amp;master-&gt;kworker);
+    <span class="hljs-comment">/* 为kthread_worker起一个内核线程用来处理work */</span>
+    master-&gt;kworker_task = kthread_run(kthread_worker_fn,
+                       &amp;master-&gt;kworker, <span class="hljs-string">"%s"</span>,
+                       dev_name(&amp;master-&gt;dev));
+    <span class="hljs-keyword">if</span> (IS_ERR(master-&gt;kworker_task)) &#123;
+        dev_err(&amp;master-&gt;dev, <span class="hljs-string">"failed to create message pump task\n"</span>);
+        <span class="hljs-keyword">return</span> PTR_ERR(master-&gt;kworker_task);
+	&#125;
+    <span class="hljs-comment">/* 初始化kthread_work，为kthread_work设置执行函数 spi_pump_messages */</span>
+	init_kthread_work(&amp;master-&gt;pump_messages, spi_pump_messages);
+&#125;</code></pre>
+
+<p>在<strong>spi_pump_messages</strong>中实现真正的传输过程，即<strong>准备SPI硬件，设置Register，启动传输</strong>。</p>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">spi_pump_messages</span><span class="hljs-params">(struct kthread_work *work)</span></span>
+<span class="hljs-function"></span>&#123;
+	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">spi_master</span> *<span class="hljs-title">master</span> =</span>
+<span class="hljs-class">		<span class="hljs-title">container_of</span>(<span class="hljs-title">work</span>, <span class="hljs-title">struct</span> <span class="hljs-title">spi_master</span>, <span class="hljs-title">pump_messages</span>);</span>
+	<span class="hljs-comment">/* 注意这个true */</span>
+	__spi_pump_messages(master, <span class="hljs-literal">true</span>);
+&#125;
+
+<span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> __spi_pump_messages(struct spi_master *master, <span class="hljs-keyword">bool</span> in_kthread)
+&#123;
+	<span class="hljs-comment">/* 设置spi host HW相关参数 */</span>
+	<span class="hljs-keyword">if</span> (master-&gt;prepare_message) &#123;
+		ret = master-&gt;prepare_message(master, master-&gt;cur_msg);
+		master-&gt;cur_msg_prepared = <span class="hljs-literal">true</span>;
+	&#125;
+	<span class="hljs-comment">/* 调用transfer_one_message函数进行传输，此函数在上面介绍，是由Kernel提供的 */</span>
+	ret = master-&gt;transfer_one_message(master, master-&gt;cur_msg);
+&#125;</code></pre>
+
+<p>同样屏蔽一些无关的代码，只看数据传输的框架。</p>
+<p><strong>2.4</strong> 将kthread_work添加到kthread_worker的work_list，这里主要是测试该work queue是否能正确启动</p>
+<pre><code class="hljs c"><span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">int</span> <span class="hljs-title">spi_start_queue</span><span class="hljs-params">(struct spi_master *master)</span></span>
+<span class="hljs-function"></span>&#123;
+	master-&gt;<span class="hljs-built_in">running</span> = <span class="hljs-literal">true</span>;
+	master-&gt;cur_msg = <span class="hljs-literal">NULL</span>;
+
+	queue_kthread_work(&amp;master-&gt;kworker, &amp;master-&gt;pump_messages);
+&#125;</code></pre>
+
+<p><strong>总结一下，SPI数据传输的框架就是Kernel为我们维护了一个工作队列，在该工作队列中实现真正的传输机制，transfer的任务就是将work丢进工作队列中，而不会进行真正的传输操作。</strong></p>
 
             </article>
             <hr>
@@ -237,18 +383,12 @@
                   <div class="post-prev col-6">
                     
                     
-                      <a href="/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi_sync/">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">SPI驱动分析之Kernel spi_async</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </div>
                   <div class="post-next col-6">
                     
                     
-                      <a href="/2020/07/11/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20SPI%E6%A1%86%E6%9E%B6/">
-                        <span class="hidden-mobile">SPI驱动分析之kernel SPI 框架</span>
+                      <a href="/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi%20%E4%B8%A4%E4%B8%AA%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C/">
+                        <span class="hidden-mobile">SPI驱动分析之kernel spi 两个同步操作</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
@@ -462,7 +602,7 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "SPI驱动分析之SPI Protocol&nbsp;",
+        "SPI驱动分析之Kernel SPI Data flow architecture&nbsp;",
       ],
       cursorChar: "_",
       typeSpeed: 70,
