@@ -29,31 +29,6 @@
   
   
   <entry>
-    <title>SPI驱动分析之kernel spi 两个同步操作</title>
-    <link href="/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi%20%E4%B8%A4%E4%B8%AA%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C/"/>
-    <url>/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi%20%E4%B8%A4%E4%B8%AA%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C/</url>
-    
-    <content type="html"><![CDATA[<h2 id="Kernel-spi-两个同步操作"><a href="#Kernel-spi-两个同步操作" class="headerlink" title="Kernel spi 两个同步操作"></a>Kernel spi 两个同步操作</h2>]]></content>
-    
-    
-    <categories>
-      
-      <category>Linux驱动</category>
-      
-    </categories>
-    
-    
-    <tags>
-      
-      <tag>Linux驱动</tag>
-      
-    </tags>
-    
-  </entry>
-  
-  
-  
-  <entry>
     <title>SPI驱动分析之Kernel spi_sync</title>
     <link href="/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi_async/"/>
     <url>/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi_async/</url>
@@ -84,6 +59,31 @@
     <url>/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8Bkernel%20spi_sync/</url>
     
     <content type="html"><![CDATA[<h2 id="Kernel-spi-async"><a href="#Kernel-spi-async" class="headerlink" title="Kernel spi_async"></a>Kernel spi_async</h2>]]></content>
+    
+    
+    <categories>
+      
+      <category>Linux驱动</category>
+      
+    </categories>
+    
+    
+    <tags>
+      
+      <tag>Linux驱动</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>SPI驱动分析之kernel spi 两个同步操作</title>
+    <link href="/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8BKernel%20spi%20%E4%B8%A4%E4%B8%AA%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C/"/>
+    <url>/2020/07/25/SPI%E9%A9%B1%E5%8A%A8%E5%88%86%E6%9E%90%E4%B9%8BKernel%20spi%20%E4%B8%A4%E4%B8%AA%E5%90%8C%E6%AD%A5%E6%93%8D%E4%BD%9C/</url>
+    
+    <content type="html"><![CDATA[<h2 id="Kernel-spi-两个同步操作"><a href="#Kernel-spi-两个同步操作" class="headerlink" title="Kernel spi 两个同步操作"></a>Kernel spi 两个同步操作</h2>]]></content>
     
     
     <categories>
